@@ -23,12 +23,12 @@
       "长期实习"
     ],
     "firstSeen": "2026-05-29T05:54:44.402Z",
-    "lastSeen": "2026-06-04T23:41:15.439Z",
+    "lastSeen": "2026-06-05T23:42:39.325Z",
     "scores": {
       "urgency": 0.5,
-      "freshness": 0.7753120999228396,
+      "freshness": 0.7419464031635803,
       "tier": 1,
-      "base": 0.7325936299768518
+      "base": 0.7225839209490741
     }
   },
   {
@@ -43,23 +43,23 @@
       "Bengaluru"
     ],
     "region": "海外",
-    "description": "Who we are About Stripe Stripe is a financial infrastructure platform for businesses. Millions of companies—from the world’s largest enterprises to th…",
+    "description": "Who we are About Stripe Stripe is a financial infrastructure platform for businesses. Millions of companies—from the world's largest enterprises to th…",
     "requirements": null,
     "salary": null,
     "deadline": null,
-    "postedAt": "2026-05-20T16:58:18-04:00",
+    "postedAt": "2026-06-05T12:53:03-04:00",
     "applyUrl": "https://stripe.com/jobs/search?gh_jid=7236933",
     "detailUrl": "https://stripe.com/jobs/search?gh_jid=7236933",
     "tags": [
       "4141 SDC - Central Operations Enablement"
     ],
     "firstSeen": "2026-05-29T05:54:44.402Z",
-    "lastSeen": "2026-06-04T23:41:15.439Z",
+    "lastSeen": "2026-06-05T23:42:39.325Z",
     "scores": {
       "urgency": 0.5,
-      "freshness": 0.7753120999228396,
+      "freshness": 0.7419464031635803,
       "tier": 1,
-      "base": 0.7325936299768518
+      "base": 0.7225839209490741
     }
   },
   {
@@ -75,56 +75,23 @@
       "Mexico"
     ],
     "region": "海外",
-    "description": "Who we are About Stripe Stripe is a financial infrastructure platform for businesses. Millions of companies—from the world’s largest enterprises to th…",
+    "description": "Who we are About Stripe Stripe is a financial infrastructure platform for businesses. Millions of companies—from the world's largest enterprises to th…",
     "requirements": null,
     "salary": null,
     "deadline": null,
-    "postedAt": "2026-05-20T16:58:18-04:00",
+    "postedAt": "2026-06-05T13:40:39-04:00",
     "applyUrl": "https://stripe.com/jobs/search?gh_jid=7544547",
     "detailUrl": "https://stripe.com/jobs/search?gh_jid=7544547",
     "tags": [
       "4378 SDC - Fraud Operations"
     ],
     "firstSeen": "2026-05-29T05:54:44.402Z",
-    "lastSeen": "2026-06-04T23:41:15.439Z",
+    "lastSeen": "2026-06-05T23:42:39.325Z",
     "scores": {
       "urgency": 0.5,
-      "freshness": 0.7753120999228396,
+      "freshness": 0.7419464031635803,
       "tier": 1,
-      "base": 0.7325936299768518
-    }
-  },
-  {
-    "id": "j164frkg",
-    "origin": "greenhouse",
-    "company": "Stripe",
-    "companyTier": 1,
-    "title": "PhD Data Scientist, Intern",
-    "category": "外企",
-    "jobType": "日常实习",
-    "location": [
-      "San Francisco",
-      "New York City",
-      "Seattle"
-    ],
-    "region": "海外",
-    "description": "Who we are About Stripe Stripe is a financial infrastructure platform for businesses. Millions of companies—from the world’s largest enterprises to th…",
-    "requirements": null,
-    "salary": null,
-    "deadline": null,
-    "postedAt": "2026-05-20T16:58:18-04:00",
-    "applyUrl": "https://stripe.com/jobs/search?gh_jid=7874965",
-    "detailUrl": "https://stripe.com/jobs/search?gh_jid=7874965",
-    "tags": [
-      "5112 General University"
-    ],
-    "firstSeen": "2026-05-29T05:54:44.402Z",
-    "lastSeen": "2026-06-04T23:41:15.439Z",
-    "scores": {
-      "urgency": 0.5,
-      "freshness": 0.7753120999228396,
-      "tier": 1,
-      "base": 0.7325936299768518
+      "base": 0.7225839209490741
     }
   },
   {
@@ -145,19 +112,52 @@
     "requirements": null,
     "salary": null,
     "deadline": null,
-    "postedAt": "2026-05-20T16:58:18-04:00",
+    "postedAt": "2026-06-05T13:39:47-04:00",
     "applyUrl": "https://stripe.com/jobs/search?gh_jid=7285974",
     "detailUrl": "https://stripe.com/jobs/search?gh_jid=7285974",
     "tags": [
       "5112 General University"
     ],
     "firstSeen": "2026-05-29T05:54:44.402Z",
-    "lastSeen": "2026-06-04T23:41:15.439Z",
+    "lastSeen": "2026-06-05T23:42:39.325Z",
     "scores": {
       "urgency": 0.5,
-      "freshness": 0.7753120999228396,
+      "freshness": 0.7419464031635803,
       "tier": 1,
-      "base": 0.7325936299768518
+      "base": 0.7225839209490741
+    }
+  },
+  {
+    "id": "j164frkg",
+    "origin": "greenhouse",
+    "company": "Stripe",
+    "companyTier": 1,
+    "title": "PhD Data Scientist, Intern",
+    "category": "外企",
+    "jobType": "日常实习",
+    "location": [
+      "San Francisco",
+      "New York City",
+      "Seattle"
+    ],
+    "region": "海外",
+    "description": "Who we are About Stripe Stripe is a financial infrastructure platform for businesses. Millions of companies—from the world’s largest enterprises to th…",
+    "requirements": null,
+    "salary": null,
+    "deadline": null,
+    "postedAt": "2026-06-05T12:56:02-04:00",
+    "applyUrl": "https://stripe.com/jobs/search?gh_jid=7874965",
+    "detailUrl": "https://stripe.com/jobs/search?gh_jid=7874965",
+    "tags": [
+      "5112 General University"
+    ],
+    "firstSeen": "2026-05-29T05:54:44.402Z",
+    "lastSeen": "2026-06-05T23:42:39.325Z",
+    "scores": {
+      "urgency": 0.5,
+      "freshness": 0.7419464031635803,
+      "tier": 1,
+      "base": 0.7225839209490741
     }
   },
   {
@@ -176,19 +176,19 @@
     "requirements": null,
     "salary": null,
     "deadline": null,
-    "postedAt": "2026-05-20T16:58:18-04:00",
+    "postedAt": "2026-06-05T12:53:46-04:00",
     "applyUrl": "https://stripe.com/jobs/search?gh_jid=7176977",
     "detailUrl": "https://stripe.com/jobs/search?gh_jid=7176977",
     "tags": [
       "5112 General University"
     ],
     "firstSeen": "2026-05-29T05:54:44.402Z",
-    "lastSeen": "2026-06-04T23:41:15.439Z",
+    "lastSeen": "2026-06-05T23:42:39.325Z",
     "scores": {
       "urgency": 0.5,
-      "freshness": 0.7753120999228396,
+      "freshness": 0.7419464031635803,
       "tier": 1,
-      "base": 0.7325936299768518
+      "base": 0.7225839209490741
     }
   },
   {
@@ -208,19 +208,19 @@
     "requirements": null,
     "salary": null,
     "deadline": null,
-    "postedAt": "2026-05-20T16:58:18-04:00",
+    "postedAt": "2026-06-05T13:46:02-04:00",
     "applyUrl": "https://stripe.com/jobs/search?gh_jid=7532256",
     "detailUrl": "https://stripe.com/jobs/search?gh_jid=7532256",
     "tags": [
       "5112 General University"
     ],
     "firstSeen": "2026-05-29T05:54:44.402Z",
-    "lastSeen": "2026-06-04T23:41:15.439Z",
+    "lastSeen": "2026-06-05T23:42:39.325Z",
     "scores": {
       "urgency": 0.5,
-      "freshness": 0.7753120999228396,
+      "freshness": 0.7419464031635803,
       "tier": 1,
-      "base": 0.7325936299768518
+      "base": 0.7225839209490741
     }
   },
   {
@@ -236,23 +236,23 @@
       "Mexico"
     ],
     "region": "海外",
-    "description": "Who we are About Stripe Stripe is a financial infrastructure platform for businesses. Millions of companies—from the world’s largest enterprises to th…",
+    "description": "Who we are About Stripe Stripe is a financial infrastructure platform for businesses. Millions of companies—from the world's largest enterprises to th…",
     "requirements": null,
     "salary": null,
     "deadline": null,
-    "postedAt": "2026-05-20T16:58:18-04:00",
+    "postedAt": "2026-06-05T13:01:10-04:00",
     "applyUrl": "https://stripe.com/jobs/search?gh_jid=7718947",
     "detailUrl": "https://stripe.com/jobs/search?gh_jid=7718947",
     "tags": [
       "4138 SDC - Tech Ops"
     ],
     "firstSeen": "2026-05-29T05:54:44.402Z",
-    "lastSeen": "2026-06-04T23:41:15.439Z",
+    "lastSeen": "2026-06-05T23:42:39.325Z",
     "scores": {
       "urgency": 0.5,
-      "freshness": 0.7753120999228396,
+      "freshness": 0.7419464031635803,
       "tier": 1,
-      "base": 0.7325936299768518
+      "base": 0.7225839209490741
     }
   },
   {
@@ -279,12 +279,12 @@
       "University Recruiting"
     ],
     "firstSeen": "2026-05-29T05:54:44.402Z",
-    "lastSeen": "2026-06-04T23:41:15.439Z",
+    "lastSeen": "2026-06-05T23:42:39.325Z",
     "scores": {
       "urgency": 0.5,
-      "freshness": 0.7753120999228396,
+      "freshness": 0.7419464031635803,
       "tier": 1,
-      "base": 0.7325936299768518
+      "base": 0.7225839209490741
     }
   },
   {
@@ -311,12 +311,12 @@
       "University Recruiting"
     ],
     "firstSeen": "2026-05-29T05:54:44.402Z",
-    "lastSeen": "2026-06-04T23:41:15.439Z",
+    "lastSeen": "2026-06-05T23:42:39.325Z",
     "scores": {
       "urgency": 0.5,
-      "freshness": 0.7753120999228396,
+      "freshness": 0.7419464031635803,
       "tier": 1,
-      "base": 0.7325936299768518
+      "base": 0.7225839209490741
     }
   },
   {
@@ -344,12 +344,12 @@
       "University"
     ],
     "firstSeen": "2026-05-29T05:54:44.402Z",
-    "lastSeen": "2026-06-04T23:41:15.439Z",
+    "lastSeen": "2026-06-05T23:42:39.325Z",
     "scores": {
       "urgency": 0.5,
-      "freshness": 0.7753120999228396,
+      "freshness": 0.7419464031635803,
       "tier": 1,
-      "base": 0.7325936299768518
+      "base": 0.7225839209490741
     }
   },
   {
@@ -377,12 +377,12 @@
       "University Engineering"
     ],
     "firstSeen": "2026-05-29T05:54:44.402Z",
-    "lastSeen": "2026-06-04T23:41:15.439Z",
+    "lastSeen": "2026-06-05T23:42:39.325Z",
     "scores": {
       "urgency": 0.5,
-      "freshness": 0.7753120999228396,
+      "freshness": 0.7419464031635803,
       "tier": 1,
-      "base": 0.7325936299768518
+      "base": 0.7225839209490741
     }
   },
   {
@@ -410,12 +410,12 @@
       "Risk & Credit"
     ],
     "firstSeen": "2026-06-04T00:09:26.874Z",
-    "lastSeen": "2026-06-04T23:41:15.439Z",
+    "lastSeen": "2026-06-05T23:42:39.325Z",
     "scores": {
       "urgency": 0.5,
-      "freshness": 0.9673192264660494,
+      "freshness": 0.9339535297067901,
       "tier": 0.7,
-      "base": 0.7001957679398149
+      "base": 0.690186058912037
     }
   },
   {
@@ -441,12 +441,12 @@
       "长期实习"
     ],
     "firstSeen": "2026-05-29T05:54:44.402Z",
-    "lastSeen": "2026-06-04T23:41:15.439Z",
+    "lastSeen": "2026-06-05T23:42:39.325Z",
     "scores": {
       "urgency": 0.5,
-      "freshness": 0.7753120999228396,
+      "freshness": 0.7419464031635803,
       "tier": 0.7,
-      "base": 0.6425936299768519
+      "base": 0.6325839209490741
     }
   },
   {
@@ -472,12 +472,12 @@
       "Operations Management"
     ],
     "firstSeen": "2026-05-29T05:54:44.402Z",
-    "lastSeen": "2026-06-04T23:41:15.439Z",
+    "lastSeen": "2026-06-05T23:42:39.325Z",
     "scores": {
       "urgency": 0.5,
-      "freshness": 0.7753120999228396,
+      "freshness": 0.7419464031635803,
       "tier": 0.7,
-      "base": 0.6425936299768519
+      "base": 0.6325839209490741
     }
   },
   {
@@ -507,12 +507,12 @@
       "转正机会"
     ],
     "firstSeen": "2026-05-29T05:54:44.402Z",
-    "lastSeen": "2026-06-04T23:41:15.439Z",
+    "lastSeen": "2026-06-05T23:42:39.325Z",
     "scores": {
       "urgency": 0.05,
-      "freshness": 0.7753120999228396,
+      "freshness": 0.7419464031635803,
       "tier": 1,
-      "base": 0.5525936299768519
+      "base": 0.5425839209490741
     }
   },
   {
@@ -541,12 +541,12 @@
       "校招"
     ],
     "firstSeen": "2026-05-29T05:54:44.402Z",
-    "lastSeen": "2026-06-04T23:41:15.439Z",
+    "lastSeen": "2026-06-05T23:42:39.325Z",
     "scores": {
       "urgency": 0.05,
-      "freshness": 0.7753120999228396,
+      "freshness": 0.7419464031635803,
       "tier": 1,
-      "base": 0.5525936299768519
+      "base": 0.5425839209490741
     }
   },
   {
@@ -574,12 +574,12 @@
       "校招"
     ],
     "firstSeen": "2026-05-29T05:54:44.402Z",
-    "lastSeen": "2026-06-04T23:41:15.439Z",
+    "lastSeen": "2026-06-05T23:42:39.325Z",
     "scores": {
       "urgency": 0.05,
-      "freshness": 0.7753120999228396,
+      "freshness": 0.7419464031635803,
       "tier": 1,
-      "base": 0.5525936299768519
+      "base": 0.5425839209490741
     }
   },
   {
@@ -607,12 +607,12 @@
       "校招"
     ],
     "firstSeen": "2026-05-29T05:54:44.402Z",
-    "lastSeen": "2026-06-04T23:41:15.439Z",
+    "lastSeen": "2026-06-05T23:42:39.325Z",
     "scores": {
       "urgency": 0.05,
-      "freshness": 0.7753120999228396,
+      "freshness": 0.7419464031635803,
       "tier": 1,
-      "base": 0.5525936299768519
+      "base": 0.5425839209490741
     }
   },
   {
@@ -639,12 +639,12 @@
       "AI"
     ],
     "firstSeen": "2026-05-29T05:54:44.402Z",
-    "lastSeen": "2026-06-04T23:41:15.439Z",
+    "lastSeen": "2026-06-05T23:42:39.325Z",
     "scores": {
       "urgency": 0.05,
-      "freshness": 0.7753120999228396,
+      "freshness": 0.7419464031635803,
       "tier": 1,
-      "base": 0.5525936299768519
+      "base": 0.5425839209490741
     }
   },
   {
@@ -671,12 +671,12 @@
       "校招"
     ],
     "firstSeen": "2026-05-29T05:54:44.402Z",
-    "lastSeen": "2026-06-04T23:41:15.439Z",
+    "lastSeen": "2026-06-05T23:42:39.325Z",
     "scores": {
       "urgency": 0.05,
-      "freshness": 0.7753120999228396,
+      "freshness": 0.7419464031635803,
       "tier": 1,
-      "base": 0.5525936299768519
+      "base": 0.5425839209490741
     }
   },
   {
@@ -704,12 +704,12 @@
       "校招"
     ],
     "firstSeen": "2026-05-29T05:54:44.402Z",
-    "lastSeen": "2026-06-04T23:41:15.439Z",
+    "lastSeen": "2026-06-05T23:42:39.325Z",
     "scores": {
       "urgency": 0.05,
-      "freshness": 0.7753120999228396,
+      "freshness": 0.7419464031635803,
       "tier": 1,
-      "base": 0.5525936299768519
+      "base": 0.5425839209490741
     }
   },
   {
@@ -736,12 +736,12 @@
       "校招"
     ],
     "firstSeen": "2026-05-29T05:54:44.402Z",
-    "lastSeen": "2026-06-04T23:41:15.439Z",
+    "lastSeen": "2026-06-05T23:42:39.325Z",
     "scores": {
       "urgency": 0.05,
-      "freshness": 0.7753120999228396,
+      "freshness": 0.7419464031635803,
       "tier": 1,
-      "base": 0.5525936299768519
+      "base": 0.5425839209490741
     }
   },
   {
@@ -769,12 +769,12 @@
       "校招"
     ],
     "firstSeen": "2026-05-29T05:54:44.402Z",
-    "lastSeen": "2026-06-04T23:41:15.439Z",
+    "lastSeen": "2026-06-05T23:42:39.325Z",
     "scores": {
       "urgency": 0.05,
-      "freshness": 0.7753120999228396,
+      "freshness": 0.7419464031635803,
       "tier": 1,
-      "base": 0.5525936299768519
+      "base": 0.5425839209490741
     }
   },
   {
@@ -802,12 +802,12 @@
       "转正机会"
     ],
     "firstSeen": "2026-05-29T05:54:44.402Z",
-    "lastSeen": "2026-06-04T23:41:15.439Z",
+    "lastSeen": "2026-06-05T23:42:39.325Z",
     "scores": {
       "urgency": 0.05,
-      "freshness": 0.7753120999228396,
+      "freshness": 0.7419464031635803,
       "tier": 1,
-      "base": 0.5525936299768519
+      "base": 0.5425839209490741
     }
   },
   {
@@ -835,12 +835,12 @@
       "校招"
     ],
     "firstSeen": "2026-05-29T05:54:44.402Z",
-    "lastSeen": "2026-06-04T23:41:15.439Z",
+    "lastSeen": "2026-06-05T23:42:39.325Z",
     "scores": {
       "urgency": 0.05,
-      "freshness": 0.7753120999228396,
+      "freshness": 0.7419464031635803,
       "tier": 1,
-      "base": 0.5525936299768519
+      "base": 0.5425839209490741
     }
   },
   {
@@ -869,12 +869,12 @@
       "校招"
     ],
     "firstSeen": "2026-05-29T05:54:44.402Z",
-    "lastSeen": "2026-06-04T23:41:15.439Z",
+    "lastSeen": "2026-06-05T23:42:39.325Z",
     "scores": {
       "urgency": 0.05,
-      "freshness": 0.7753120999228396,
+      "freshness": 0.7419464031635803,
       "tier": 1,
-      "base": 0.5525936299768519
+      "base": 0.5425839209490741
     }
   },
   {
@@ -902,12 +902,12 @@
       "Top投行"
     ],
     "firstSeen": "2026-05-29T05:54:44.402Z",
-    "lastSeen": "2026-06-04T23:41:15.439Z",
+    "lastSeen": "2026-06-05T23:42:39.325Z",
     "scores": {
       "urgency": 0.05,
-      "freshness": 0.7753120999228396,
+      "freshness": 0.7419464031635803,
       "tier": 1,
-      "base": 0.5525936299768519
+      "base": 0.5425839209490741
     }
   },
   {
@@ -935,12 +935,12 @@
       "校招"
     ],
     "firstSeen": "2026-05-29T05:54:44.402Z",
-    "lastSeen": "2026-06-04T23:41:15.439Z",
+    "lastSeen": "2026-06-05T23:42:39.325Z",
     "scores": {
       "urgency": 0.05,
-      "freshness": 0.7753120999228396,
+      "freshness": 0.7419464031635803,
       "tier": 1,
-      "base": 0.5525936299768519
+      "base": 0.5425839209490741
     }
   },
   {
@@ -968,12 +968,12 @@
       "Top投行"
     ],
     "firstSeen": "2026-05-29T05:54:44.402Z",
-    "lastSeen": "2026-06-04T23:41:15.439Z",
+    "lastSeen": "2026-06-05T23:42:39.325Z",
     "scores": {
       "urgency": 0.05,
-      "freshness": 0.7753120999228396,
+      "freshness": 0.7419464031635803,
       "tier": 1,
-      "base": 0.5525936299768519
+      "base": 0.5425839209490741
     }
   },
   {
@@ -1000,12 +1000,12 @@
       "Top投行"
     ],
     "firstSeen": "2026-05-29T05:54:44.402Z",
-    "lastSeen": "2026-06-04T23:41:15.439Z",
+    "lastSeen": "2026-06-05T23:42:39.325Z",
     "scores": {
       "urgency": 0.05,
-      "freshness": 0.7753120999228396,
+      "freshness": 0.7419464031635803,
       "tier": 1,
-      "base": 0.5525936299768519
+      "base": 0.5425839209490741
     }
   },
   {
@@ -1032,12 +1032,12 @@
       "Top投行"
     ],
     "firstSeen": "2026-05-29T05:54:44.402Z",
-    "lastSeen": "2026-06-04T23:41:15.439Z",
+    "lastSeen": "2026-06-05T23:42:39.325Z",
     "scores": {
       "urgency": 0.05,
-      "freshness": 0.7753120999228396,
+      "freshness": 0.7419464031635803,
       "tier": 1,
-      "base": 0.5525936299768519
+      "base": 0.5425839209490741
     }
   },
   {
@@ -1066,12 +1066,12 @@
       "科技"
     ],
     "firstSeen": "2026-05-29T05:54:44.402Z",
-    "lastSeen": "2026-06-04T23:41:15.439Z",
+    "lastSeen": "2026-06-05T23:42:39.325Z",
     "scores": {
       "urgency": 0.05,
-      "freshness": 0.7753120999228396,
+      "freshness": 0.7419464031635803,
       "tier": 1,
-      "base": 0.5525936299768519
+      "base": 0.5425839209490741
     }
   },
   {
@@ -1099,12 +1099,12 @@
       "海外"
     ],
     "firstSeen": "2026-05-29T05:54:44.402Z",
-    "lastSeen": "2026-06-04T23:41:15.439Z",
+    "lastSeen": "2026-06-05T23:42:39.325Z",
     "scores": {
       "urgency": 0.05,
-      "freshness": 0.7753120999228396,
+      "freshness": 0.7419464031635803,
       "tier": 1,
-      "base": 0.5525936299768519
+      "base": 0.5425839209490741
     }
   },
   {
@@ -1132,12 +1132,12 @@
       "海外"
     ],
     "firstSeen": "2026-05-29T05:54:44.402Z",
-    "lastSeen": "2026-06-04T23:41:15.439Z",
+    "lastSeen": "2026-06-05T23:42:39.325Z",
     "scores": {
       "urgency": 0.05,
-      "freshness": 0.7753120999228396,
+      "freshness": 0.7419464031635803,
       "tier": 1,
-      "base": 0.5525936299768519
+      "base": 0.5425839209490741
     }
   },
   {
@@ -1167,12 +1167,12 @@
       "芯片"
     ],
     "firstSeen": "2026-05-29T05:54:44.402Z",
-    "lastSeen": "2026-06-04T23:41:15.439Z",
+    "lastSeen": "2026-06-05T23:42:39.325Z",
     "scores": {
       "urgency": 0.05,
-      "freshness": 0.7753120999228396,
+      "freshness": 0.7419464031635803,
       "tier": 1,
-      "base": 0.5525936299768519
+      "base": 0.5425839209490741
     }
   },
   {
@@ -1199,12 +1199,12 @@
       "海外"
     ],
     "firstSeen": "2026-05-29T05:54:44.402Z",
-    "lastSeen": "2026-06-04T23:41:15.439Z",
+    "lastSeen": "2026-06-05T23:42:39.325Z",
     "scores": {
       "urgency": 0.05,
-      "freshness": 0.7753120999228396,
+      "freshness": 0.7419464031635803,
       "tier": 1,
-      "base": 0.5525936299768519
+      "base": 0.5425839209490741
     }
   },
   {
@@ -1233,12 +1233,12 @@
       "科技"
     ],
     "firstSeen": "2026-05-29T05:54:44.402Z",
-    "lastSeen": "2026-06-04T23:41:15.439Z",
+    "lastSeen": "2026-06-05T23:42:39.325Z",
     "scores": {
       "urgency": 0.05,
-      "freshness": 0.7753120999228396,
+      "freshness": 0.7419464031635803,
       "tier": 1,
-      "base": 0.5525936299768519
+      "base": 0.5425839209490741
     }
   },
   {
@@ -1267,12 +1267,12 @@
       "快消"
     ],
     "firstSeen": "2026-05-29T05:54:44.402Z",
-    "lastSeen": "2026-06-04T23:41:15.439Z",
+    "lastSeen": "2026-06-05T23:42:39.325Z",
     "scores": {
       "urgency": 0.05,
-      "freshness": 0.7753120999228396,
+      "freshness": 0.7419464031635803,
       "tier": 1,
-      "base": 0.5525936299768519
+      "base": 0.5425839209490741
     }
   },
   {
@@ -1299,12 +1299,12 @@
       "管培"
     ],
     "firstSeen": "2026-05-29T05:54:44.402Z",
-    "lastSeen": "2026-06-04T23:41:15.439Z",
+    "lastSeen": "2026-06-05T23:42:39.325Z",
     "scores": {
       "urgency": 0.05,
-      "freshness": 0.7753120999228396,
+      "freshness": 0.7419464031635803,
       "tier": 1,
-      "base": 0.5525936299768519
+      "base": 0.5425839209490741
     }
   },
   {
@@ -1334,12 +1334,12 @@
       "校招"
     ],
     "firstSeen": "2026-05-29T05:54:44.402Z",
-    "lastSeen": "2026-06-04T23:41:15.439Z",
+    "lastSeen": "2026-06-05T23:42:39.325Z",
     "scores": {
       "urgency": 0.05,
-      "freshness": 0.7753120999228396,
+      "freshness": 0.7419464031635803,
       "tier": 1,
-      "base": 0.5525936299768519
+      "base": 0.5425839209490741
     }
   },
   {
@@ -1366,12 +1366,12 @@
       "硬件"
     ],
     "firstSeen": "2026-05-29T05:54:44.402Z",
-    "lastSeen": "2026-06-04T23:41:15.439Z",
+    "lastSeen": "2026-06-05T23:42:39.325Z",
     "scores": {
       "urgency": 0.05,
-      "freshness": 0.7753120999228396,
+      "freshness": 0.7419464031635803,
       "tier": 1,
-      "base": 0.5525936299768519
+      "base": 0.5425839209490741
     }
   },
   {
@@ -1400,12 +1400,12 @@
       "校招"
     ],
     "firstSeen": "2026-05-29T05:54:44.402Z",
-    "lastSeen": "2026-06-04T23:41:15.439Z",
+    "lastSeen": "2026-06-05T23:42:39.325Z",
     "scores": {
       "urgency": 0.05,
-      "freshness": 0.7753120999228396,
+      "freshness": 0.7419464031635803,
       "tier": 1,
-      "base": 0.5525936299768519
+      "base": 0.5425839209490741
     }
   },
   {
@@ -1433,12 +1433,12 @@
       "校招"
     ],
     "firstSeen": "2026-05-29T05:54:44.402Z",
-    "lastSeen": "2026-06-04T23:41:15.439Z",
+    "lastSeen": "2026-06-05T23:42:39.325Z",
     "scores": {
       "urgency": 0.05,
-      "freshness": 0.7753120999228396,
+      "freshness": 0.7419464031635803,
       "tier": 1,
-      "base": 0.5525936299768519
+      "base": 0.5425839209490741
     }
   },
   {
@@ -1464,12 +1464,12 @@
       "校招"
     ],
     "firstSeen": "2026-05-29T05:54:44.402Z",
-    "lastSeen": "2026-06-04T23:41:15.439Z",
+    "lastSeen": "2026-06-05T23:42:39.325Z",
     "scores": {
       "urgency": 0.05,
-      "freshness": 0.7753120999228396,
+      "freshness": 0.7419464031635803,
       "tier": 0.7,
-      "base": 0.46259362997685183
+      "base": 0.45258392094907407
     }
   },
   {
@@ -1496,12 +1496,12 @@
       "外资"
     ],
     "firstSeen": "2026-05-29T05:54:44.402Z",
-    "lastSeen": "2026-06-04T23:41:15.439Z",
+    "lastSeen": "2026-06-05T23:42:39.325Z",
     "scores": {
       "urgency": 0.05,
-      "freshness": 0.7753120999228396,
+      "freshness": 0.7419464031635803,
       "tier": 0.7,
-      "base": 0.46259362997685183
+      "base": 0.45258392094907407
     }
   },
   {
@@ -1530,12 +1530,12 @@
       "四大"
     ],
     "firstSeen": "2026-05-29T05:54:44.402Z",
-    "lastSeen": "2026-06-04T23:41:15.439Z",
+    "lastSeen": "2026-06-05T23:42:39.325Z",
     "scores": {
       "urgency": 0.05,
-      "freshness": 0.7753120999228396,
+      "freshness": 0.7419464031635803,
       "tier": 0.7,
-      "base": 0.46259362997685183
+      "base": 0.45258392094907407
     }
   },
   {
@@ -1562,12 +1562,12 @@
       "四大"
     ],
     "firstSeen": "2026-05-29T05:54:44.402Z",
-    "lastSeen": "2026-06-04T23:41:15.439Z",
+    "lastSeen": "2026-06-05T23:42:39.325Z",
     "scores": {
       "urgency": 0.05,
-      "freshness": 0.7753120999228396,
+      "freshness": 0.7419464031635803,
       "tier": 0.7,
-      "base": 0.46259362997685183
+      "base": 0.45258392094907407
     }
   },
   {
@@ -1597,12 +1597,12 @@
       "校招"
     ],
     "firstSeen": "2026-05-29T05:54:44.402Z",
-    "lastSeen": "2026-06-04T23:41:15.439Z",
+    "lastSeen": "2026-06-05T23:42:39.325Z",
     "scores": {
       "urgency": 0.05,
-      "freshness": 0.7753120999228396,
+      "freshness": 0.7419464031635803,
       "tier": 0.7,
-      "base": 0.46259362997685183
+      "base": 0.45258392094907407
     }
   },
   {
@@ -1630,12 +1630,12 @@
       "校招"
     ],
     "firstSeen": "2026-05-29T05:54:44.402Z",
-    "lastSeen": "2026-06-04T23:41:15.439Z",
+    "lastSeen": "2026-06-05T23:42:39.325Z",
     "scores": {
       "urgency": 0.05,
-      "freshness": 0.7753120999228396,
+      "freshness": 0.7419464031635803,
       "tier": 0.7,
-      "base": 0.46259362997685183
+      "base": 0.45258392094907407
     }
   },
   {
@@ -1663,12 +1663,12 @@
       "校招"
     ],
     "firstSeen": "2026-05-29T05:54:44.402Z",
-    "lastSeen": "2026-06-04T23:41:15.439Z",
+    "lastSeen": "2026-06-05T23:42:39.325Z",
     "scores": {
       "urgency": 0.05,
-      "freshness": 0.7753120999228396,
+      "freshness": 0.7419464031635803,
       "tier": 0.7,
-      "base": 0.46259362997685183
+      "base": 0.45258392094907407
     }
   },
   {
@@ -1695,12 +1695,12 @@
       "管培"
     ],
     "firstSeen": "2026-05-29T05:54:44.402Z",
-    "lastSeen": "2026-06-04T23:41:15.439Z",
+    "lastSeen": "2026-06-05T23:42:39.325Z",
     "scores": {
       "urgency": 0.05,
-      "freshness": 0.7753120999228396,
+      "freshness": 0.7419464031635803,
       "tier": 0.7,
-      "base": 0.46259362997685183
+      "base": 0.45258392094907407
     }
   },
   {
@@ -1726,12 +1726,12 @@
       "外企"
     ],
     "firstSeen": "2026-05-29T05:54:44.402Z",
-    "lastSeen": "2026-06-04T23:41:15.439Z",
+    "lastSeen": "2026-06-05T23:42:39.325Z",
     "scores": {
       "urgency": 0.05,
-      "freshness": 0.7753120999228396,
+      "freshness": 0.7419464031635803,
       "tier": 0.7,
-      "base": 0.46259362997685183
+      "base": 0.45258392094907407
     }
   },
   {
@@ -1760,12 +1760,12 @@
       "咨询"
     ],
     "firstSeen": "2026-05-29T05:54:44.402Z",
-    "lastSeen": "2026-06-04T23:41:15.439Z",
+    "lastSeen": "2026-06-05T23:42:39.325Z",
     "scores": {
       "urgency": 0.05,
-      "freshness": 0.7753120999228396,
+      "freshness": 0.7419464031635803,
       "tier": 0.7,
-      "base": 0.46259362997685183
+      "base": 0.45258392094907407
     }
   },
   {
@@ -1793,12 +1793,12 @@
       "快消"
     ],
     "firstSeen": "2026-05-29T05:54:44.402Z",
-    "lastSeen": "2026-06-04T23:41:15.439Z",
+    "lastSeen": "2026-06-05T23:42:39.325Z",
     "scores": {
       "urgency": 0.05,
-      "freshness": 0.7753120999228396,
+      "freshness": 0.7419464031635803,
       "tier": 0.7,
-      "base": 0.46259362997685183
+      "base": 0.45258392094907407
     }
   },
   {
@@ -1826,12 +1826,12 @@
       "管培"
     ],
     "firstSeen": "2026-05-29T05:54:44.402Z",
-    "lastSeen": "2026-06-04T23:41:15.439Z",
+    "lastSeen": "2026-06-05T23:42:39.325Z",
     "scores": {
       "urgency": 0.05,
-      "freshness": 0.7753120999228396,
+      "freshness": 0.7419464031635803,
       "tier": 0.7,
-      "base": 0.46259362997685183
+      "base": 0.45258392094907407
     }
   },
   {
@@ -1859,12 +1859,12 @@
       "快消"
     ],
     "firstSeen": "2026-05-29T05:54:44.402Z",
-    "lastSeen": "2026-06-04T23:41:15.439Z",
+    "lastSeen": "2026-06-05T23:42:39.325Z",
     "scores": {
       "urgency": 0.05,
-      "freshness": 0.7753120999228396,
+      "freshness": 0.7419464031635803,
       "tier": 0.7,
-      "base": 0.46259362997685183
+      "base": 0.45258392094907407
     }
   },
   {
@@ -1891,12 +1891,12 @@
       "管培"
     ],
     "firstSeen": "2026-05-29T05:54:44.402Z",
-    "lastSeen": "2026-06-04T23:41:15.439Z",
+    "lastSeen": "2026-06-05T23:42:39.325Z",
     "scores": {
       "urgency": 0.05,
-      "freshness": 0.7753120999228396,
+      "freshness": 0.7419464031635803,
       "tier": 0.7,
-      "base": 0.46259362997685183
+      "base": 0.45258392094907407
     }
   },
   {
@@ -1923,12 +1923,12 @@
       "外企"
     ],
     "firstSeen": "2026-05-29T05:54:44.402Z",
-    "lastSeen": "2026-06-04T23:41:15.439Z",
+    "lastSeen": "2026-06-05T23:42:39.325Z",
     "scores": {
       "urgency": 0.05,
-      "freshness": 0.7753120999228396,
+      "freshness": 0.7419464031635803,
       "tier": 0.7,
-      "base": 0.46259362997685183
+      "base": 0.45258392094907407
     }
   },
   {
@@ -1955,12 +1955,12 @@
       "新能源"
     ],
     "firstSeen": "2026-05-29T05:54:44.402Z",
-    "lastSeen": "2026-06-04T23:41:15.439Z",
+    "lastSeen": "2026-06-05T23:42:39.325Z",
     "scores": {
       "urgency": 0.05,
-      "freshness": 0.7753120999228396,
+      "freshness": 0.7419464031635803,
       "tier": 0.7,
-      "base": 0.46259362997685183
+      "base": 0.45258392094907407
     }
   },
   {
@@ -1987,12 +1987,12 @@
       "校招"
     ],
     "firstSeen": "2026-05-29T05:54:44.402Z",
-    "lastSeen": "2026-06-04T23:41:15.439Z",
+    "lastSeen": "2026-06-05T23:42:39.325Z",
     "scores": {
       "urgency": 0.05,
-      "freshness": 0.7753120999228396,
+      "freshness": 0.7419464031635803,
       "tier": 0.7,
-      "base": 0.46259362997685183
+      "base": 0.45258392094907407
     }
   },
   {
@@ -2021,12 +2021,12 @@
       "校招"
     ],
     "firstSeen": "2026-05-29T05:54:44.402Z",
-    "lastSeen": "2026-06-04T23:41:15.439Z",
+    "lastSeen": "2026-06-05T23:42:39.325Z",
     "scores": {
       "urgency": 0.05,
-      "freshness": 0.7753120999228396,
+      "freshness": 0.7419464031635803,
       "tier": 0.7,
-      "base": 0.46259362997685183
+      "base": 0.45258392094907407
     }
   },
   {
@@ -2054,12 +2054,12 @@
       "科技"
     ],
     "firstSeen": "2026-05-29T05:54:44.402Z",
-    "lastSeen": "2026-06-04T23:41:15.439Z",
+    "lastSeen": "2026-06-05T23:42:39.325Z",
     "scores": {
       "urgency": 0.05,
-      "freshness": 0.7753120999228396,
+      "freshness": 0.7419464031635803,
       "tier": 0.7,
-      "base": 0.46259362997685183
+      "base": 0.45258392094907407
     }
   }
 ]
