@@ -17,7 +17,7 @@ export default function Header({ total, onOpenTracking }: { total: number; onOpe
       <div className="max-w-[1360px] mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-brand-400 to-brand-600 grid place-items-center shadow-sm">
-            <span className="text-[10px] font-bold text-white">CS</span>
+            <span className="text-xs font-bold text-white">C</span>
           </div>
           <span className="text-[15px] font-semibold text-gray-900">Career Search</span>
           <span className="hidden sm:inline text-[11px] text-gray-400 bg-gray-100/60 px-2 py-0.5 rounded-full">

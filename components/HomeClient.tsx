@@ -23,10 +23,10 @@ type ViewMode = "list" | "calendar";
 const PAGE_SIZE = 12;
 
 const DEFAULT_FILTER: FilterState = {
-  categories: ["all"],
+  categories: ["互联网", "金融", "快消", "实体", "管培"],
   cities: ["all"],
   jobTypes: ["all"],
-  region: "all",
+  region: "大陆",
   keyword: "",
   urgentOnly: false,
   sort: "composite",
