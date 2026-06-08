@@ -36,6 +36,8 @@ export default function JobCard({
   trackingStatus,
   onTrack,
   matchResult,
+  comparing,
+  onCompareToggle,
 }: {
   job: Job;
   now: number;
@@ -43,6 +45,8 @@ export default function JobCard({
   trackingStatus?: TrackingStatus | null;
   onTrack?: (jobId: string, status: TrackingStatus | null) => void;
   matchResult?: MatchResult;
+  comparing?: boolean;
+  onCompareToggle?: (jobId: string) => void;
 }) {
   const dl = daysUntil(job.deadline, new Date(now));
   const urgent = dl !== null && dl >= 0 && dl <= 15;
@@ -68,18 +72,31 @@ export default function JobCard({
               NEW
             </span>
           )}
-          {onTrack && (
-            <button
-              onClick={() => onTrack(job.id, trackingStatus ? null : "saved")}
-              className={`w-6 h-6 rounded-full flex items-center justify-center transition ${
-                trackingStatus ? "text-red-500 bg-red-50" : "text-gray-300 hover:text-red-400"
-              }`}
-            >
-              <svg width="12" height="12" viewBox="0 0 24 24" fill={trackingStatus ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2.5">
-                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-              </svg>
-            </button>
-          )}
+          <div className="flex items-center gap-1">
+            {onCompareToggle && (
+              <button
+                onClick={() => onCompareToggle(job.id)}
+                className={`w-6 h-6 rounded-full flex items-center justify-center transition text-[10px] ${
+                  comparing ? "bg-brand-500 text-white" : "text-gray-300 hover:text-brand-500 hover:bg-brand-50"
+                }`}
+                title="加入对比"
+              >
+                ⇄
+              </button>
+            )}
+            {onTrack && (
+              <button
+                onClick={() => onTrack(job.id, trackingStatus ? null : "saved")}
+                className={`w-6 h-6 rounded-full flex items-center justify-center transition ${
+                  trackingStatus ? "text-red-500 bg-red-50" : "text-gray-300 hover:text-red-400"
+                }`}
+              >
+                <svg width="12" height="12" viewBox="0 0 24 24" fill={trackingStatus ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2.5">
+                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                </svg>
+              </button>
+            )}
+          </div>
         </div>
       </div>
 

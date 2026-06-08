@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import CalendarView from "./CalendarView";
+import CompareBar from "./CompareBar";
+import ComparePanel from "./ComparePanel";
 import FilterBar, { type FilterState } from "./FilterBar";
 import Header from "./Header";
 import JobCard from "./JobCard";
@@ -51,6 +53,8 @@ export default function HomeClient({
   const [tracking, setTracking] = useState<TrackingData>({});
   const [trackingOpen, setTrackingOpen] = useState(false);
   const [loggedIn, setLoggedIn] = useState(false);
+  const [compareIds, setCompareIds] = useState<string[]>([]);
+  const [compareOpen, setCompareOpen] = useState(false);
 
   useEffect(() => {
     const p = loadPrefs();
@@ -77,6 +81,12 @@ export default function HomeClient({
       const data = await saveTracking(jobId, status);
       setTracking(data);
     }
+  }, []);
+
+  const handleCompareToggle = useCallback((jobId: string) => {
+    setCompareIds((prev) =>
+      prev.includes(jobId) ? prev.filter((id) => id !== jobId) : prev.length < 3 ? [...prev, jobId] : prev
+    );
   }, []);
 
   const result = useMemo(
@@ -143,6 +153,8 @@ export default function HomeClient({
                       trackingStatus={tracking[j.id]?.status ?? null}
                       onTrack={loggedIn ? handleTrack : undefined}
                       matchResult={hasPrefs(prefs) ? computeProfileMatchDetailed(j, prefs) : undefined}
+                      comparing={compareIds.includes(j.id)}
+                      onCompareToggle={handleCompareToggle}
                     />
                   ))}
                 </div>
@@ -181,6 +193,18 @@ export default function HomeClient({
           }
         }}
         onClose={() => setPrefsOpen(false)}
+      />
+      <CompareBar
+        jobs={compareIds.map((id) => jobs.find((j) => j.id === id)!).filter(Boolean)}
+        onRemove={(id) => setCompareIds((p) => p.filter((x) => x !== id))}
+        onCompare={() => setCompareOpen(true)}
+        onClear={() => setCompareIds([])}
+      />
+      <ComparePanel
+        open={compareOpen}
+        jobs={compareIds.map((id) => jobs.find((j) => j.id === id)!).filter(Boolean)}
+        prefs={prefs}
+        onClose={() => setCompareOpen(false)}
       />
       <TrackingPanel
         open={trackingOpen}
