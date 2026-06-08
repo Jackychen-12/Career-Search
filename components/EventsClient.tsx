@@ -13,8 +13,18 @@ const TYPE_COLORS: Record<string, string> = {
 
 export default function EventsClient({ events }: { events: CampusEvent[] }) {
   const [source, setSource] = useState<"all" | "清华" | "北大">("all");
+  const [keyword, setKeyword] = useState("");
+  const [typeFilter, setTypeFilter] = useState<CampusEvent["type"] | "all">("all");
 
-  const filtered = source === "all" ? events : events.filter((e) => e.source === source);
+  const filtered = events.filter((e) => {
+    if (source !== "all" && e.source !== source) return false;
+    if (typeFilter !== "all" && e.type !== typeFilter) return false;
+    if (keyword.trim()) {
+      const k = keyword.trim().toLowerCase();
+      return e.company.toLowerCase().includes(k) || e.title.toLowerCase().includes(k) || (e.school ?? "").toLowerCase().includes(k);
+    }
+    return true;
+  });
 
   const today = new Date().toISOString().slice(0, 10);
   const upcoming = filtered.filter((e) => e.date >= today);
@@ -37,20 +47,38 @@ export default function EventsClient({ events }: { events: CampusEvent[] }) {
       </header>
 
       <main className="max-w-5xl mx-auto px-4 sm:px-6 py-6 space-y-5">
-        {/* Source filter */}
-        <div className="flex items-center gap-2">
-          <span className="text-xs text-gray-500">来源</span>
-          {(["all", "清华", "北大"] as const).map((s) => (
-            <button
-              key={s}
-              onClick={() => setSource(s)}
-              className={`px-3 py-1.5 rounded-full text-[13px] transition ${
-                source === s ? "bg-brand-500 text-white shadow-sm" : "text-gray-600 hover:bg-brand-50"
-              }`}
-            >
-              {s === "all" ? "全部" : s}
-            </button>
-          ))}
+        {/* Search + filters */}
+        <div className="card p-4 space-y-3">
+          <div className="relative">
+            <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" />
+            </svg>
+            <input
+              value={keyword}
+              onChange={(e) => setKeyword(e.target.value)}
+              placeholder="搜索公司、活动名称..."
+              className="w-full h-9 pl-9 pr-3 rounded-full border border-gray-200/80 bg-white/80 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-400 transition"
+            />
+          </div>
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs text-gray-400">来源</span>
+              {(["all", "清华", "北大"] as const).map((s) => (
+                <button key={s} onClick={() => setSource(s)} className={`px-3 py-1.5 rounded-full text-[13px] transition ${source === s ? "bg-brand-500 text-white shadow-sm" : "text-gray-600 hover:bg-brand-50"}`}>
+                  {s === "all" ? "全部" : s}
+                </button>
+              ))}
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs text-gray-400">类型</span>
+              {(["all", "宣讲会", "网申", "笔试", "面试", "其他"] as const).map((t) => (
+                <button key={t} onClick={() => setTypeFilter(t)} className={`px-3 py-1.5 rounded-full text-[13px] transition ${typeFilter === t ? "bg-brand-500 text-white shadow-sm" : "text-gray-600 hover:bg-brand-50"}`}>
+                  {t === "all" ? "全部" : t}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="text-xs text-gray-400">{filtered.length} 条结果</div>
         </div>
 
         {events.length === 0 ? (
