@@ -32,7 +32,7 @@ export function isLoggedIn(): boolean {
 }
 
 export function login() {
-  const redirect = window.location.origin + (process.env.NEXT_PUBLIC_BASE_PATH ?? "") + "/callback/";
+  const redirect = window.location.origin + (process.env.NEXT_PUBLIC_BASE_PATH || "") + "/callback/";
   const url = `https://github.com/login/oauth/authorize?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(redirect)}&scope=gist`;
   window.location.href = url;
 }
