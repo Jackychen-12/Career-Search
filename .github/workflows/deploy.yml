@@ -106,6 +106,8 @@ jobs:
       - name: Build static export
         env:
           NEXT_PUBLIC_BASE_PATH: /Career-Search
+          NEXT_PUBLIC_GITHUB_CLIENT_ID: Ov23liukXeNKV2SszGwS
+          NEXT_PUBLIC_OAUTH_WORKER_URL: ${{ vars.OAUTH_WORKER_URL }}
           DATA_SOURCE: local
         run: npm run build
 
