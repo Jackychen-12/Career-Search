@@ -1,11 +1,18 @@
 import { getToken } from "./auth";
 
-export type TrackingStatus = "saved" | "applied" | "interview" | "offer" | "rejected";
+export type TrackingStatus = "saved" | "applied" | "written" | "interview" | "hr" | "offer" | "rejected" | "withdrawn";
 
 export interface TrackingEntry {
   status: TrackingStatus;
   updatedAt: string;
+  appliedAt?: string;
+  interviewAt?: string;
+  offerAt?: string;
   notes?: string;
+  channel?: string;
+  contact?: string;
+  salary?: string;
+  priority?: "high" | "medium" | "low";
 }
 
 export type TrackingData = Record<string, TrackingEntry>;
@@ -79,9 +86,9 @@ export async function loadTracking(): Promise<TrackingData> {
 
 let saveTimer: ReturnType<typeof setTimeout> | null = null;
 
-export async function saveTracking(jobId: string, status: TrackingStatus, notes?: string): Promise<TrackingData> {
+export async function saveTracking(jobId: string, status: TrackingStatus, extra?: Partial<TrackingEntry>): Promise<TrackingData> {
   const data = getCache();
-  data[jobId] = { status, updatedAt: new Date().toISOString(), notes };
+  data[jobId] = { ...data[jobId], ...extra, status, updatedAt: new Date().toISOString() };
   setCache(data);
 
   if (saveTimer) clearTimeout(saveTimer);

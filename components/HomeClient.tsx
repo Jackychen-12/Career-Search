@@ -187,6 +187,7 @@ export default function HomeClient({
         onClose={() => setTrackingOpen(false)}
         tracking={tracking}
         jobs={jobs}
+        onUpdate={setTracking}
       />
     </>
   );

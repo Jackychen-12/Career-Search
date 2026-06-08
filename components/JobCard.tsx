@@ -9,9 +9,12 @@ import type { MatchResult } from "@/lib/matchScore";
 const STATUS_OPTIONS: { value: TrackingStatus; label: string }[] = [
   { value: "saved", label: "收藏" },
   { value: "applied", label: "已投" },
+  { value: "written", label: "笔试" },
   { value: "interview", label: "面试" },
+  { value: "hr", label: "HR面" },
   { value: "offer", label: "Offer" },
-  { value: "rejected", label: "拒绝" },
+  { value: "rejected", label: "已拒" },
+  { value: "withdrawn", label: "放弃" },
 ];
 
 function daysSince(iso: string | null, now: Date): string | null {
