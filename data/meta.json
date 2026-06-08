@@ -1,12 +1,12 @@
 {
-  "fetchedAt": "2026-06-08T11:40:36.272Z",
-  "count": 1101,
+  "fetchedAt": "2026-06-08T12:53:55.550Z",
+  "count": 1100,
   "sources": {
     "seed": 103,
     "greenhouse": 12,
     "lever": 0,
     "ashby": 0,
-    "repo": 1102,
+    "repo": 1100,
     "official:bytedance": 0,
     "official:meituan": 0,
     "official:kuaishou": 0,
@@ -15,6 +15,6 @@
   "errors": {
     "official:meituan": "empty / unexpected payload",
     "official:kuaishou": "HTTP 404 <- kuaishou",
-    "official:xiaohongshu": "HTTP 404 <- xiaohongshu"
+    "official:xiaohongshu": "fetch failed"
   }
 }
