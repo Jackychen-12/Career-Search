@@ -1,5 +1,5 @@
 {
-  "fetchedAt": "2026-06-08T02:38:39.432Z",
+  "fetchedAt": "2026-06-08T02:46:20.661Z",
   "count": 1567,
   "sources": {
     "seed": 62,
@@ -15,6 +15,6 @@
   "errors": {
     "official:meituan": "empty / unexpected payload",
     "official:kuaishou": "HTTP 404 <- kuaishou",
-    "official:xiaohongshu": "HTTP 404 <- xiaohongshu"
+    "official:xiaohongshu": "fetch failed"
   }
 }
