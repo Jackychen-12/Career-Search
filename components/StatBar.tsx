@@ -9,7 +9,7 @@ export default function StatBar({ jobs, now, newCount }: { jobs: Job[]; now: num
   }).length;
   const stats = [
     { label: "总岗位", value: jobs.length, color: "text-gray-900" },
-    { label: "今日新增", value: newCount, color: newCount > 0 ? "text-green-600" : "text-gray-900" },
+    { label: "今日新增", value: newCount, color: newCount > 0 ? "text-brand-500" : "text-gray-900" },
     { label: "秋招/校招", value: jobs.filter((j) => j.jobType === "秋招" || j.jobType === "校招").length, color: "text-gray-900" },
     { label: "海外/外企", value: jobs.filter((j) => j.category === "外企" || j.region !== "大陆").length, color: "text-gray-900" },
     { label: "临近截止", value: urgentCount, color: urgentCount > 0 ? "text-red-600" : "text-gray-900" },

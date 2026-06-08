@@ -7,7 +7,7 @@ const STATUS_LABELS: Record<TrackingStatus, { label: string; color: string }> = 
   saved: { label: "已收藏", color: "bg-gray-100 text-gray-700" },
   applied: { label: "已投递", color: "bg-blue-50 text-blue-700" },
   interview: { label: "面试中", color: "bg-amber-50 text-amber-700" },
-  offer: { label: "已拿 Offer", color: "bg-emerald-50 text-emerald-700" },
+  offer: { label: "已拿 Offer", color: "bg-brand-50 text-brand-700" },
   rejected: { label: "已拒绝", color: "bg-red-50 text-red-600" },
 };
 

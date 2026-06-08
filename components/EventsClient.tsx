@@ -5,7 +5,7 @@ import type { CampusEvent } from "@/lib/eventTypes";
 
 const TYPE_COLORS: Record<string, string> = {
   宣讲会: "bg-brand-50 text-brand-600",
-  网申: "bg-emerald-50 text-emerald-700",
+  网申: "bg-indigo-50 text-indigo-700",
   笔试: "bg-amber-50 text-amber-700",
   面试: "bg-rose-50 text-rose-700",
   其他: "bg-gray-100 text-gray-600",

@@ -23,9 +23,9 @@ type ViewMode = "list" | "calendar";
 const PAGE_SIZE = 12;
 
 const DEFAULT_FILTER: FilterState = {
-  category: "all",
-  city: "all",
-  jobType: "all",
+  categories: ["all"],
+  cities: ["all"],
+  jobTypes: ["all"],
   region: "all",
   keyword: "",
   urgentOnly: false,
@@ -170,7 +170,14 @@ export default function HomeClient({
       <PrefsPanel
         open={prefsOpen}
         prefs={prefs}
-        onSave={(p) => { setPrefs(p); savePrefs(p); setPage(1); }}
+        onSave={(p) => {
+          setPrefs(p);
+          savePrefs(p);
+          setPage(1);
+          if (p.skills?.length || p.targetRoles?.length || p.resumeKeywords?.length) {
+            setFilter((f) => ({ ...f, sort: "aiMatch" as const }));
+          }
+        }}
         onClose={() => setPrefsOpen(false)}
       />
       <TrackingPanel

@@ -60,7 +60,7 @@ export default function JobCard({
         </div>
         <div className="flex items-center gap-1">
           {isNew && (
-            <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full bg-green-100 text-green-700">
+            <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full bg-brand-50 text-brand-600">
               NEW
             </span>
           )}
@@ -110,7 +110,7 @@ export default function JobCard({
               {dl !== null && dl < 0 && <span className="text-gray-500 ml-1">已过期</span>}
             </span>
           ) : (
-            <span className="text-green-600">滚动招聘</span>
+            <span className="text-brand-500">滚动招聘</span>
           )}
         </div>
         {job.postedAt && (
@@ -156,7 +156,7 @@ export default function JobCard({
           <span className="text-[10px] text-gray-500" title={job.aiTags?.summary ?? ""}>
             {profileMatch != null && profileMatch > 0.2 && (
               <span className="inline-flex items-center gap-1">
-                <span className={`w-1.5 h-1.5 rounded-full ${profileMatch > 0.6 ? "bg-green-500" : profileMatch > 0.4 ? "bg-brand-400" : "bg-gray-400"}`} />
+                <span className={`w-1.5 h-1.5 rounded-full ${profileMatch > 0.6 ? "bg-brand-500" : profileMatch > 0.4 ? "bg-brand-400" : "bg-gray-400"}`} />
                 匹配 {Math.round(profileMatch * 100)}%
                 {job.aiTags?.summary && <span className="hidden sm:inline ml-1 text-gray-500">· {job.aiTags.summary}</span>}
               </span>

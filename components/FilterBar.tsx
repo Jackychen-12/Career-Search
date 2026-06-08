@@ -4,13 +4,20 @@ import { CATEGORIES, CITIES, JOB_TYPES, REGIONS } from "@/lib/taxonomy";
 import type { Category, JobType, Region, SortKey } from "@/lib/types";
 
 export interface FilterState {
-  category: Category | "all";
-  city: string | "all";
-  jobType: JobType | "all";
+  categories: (Category | "all")[];
+  cities: (string | "all")[];
+  jobTypes: (JobType | "all")[];
   region: Region | "all";
   keyword: string;
   urgentOnly: boolean;
   sort: SortKey;
+}
+
+function toggleValue<T extends string>(arr: T[], v: T, allKey: T): T[] {
+  if (v === allKey) return [allKey];
+  const without = arr.filter((x) => x !== allKey);
+  const next = without.includes(v) ? without.filter((x) => x !== v) : [...without, v];
+  return next.length === 0 ? [allKey] : next;
 }
 
 function Pill({
@@ -36,23 +43,24 @@ function Pill({
   );
 }
 
-function Row<T extends string>({
+function MultiRow<T extends string>({
   label,
   options,
-  value,
-  onSelect,
+  selected,
+  onToggle,
 }: {
   label: string;
   options: readonly T[];
-  value: T | "all";
-  onSelect: (v: T | "all") => void;
+  selected: (T | "all")[];
+  onToggle: (v: T | "all") => void;
 }) {
+  const isAll = selected.includes("all" as T);
   return (
     <div className="flex items-center gap-1 flex-wrap">
       <span className="text-xs text-gray-400 shrink-0 mr-1 w-8">{label}</span>
-      <Pill active={value === "all"} onClick={() => onSelect("all")}>全部</Pill>
+      <Pill active={isAll} onClick={() => onToggle("all" as T)}>全部</Pill>
       {options.map((o) => (
-        <Pill key={o} active={value === o} onClick={() => onSelect(o)}>{o}</Pill>
+        <Pill key={o} active={!isAll && selected.includes(o)} onClick={() => onToggle(o)}>{o}</Pill>
       ))}
     </div>
   );
@@ -78,7 +86,6 @@ export default function FilterBar({
 }) {
   return (
     <div className="card p-4 sm:p-5 space-y-3">
-      {/* Search */}
       <div className="flex gap-2">
         <div className="relative flex-1">
           <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -103,12 +110,25 @@ export default function FilterBar({
         </button>
       </div>
 
-      {/* Filter rows */}
-      <Row label="行业" options={CATEGORIES} value={state.category} onSelect={(v) => onChange({ category: v })} />
-      <Row label="城市" options={CITIES} value={state.city} onSelect={(v) => onChange({ city: v })} />
-      <Row label="类型" options={JOB_TYPES} value={state.jobType} onSelect={(v) => onChange({ jobType: v })} />
+      <MultiRow
+        label="行业"
+        options={CATEGORIES}
+        selected={state.categories}
+        onToggle={(v) => onChange({ categories: toggleValue(state.categories, v, "all") })}
+      />
+      <MultiRow
+        label="城市"
+        options={CITIES}
+        selected={state.cities}
+        onToggle={(v) => onChange({ cities: toggleValue(state.cities, v, "all") })}
+      />
+      <MultiRow
+        label="类型"
+        options={JOB_TYPES}
+        selected={state.jobTypes}
+        onToggle={(v) => onChange({ jobTypes: toggleValue(state.jobTypes, v, "all") })}
+      />
 
-      {/* Bottom: region + urgent + sort */}
       <div className="flex items-center justify-between flex-wrap gap-2 pt-2 border-t border-black/5">
         <div className="flex items-center gap-1">
           <span className="text-xs text-gray-400 mr-1">地区</span>

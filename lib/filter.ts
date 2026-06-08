@@ -1,4 +1,4 @@
-import type { Job, JobsQuery } from "./types";
+import type { Category, Job, JobType, JobsQuery, Region } from "./types";
 import { finalScore, matchScore } from "./ranking";
 import { daysUntil } from "./scoring";
 
@@ -10,12 +10,17 @@ export function paginate<T>(arr: T[], page: number, pageSize: number) {
   return { items: arr.slice(start, start + pageSize), total, page: safePage, pageSize, totalPages };
 }
 
-/** Pure filter + sort over an in-memory job pool (shared by build + client). */
-export function filterJobs(pool: Job[], q: JobsQuery, now: Date = new Date()): Job[] {
+export interface MultiFilterQuery extends Omit<JobsQuery, "category" | "city" | "jobType"> {
+  categories?: (Category | "all")[];
+  cities?: (string | "all")[];
+  jobTypes?: (JobType | "all")[];
+}
+
+export function filterJobs(pool: Job[], q: MultiFilterQuery, now: Date = new Date()): Job[] {
   const {
-    category = "all",
-    city = "all",
-    jobType = "all",
+    categories = ["all"],
+    cities = ["all"],
+    jobTypes = ["all"],
     region = "all",
     keyword = "",
     urgentOnly = false,
@@ -24,10 +29,19 @@ export function filterJobs(pool: Job[], q: JobsQuery, now: Date = new Date()): J
   } = q;
 
   let out = pool;
-  if (category !== "all") out = out.filter((j) => j.category === category);
-  if (jobType !== "all") out = out.filter((j) => j.jobType === jobType);
-  if (region !== "all") out = out.filter((j) => j.region === region);
-  if (city !== "all") out = out.filter((j) => j.location.some((l) => l.includes(city)));
+
+  if (!categories.includes("all")) {
+    out = out.filter((j) => (categories as string[]).includes(j.category));
+  }
+  if (!jobTypes.includes("all")) {
+    out = out.filter((j) => (jobTypes as string[]).includes(j.jobType));
+  }
+  if (region !== "all") {
+    out = out.filter((j) => j.region === region);
+  }
+  if (!cities.includes("all")) {
+    out = out.filter((j) => j.location.some((l) => (cities as string[]).some((c) => l.includes(c))));
+  }
   if (urgentOnly) {
     out = out.filter((j) => {
       const d = daysUntil(j.deadline, now);
@@ -63,7 +77,7 @@ export function filterJobs(pool: Job[], q: JobsQuery, now: Date = new Date()): J
   return sorted;
 }
 
-export function queryJobs(pool: Job[], q: JobsQuery, now: Date = new Date()) {
+export function queryJobs(pool: Job[], q: MultiFilterQuery, now: Date = new Date()) {
   const { page = 1, pageSize = 12 } = q;
   return paginate(filterJobs(pool, q, now), page, pageSize);
 }
