@@ -1,4 +1,5 @@
 import fs from "node:fs";
+import path from "node:path";
 import { DATA_DIR, META_PATH, STORE_PATH } from "../../lib/config";
 import { finalizeJobs } from "../../lib/scoring";
 import type { Job, RawJob } from "../../lib/types";
@@ -31,17 +32,27 @@ export function buildAndWrite(
   errors: Record<string, string>,
 ): WriteResult {
   const prev = loadPrevFirstSeen();
-  const jobs = finalizeJobs(raws, prev, new Date());
+  const now = new Date();
+  const jobs = finalizeJobs(raws, prev, now);
+
+  const prevIds = new Set(prev.keys());
+  const newJobIds = jobs.filter((j) => !prevIds.has(j.id)).map((j) => j.id);
+  const removedCount = [...prevIds].filter((id) => !jobs.some((j) => j.id === id)).length;
 
   fs.mkdirSync(DATA_DIR, { recursive: true });
   fs.writeFileSync(STORE_PATH, JSON.stringify(jobs, null, 2) + "\n", "utf8");
   fs.writeFileSync(
     META_PATH,
     JSON.stringify(
-      { fetchedAt: new Date().toISOString(), count: jobs.length, sources, errors },
+      { fetchedAt: now.toISOString(), count: jobs.length, sources, errors },
       null,
       2,
     ) + "\n",
+    "utf8",
+  );
+  fs.writeFileSync(
+    path.join(DATA_DIR, "diff.json"),
+    JSON.stringify({ newJobIds, removedCount, date: now.toISOString().slice(0, 10) }, null, 2) + "\n",
     "utf8",
   );
   return { count: jobs.length, path: STORE_PATH, jobs };

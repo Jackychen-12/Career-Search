@@ -19,12 +19,48 @@ export interface RepoSource {
   parser: "md-table";
   /** Default category for rows from this repo. */
   category?: import("../lib/types").Category;
+  /** Default region for rows from this repo. */
+  region?: import("../lib/types").Region;
 }
 
 // NOTE: GitHub-hosted 校招 lists change structure often. Each repo here is parsed
 // by a small, isolated parser — a broken one only drops its own source. Validate
 // a repo (raw file exists + table columns match) before enabling it.
 export const OPENSOURCE_REPOS: RepoSource[] = [
-  // Example shape (disabled by default until validated):
-  // { id: "repo:example", owner: "someone", repo: "2026-campus", path: "README.md", parser: "md-table", category: "互联网" },
+  {
+    id: "repo:canada-2026",
+    owner: "negarprh",
+    repo: "Canadian-Tech-Internships-2026",
+    path: "README.md",
+    parser: "md-table",
+    category: "外企",
+    region: "海外",
+  },
+  {
+    id: "repo:canada-2027",
+    owner: "negarprh",
+    repo: "Canadian-Tech-Internships-2026",
+    path: "README-2027.md",
+    parser: "md-table",
+    category: "外企",
+    region: "海外",
+  },
+  {
+    id: "repo:europe-2026",
+    owner: "LorenzoLaCorte",
+    repo: "european-tech-internships-2026",
+    path: "README.md",
+    parser: "md-table",
+    category: "外企",
+    region: "海外",
+  },
+  {
+    id: "repo:us-summer-2025",
+    owner: "arunike",
+    repo: "Summer-2025-Internship-List",
+    path: "README.md",
+    parser: "md-table",
+    category: "外企",
+    region: "海外",
+  },
 ];

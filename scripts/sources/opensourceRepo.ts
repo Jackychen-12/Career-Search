@@ -42,20 +42,29 @@ function parseMdTable(md: string, repo: RepoSource): RawJob[] {
   const idx = (keys: string[]) => header.findIndex((h) => keys.some((k) => h.includes(k)));
   const ci = {
     company: idx(["公司", "company", "企业", "name"]),
-    title: idx(["岗位", "职位", "title", "role", "职能", "方向"]),
+    title: idx(["岗位", "职位", "title", "role", "job", "职能", "方向"]),
     location: idx(["地点", "城市", "location", "base", "工作地"]),
-    link: idx(["链接", "link", "投递", "apply", "url", "公告", "网申"]),
-    deadline: idx(["截止", "deadline", "ddl"]),
+    link: idx(["链接", "link", "投递", "apply", "url", "公告", "网申", "application"]),
+    deadline: idx(["截止", "deadline", "ddl", "date"]),
   };
   if (ci.company < 0 && ci.title < 0) return [];
 
   const out: RawJob[] = [];
+  let prevCompany = "";
   for (const line of lines.slice(2)) {
     const cells = splitRow(line);
     const get = (i: number) => (i >= 0 && i < cells.length ? cells[i] : "");
-    const company = stripMd(get(ci.company));
+    let company = stripMd(get(ci.company));
+    if (company === "↳" || company === "└") {
+      company = prevCompany;
+    }
     if (!company || company === "-") continue;
-    const url = extractUrl(get(ci.link)) || extractUrl(line);
+    prevCompany = company;
+
+    const linkCell = get(ci.link);
+    if (linkCell.includes("Closed") || linkCell.includes("🔒")) continue;
+
+    const url = extractUrl(linkCell) || extractUrl(line);
     if (!url) continue;
     out.push({
       origin: repo.id,
@@ -63,6 +72,7 @@ function parseMdTable(md: string, repo: RepoSource): RawJob[] {
       companyTier: 2,
       title: stripMd(get(ci.title)) || "校招 / 实习",
       category: repo.category,
+      region: repo.region,
       location: splitLoc(get(ci.location)),
       deadline: null,
       applyUrl: url,

@@ -29,6 +29,7 @@ export interface JobScores {
   freshness: number; // 0–1, more recently seen -> higher
   tier: number; // 0–1, from companyTier
   base: number; // 0–1, weighted composite (user-independent)
+  aiMatch: number; // 0–1, resume keyword match (build-time)
 }
 
 export interface Job {
@@ -64,7 +65,7 @@ export interface Prefs {
   cities: string[];
 }
 
-export type SortKey = "composite" | "deadline" | "fresh";
+export type SortKey = "composite" | "deadline" | "fresh" | "aiMatch";
 
 export interface JobsQuery {
   category?: Category | "all";
@@ -84,4 +85,10 @@ export interface JobsMeta {
   count: number;
   sources: Record<string, number>;
   errors: Record<string, string>;
+}
+
+export interface JobsDiff {
+  newJobIds: string[];
+  removedCount: number;
+  date: string;
 }

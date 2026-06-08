@@ -55,6 +55,8 @@ export function filterJobs(pool: Job[], q: JobsQuery, now: Date = new Date()): J
     });
   } else if (sort === "fresh") {
     sorted.sort((a, b) => b.firstSeen.localeCompare(a.firstSeen));
+  } else if (sort === "aiMatch") {
+    sorted.sort((a, b) => b.scores.aiMatch - a.scores.aiMatch);
   } else {
     sorted.sort((a, b) => finalScore(b, prefs) - finalScore(a, prefs));
   }

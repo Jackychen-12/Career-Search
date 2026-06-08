@@ -1,0 +1,8 @@
+name = "career-search-oauth"
+main = "index.ts"
+compatibility_date = "2024-09-01"
+
+# Set these via `wrangler secret put`:
+#   GITHUB_CLIENT_ID
+#   GITHUB_CLIENT_SECRET
+#   ALLOWED_ORIGIN (e.g. https://keyuchen-del.github.io)

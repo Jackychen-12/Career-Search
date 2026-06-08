@@ -66,6 +66,7 @@ function Group<T extends string>({
 
 const SORTS: { key: SortKey; label: string }[] = [
   { key: "composite", label: "综合推荐" },
+  { key: "aiMatch", label: "AI 匹配" },
   { key: "deadline", label: "最近截止" },
   { key: "fresh", label: "最新发布" },
 ];

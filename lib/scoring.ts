@@ -4,6 +4,7 @@ import {
   TIER_SCORE,
   URGENCY_WINDOW_DAYS,
 } from "../config/ranking.config";
+import { computeAiMatch } from "./matchScore";
 import type {
   Category,
   Job,
@@ -170,7 +171,10 @@ export function scoreJob(n: NormalizedJob, firstSeen: string, now: Date): JobSco
   const sum = wU + wF + wT;
   const base = (wU * urgency + wF * freshness + wT * tier) / sum;
 
-  return { urgency, freshness, tier, base };
+  // ai match (resume keyword similarity)
+  const aiMatch = computeAiMatch(n);
+
+  return { urgency, freshness, tier, base, aiMatch };
 }
 
 /**
