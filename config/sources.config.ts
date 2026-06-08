@@ -63,4 +63,13 @@ export const OPENSOURCE_REPOS: RepoSource[] = [
     category: "外企",
     region: "海外",
   },
+  {
+    id: "repo:zapply-2026",
+    owner: "zapplyjobs",
+    repo: "Internships-2026",
+    path: "README.md",
+    parser: "md-table",
+    category: "外企",
+    region: "海外",
+  },
 ];

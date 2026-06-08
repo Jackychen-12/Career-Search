@@ -63,6 +63,12 @@ export interface Prefs {
   categories: Category[];
   jobTypes: JobType[];
   cities: string[];
+  school?: string;
+  major?: string;
+  degree?: "本科" | "硕士" | "博士" | "";
+  skills?: string[];
+  targetRoles?: string[];
+  resumeKeywords?: string[];
 }
 
 export type SortKey = "composite" | "deadline" | "fresh" | "aiMatch";

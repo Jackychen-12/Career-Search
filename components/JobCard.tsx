@@ -71,19 +71,22 @@ export default function JobCard({
         </p>
       )}
 
-      {/* Meta: location, type, deadline */}
+      {/* Meta: location, type, deadline, salary, requirements */}
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-slate-400 font-mono">
         <span>{job.location.join(" / ")}</span>
         <span className="text-slate-300">|</span>
         <span>{job.jobType}</span>
+        {job.salary && <span className="text-cyan-600 font-medium">{job.salary}</span>}
+      </div>
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-slate-400">
         {job.deadline ? (
-          <span className={urgent ? "text-red-500 font-semibold" : ""}>
-            {md(job.deadline)}{dl !== null && dl >= 0 ? ` (${dl}d)` : ""}
+          <span className={urgent ? "text-red-500 font-medium font-mono" : "font-mono"}>
+            截止 {job.deadline.slice(0, 10)}{dl !== null && dl >= 0 ? ` (剩${dl}天)` : dl !== null && dl < 0 ? " (已过期)" : ""}
           </span>
         ) : (
-          <span className="text-emerald-500">rolling</span>
+          <span className="text-emerald-500">滚动招聘 · 无截止</span>
         )}
-        {job.salary && <span className="text-cyan-600">{job.salary}</span>}
+        {job.requirements && <span className="text-slate-400">· {job.requirements}</span>}
       </div>
 
       {/* Footer */}
