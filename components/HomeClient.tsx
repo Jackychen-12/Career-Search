@@ -53,10 +53,14 @@ export default function HomeClient({
   const [loggedIn, setLoggedIn] = useState(false);
 
   useEffect(() => {
-    setPrefs(loadPrefs());
+    const p = loadPrefs();
+    setPrefs(p);
     setLoggedIn(isLoggedIn());
     if (isLoggedIn()) {
       loadTracking().then(setTracking);
+      if (!hasPrefs(p)) {
+        setPrefsOpen(true);
+      }
     }
   }, []);
 
@@ -84,7 +88,7 @@ export default function HomeClient({
 
   return (
     <>
-      <Header total={jobs.length} onOpenTracking={() => setTrackingOpen(true)} />
+      <Header total={jobs.length} onOpenTracking={() => setTrackingOpen(true)} onOpenPrefs={() => setPrefsOpen(true)} />
 
       <main className="max-w-7xl mx-auto px-4 py-6 space-y-5">
         {/* Stats + Filters (top, full width) */}
@@ -92,8 +96,6 @@ export default function HomeClient({
         <FilterBar
           state={filter}
           onChange={patch}
-          onOpenPrefs={() => setPrefsOpen(true)}
-          prefsActive={hasPrefs(prefs)}
         />
 
         {/* Sort bar */}

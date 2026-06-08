@@ -7,7 +7,7 @@ interface Env {
 
 function cors(env: Env): HeadersInit {
   return {
-    "Access-Control-Allow-Origin": env.ALLOWED_ORIGIN || "*",
+    "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Methods": "POST, OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type",
   };
@@ -83,9 +83,15 @@ async function handleOAuthExchange(request: Request, env: Env): Promise<Response
     }),
   });
 
-  const data = (await ghRes.json()) as { access_token?: string; error?: string };
+  const ghText = await ghRes.text();
+  let data: { access_token?: string; error?: string; error_description?: string };
+  try {
+    data = JSON.parse(ghText);
+  } catch {
+    return Response.json({ error: "GitHub response parse failed", raw: ghText.slice(0, 200) }, { status: 502, headers: cors(env) });
+  }
   if (data.error || !data.access_token) {
-    return Response.json({ error: data.error ?? "token exchange failed" }, { status: 401, headers: cors(env) });
+    return Response.json({ error: data.error ?? "token exchange failed", detail: data.error_description ?? "" }, { status: 401, headers: cors(env) });
   }
 
   return Response.json({ access_token: data.access_token }, { headers: cors(env) });

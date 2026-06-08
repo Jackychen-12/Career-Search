@@ -76,38 +76,22 @@ const SORTS: { key: SortKey; label: string }[] = [
 export default function FilterBar({
   state,
   onChange,
-  onOpenPrefs,
-  prefsActive,
 }: {
   state: FilterState;
   onChange: (patch: Partial<FilterState>) => void;
-  onOpenPrefs: () => void;
-  prefsActive: boolean;
 }) {
   return (
     <div className="card p-4 sm:p-5 space-y-3">
-      <div className="flex gap-2">
-        <div className="relative flex-1">
-          <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" />
-          </svg>
-          <input
-            value={state.keyword}
-            onChange={(e) => onChange({ keyword: e.target.value })}
-            placeholder="搜索公司、岗位、城市..."
-            className="w-full h-9 pl-9 pr-3 rounded-full border border-gray-200/80 bg-white/80 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-400 transition"
-          />
-        </div>
-        <button
-          onClick={onOpenPrefs}
-          className={`px-4 h-9 rounded-full text-[13px] font-medium transition ${
-            prefsActive
-              ? "bg-brand-500 text-white shadow-sm"
-              : "border border-gray-200 text-gray-600 hover:border-brand-400 hover:text-brand-600"
-          }`}
-        >
-          {prefsActive ? "画像 ✓" : "设置画像"}
-        </button>
+      <div className="relative">
+        <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" />
+        </svg>
+        <input
+          value={state.keyword}
+          onChange={(e) => onChange({ keyword: e.target.value })}
+          placeholder="搜索公司、岗位、城市..."
+          className="w-full h-9 pl-9 pr-3 rounded-full border border-gray-200/80 bg-white/80 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-400 transition"
+        />
       </div>
 
       <MultiRow

@@ -2,14 +2,26 @@
 
 import { useEffect, useState } from "react";
 import { getUser, isLoggedIn, login, logout, type GhUser } from "@/lib/auth";
+import { hasPrefs } from "@/lib/ranking";
+import { loadPrefs } from "@/lib/prefs";
 
-export default function Header({ total, onOpenTracking }: { total: number; onOpenTracking?: () => void }) {
+export default function Header({
+  total,
+  onOpenTracking,
+  onOpenPrefs,
+}: {
+  total: number;
+  onOpenTracking?: () => void;
+  onOpenPrefs?: () => void;
+}) {
   const [user, setUser] = useState<GhUser | null>(null);
   const [loggedIn, setLoggedIn] = useState(false);
+  const [hasProfile, setHasProfile] = useState(false);
 
   useEffect(() => {
     setLoggedIn(isLoggedIn());
     setUser(getUser());
+    setHasProfile(hasPrefs(loadPrefs()));
   }, []);
 
   return (
@@ -26,21 +38,32 @@ export default function Header({ total, onOpenTracking }: { total: number; onOpe
         </div>
 
         <nav className="flex items-center gap-3 text-sm">
-          <a
-            href={(process.env.NEXT_PUBLIC_BASE_PATH ?? "") + "/report/"}
-            className="text-[13px] text-gray-500 hover:text-brand-600 transition"
-          >
-            求职报告
-          </a>
-          <a
-            href={(process.env.NEXT_PUBLIC_BASE_PATH ?? "") + "/events/"}
-            className="text-[13px] text-gray-500 hover:text-brand-600 transition"
-          >
-            宣讲活动
-          </a>
           {loggedIn && user ? (
             <>
-              <button onClick={onOpenTracking} className="text-gray-500 hover:text-brand-600 transition text-[13px]">
+              <button
+                onClick={onOpenPrefs}
+                className={`text-[13px] transition ${
+                  hasProfile ? "text-brand-600 font-medium" : "text-gray-500 hover:text-brand-600"
+                }`}
+              >
+                {hasProfile ? "画像 ✓" : "建立画像"}
+              </button>
+              <a
+                href={(process.env.NEXT_PUBLIC_BASE_PATH || "") + "/report/"}
+                className="text-[13px] text-gray-500 hover:text-brand-600 transition"
+              >
+                求职报告
+              </a>
+              <a
+                href={(process.env.NEXT_PUBLIC_BASE_PATH || "") + "/events/"}
+                className="text-[13px] text-gray-500 hover:text-brand-600 transition"
+              >
+                宣讲活动
+              </a>
+              <button
+                onClick={onOpenTracking}
+                className="text-[13px] text-gray-500 hover:text-brand-600 transition"
+              >
                 我的投递
               </button>
               <button
@@ -53,9 +76,20 @@ export default function Header({ total, onOpenTracking }: { total: number; onOpe
               </button>
             </>
           ) : (
-            <button onClick={login} className="text-[13px] text-gray-500 hover:text-brand-600 transition">
-              登录
-            </button>
+            <>
+              <a
+                href={(process.env.NEXT_PUBLIC_BASE_PATH || "") + "/events/"}
+                className="text-[13px] text-gray-500 hover:text-brand-600 transition"
+              >
+                宣讲活动
+              </a>
+              <button
+                onClick={login}
+                className="text-[13px] font-medium text-white px-3 py-1.5 rounded-full bg-brand-500 hover:bg-brand-600 shadow-sm transition"
+              >
+                登录
+              </button>
+            </>
           )}
         </nav>
       </div>
