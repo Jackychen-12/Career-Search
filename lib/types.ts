@@ -29,7 +29,7 @@ export interface JobScores {
   freshness: number; // 0–1, more recently seen -> higher
   tier: number; // 0–1, from companyTier
   base: number; // 0–1, weighted composite (user-independent)
-  aiMatch: number; // 0–1, resume keyword match (build-time)
+  aiMatch: number; // 0–1, AI match score (DeepSeek or keyword fallback)
 }
 
 export interface Job {
@@ -47,16 +47,17 @@ export interface Job {
   salary: string | null;
   deadline: string | null;
   postedAt: string | null;
-  firstSeen: string; // ISO — first time this system saw the job (snapshot diff)
-  lastSeen: string; // ISO
+  firstSeen: string;
+  lastSeen: string;
   applyUrl: string;
   detailUrl: string | null;
   tags: string[];
   scores: JobScores;
+  aiReason?: string;
 }
 
 /** Normalized job before firstSeen/scores are attached. */
-export type NormalizedJob = Omit<Job, "firstSeen" | "lastSeen" | "scores">;
+export type NormalizedJob = Omit<Job, "firstSeen" | "lastSeen" | "scores" | "aiReason">;
 
 /** User preferences, stored in the browser (no account, no server). */
 export interface Prefs {

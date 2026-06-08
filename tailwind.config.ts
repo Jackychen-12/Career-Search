@@ -6,33 +6,23 @@ const config: Config = {
     extend: {
       colors: {
         brand: {
-          50: "#ecfeff",
-          100: "#cffafe",
-          400: "#22d3ee",
-          500: "#06b6d4",
-          600: "#0891b2",
-          700: "#0e7490",
-        },
-        nav: {
-          DEFAULT: "#0f1729",
-          light: "#1e293b",
-        },
-        accent: {
-          DEFAULT: "#06b6d4",
-          soft: "#ecfeff",
-          indigo: "#6366f1",
-          "indigo-soft": "#eef2ff",
+          50: "#ededff",
+          100: "#dcdcff",
+          400: "#7c6fff",
+          500: "#5b4cff",
+          600: "#4a3de6",
+          700: "#3a2ecc",
         },
       },
       fontFamily: {
         sans: [
-          "IBM Plex Sans",
           "-apple-system",
+          "BlinkMacSystemFont",
           "PingFang SC",
+          "Segoe UI",
           "Microsoft YaHei",
           "sans-serif",
         ],
-        mono: ["IBM Plex Mono", "SF Mono", "Menlo", "monospace"],
       },
     },
   },

@@ -8,10 +8,13 @@
  * are merged, deduped, scored and written to data/jobs.json + data/meta.json.
  * Runs locally and in CI right before the static build.
  */
+import fs from "node:fs";
 import path from "node:path";
 import { SOURCES_CONFIG } from "../config/sources.config";
+import { DATA_DIR } from "../lib/config";
 import type { RawJob } from "../lib/types";
 import { buildAndWrite } from "./lib/persist";
+import { fetchAllEvents } from "./sources/events";
 import { ashby } from "./sources/ashby";
 import { greenhouse } from "./sources/greenhouse";
 import { lever } from "./sources/lever";
@@ -64,7 +67,21 @@ export async function runCrawl(only: string[] = []): Promise<CrawlResult> {
     }
   });
 
-  const { count, path: outPath } = buildAndWrite(all, sources, errors);
+  const { count, path: outPath } = await buildAndWrite(all, sources, errors);
+
+  // Fetch campus events in parallel (best-effort)
+  try {
+    const events = await fetchAllEvents();
+    fs.mkdirSync(DATA_DIR, { recursive: true });
+    fs.writeFileSync(
+      path.join(DATA_DIR, "events.json"),
+      JSON.stringify(events, null, 2) + "\n",
+      "utf8",
+    );
+  } catch (e) {
+    console.warn(`[events] Failed: ${(e as Error).message}`);
+  }
+
   return { total: all.length, written: count, sources, errors, path: outPath };
 }
 

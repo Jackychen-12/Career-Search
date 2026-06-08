@@ -66,6 +66,19 @@ function parseMdTable(md: string, repo: RepoSource): RawJob[] {
 
     const url = extractUrl(linkCell) || extractUrl(line);
     if (!url) continue;
+
+    // Parse date column if available (filter out posts older than 90 days)
+    const dateStr = stripMd(get(ci.deadline));
+    let postedAt: string | null = null;
+    if (dateStr) {
+      const parsed = new Date(dateStr);
+      if (!isNaN(parsed.getTime())) {
+        postedAt = parsed.toISOString();
+        const ageMs = Date.now() - parsed.getTime();
+        if (ageMs > 90 * 24 * 60 * 60 * 1000) continue;
+      }
+    }
+
     out.push({
       origin: repo.id,
       company,
@@ -75,6 +88,7 @@ function parseMdTable(md: string, repo: RepoSource): RawJob[] {
       region: repo.region,
       location: splitLoc(get(ci.location)),
       deadline: null,
+      postedAt,
       applyUrl: url,
       detailUrl: url,
       tags: ["开源仓库"],
