@@ -25,7 +25,7 @@ function Pill({
   return (
     <button
       onClick={onClick}
-      className={`shrink-0 px-3 h-8 inline-flex items-center rounded-full text-[13px] transition ${
+      className={`shrink-0 px-3 h-8 inline-flex items-center whitespace-nowrap rounded-full text-[13px] transition ${
         active
           ? "bg-brand-500 text-white shadow-sm"
           : "text-gray-600 hover:text-brand-600 hover:bg-brand-50"
@@ -48,7 +48,7 @@ function Row<T extends string>({
   onSelect: (v: T | "all") => void;
 }) {
   return (
-    <div className="flex items-center gap-1 overflow-x-auto scroll-hide">
+    <div className="flex items-center gap-1 flex-wrap">
       <span className="text-xs text-gray-400 shrink-0 mr-1 w-8">{label}</span>
       <Pill active={value === "all"} onClick={() => onSelect("all")}>全部</Pill>
       {options.map((o) => (
