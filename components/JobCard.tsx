@@ -34,88 +34,89 @@ export default function JobCard({
   const urgent = dl !== null && dl >= 0 && dl <= 15;
 
   return (
-    <article className="card p-4 flex flex-col gap-3">
-      {/* Top: category + tags + NEW */}
-      <div className="flex items-center justify-between text-xs gap-2">
-        <div className="flex items-center gap-1.5">
-          <span className={`px-2 py-0.5 rounded-md font-medium ${CATEGORY_COLORS[job.category]}`}>
-            {job.category}
-          </span>
-          {job.tags.slice(0, 2).map((t) => (
-            <span key={t} className="px-2 py-0.5 rounded-md bg-gray-100 text-gray-500">
-              {t}
-            </span>
-          ))}
+    <article className="card p-4 flex flex-col gap-2.5 group">
+      {/* Header row: company + salary + actions */}
+      <div className="flex items-start justify-between gap-2">
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-semibold text-slate-900 truncate">{job.company}</span>
+            {isNew && (
+              <span className="shrink-0 text-[9px] font-bold font-mono px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-700 tracking-wide">
+                NEW
+              </span>
+            )}
+          </div>
+          <div className="text-[13px] text-cyan-700 mt-1 line-clamp-2 leading-snug font-medium">
+            {job.title}
+          </div>
         </div>
-        <div className="flex items-center gap-1.5 shrink-0">
-          {isNew && (
-            <span className="px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-600 font-medium text-[10px]">
-              NEW
-            </span>
-          )}
-          {onTrack && (
-            <button
-              onClick={() => onTrack(job.id, trackingStatus ? null : "saved")}
-              className={`w-6 h-6 rounded-full flex items-center justify-center transition ${
-                trackingStatus ? "text-red-500 bg-red-50" : "text-gray-300 hover:text-red-400 hover:bg-red-50"
-              }`}
-            >
-              <svg width="13" height="13" viewBox="0 0 24 24" fill={trackingStatus ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2">
-                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-              </svg>
-            </button>
-          )}
-        </div>
-      </div>
-
-      {/* Company + Title */}
-      <div>
-        <div className="text-base font-semibold leading-snug line-clamp-1">{job.company}</div>
-        <div className="text-sm text-brand-600 mt-1 line-clamp-2">{job.title}</div>
+        {onTrack && (
+          <button
+            onClick={() => onTrack(job.id, trackingStatus ? null : "saved")}
+            className={`shrink-0 w-7 h-7 rounded-md flex items-center justify-center transition ${
+              trackingStatus ? "text-red-500 bg-red-50" : "text-slate-300 hover:text-red-400 hover:bg-red-50 opacity-0 group-hover:opacity-100"
+            }`}
+          >
+            <svg width="13" height="13" viewBox="0 0 24 24" fill={trackingStatus ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+            </svg>
+          </button>
+        )}
       </div>
 
       {/* Description */}
       {job.description && (
-        <p className="text-sm text-gray-600 leading-relaxed line-clamp-2">
+        <p className="text-xs text-slate-500 leading-relaxed line-clamp-2">
           {job.description}
         </p>
       )}
 
+      {/* Meta: location, type, deadline */}
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-slate-400 font-mono">
+        <span>{job.location.join(" / ")}</span>
+        <span className="text-slate-300">|</span>
+        <span>{job.jobType}</span>
+        {job.deadline ? (
+          <span className={urgent ? "text-red-500 font-semibold" : ""}>
+            {md(job.deadline)}{dl !== null && dl >= 0 ? ` (${dl}d)` : ""}
+          </span>
+        ) : (
+          <span className="text-emerald-500">rolling</span>
+        )}
+        {job.salary && <span className="text-cyan-600">{job.salary}</span>}
+      </div>
+
       {/* Footer */}
-      <div className="flex items-center justify-between pt-2 mt-auto border-t border-gray-100 text-xs text-gray-500">
-        <div className="flex items-center gap-3">
-          <span>{job.location.join(" / ")}</span>
-          <span>{job.jobType}</span>
-          {job.deadline ? (
-            <span className={urgent ? "text-red-600 font-medium" : ""}>
-              截止 {md(job.deadline)}
-              {dl !== null && dl >= 0 ? ` · ${dl}天` : ""}
-            </span>
-          ) : (
-            <span className="text-emerald-600">滚动招聘</span>
-          )}
-        </div>
-        <div className="flex items-center gap-2">
+      <div className="flex items-center justify-between pt-2.5 mt-auto border-t border-slate-100">
+        <div className="flex items-center gap-1.5">
+          <span className={`text-[10px] px-2 py-0.5 rounded font-medium ${CATEGORY_COLORS[job.category]}`}>
+            {job.category}
+          </span>
           {trackingStatus && (
             <select
               value={trackingStatus}
               onChange={(e) => onTrack?.(job.id, e.target.value as TrackingStatus)}
-              className="text-xs px-1.5 py-0.5 rounded border border-gray-200 bg-white text-gray-600"
+              className="text-[10px] px-1.5 py-0.5 rounded border border-slate-200 bg-white text-slate-600"
             >
               {STATUS_OPTIONS.map((o) => (
                 <option key={o.value} value={o.value}>{o.label}</option>
               ))}
             </select>
           )}
-          <a
-            href={job.applyUrl}
-            target="_blank"
-            rel="noreferrer"
-            className="px-3 h-7 inline-flex items-center rounded-md text-xs font-medium bg-brand-500 text-white hover:bg-brand-600 transition"
-          >
-            投递 →
-          </a>
+          {job.tags.slice(0, 1).map((t) => (
+            <span key={t} className="text-[10px] px-1.5 py-0.5 rounded bg-slate-50 text-slate-400 border border-slate-100">
+              {t}
+            </span>
+          ))}
         </div>
+        <a
+          href={job.applyUrl}
+          target="_blank"
+          rel="noreferrer"
+          className="shrink-0 text-[11px] font-medium text-white px-3 py-1.5 rounded-md bg-nav hover:bg-slate-800 transition"
+        >
+          投递 →
+        </a>
       </div>
     </article>
   );

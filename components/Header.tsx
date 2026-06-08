@@ -13,32 +13,34 @@ export default function Header({ total, onOpenTracking }: { total: number; onOpe
   }, []);
 
   return (
-    <header className="sticky top-0 z-40 bg-white/90 backdrop-blur border-b border-gray-200">
-      <div className="max-w-7xl mx-auto px-4 h-14 flex items-center gap-6">
-        <div className="flex items-center gap-2 shrink-0">
-          <span className="w-7 h-7 rounded-md bg-brand-500 text-white grid place-items-center font-bold text-sm">
-            C
-          </span>
-          <span className="text-lg font-semibold tracking-tight">Career Search</span>
-          <span className="hidden sm:inline text-xs text-gray-500 ml-1">
-            {total} 个岗位
-          </span>
+    <header className="nav-dark sticky top-0 z-40 border-b border-white/5">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-12 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            <div className="w-6 h-6 rounded bg-gradient-to-br from-cyan-400 to-indigo-500 grid place-items-center">
+              <span className="text-[10px] font-bold text-white">CS</span>
+            </div>
+            <span className="text-sm font-semibold text-white tracking-tight">Career Search</span>
+          </div>
+          <div className="hidden sm:flex items-center gap-1.5 ml-3">
+            <span className="text-[11px] font-mono text-slate-400 bg-white/5 border border-white/10 px-2 py-0.5 rounded">
+              {total.toLocaleString()} jobs
+            </span>
+          </div>
         </div>
 
-        <div className="flex-1" />
-
-        <nav className="flex items-center gap-3 text-sm">
+        <div className="flex items-center gap-3">
           {loggedIn && user ? (
             <>
               <button
                 onClick={onOpenTracking}
-                className="text-gray-600 hover:text-brand-600 transition"
+                className="text-xs text-slate-400 hover:text-white transition"
               >
                 我的投递
               </button>
               <button
                 onClick={() => { logout(); setLoggedIn(false); setUser(null); }}
-                className="w-7 h-7 rounded-full overflow-hidden border border-gray-200 hover:border-brand-500 transition"
+                className="w-6 h-6 rounded-full overflow-hidden ring-1 ring-white/20 hover:ring-cyan-400/50 transition"
                 title={`${user.login} · 点击登出`}
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -48,12 +50,12 @@ export default function Header({ total, onOpenTracking }: { total: number; onOpe
           ) : (
             <button
               onClick={login}
-              className="text-gray-600 hover:text-brand-600 transition"
+              className="text-xs text-slate-400 hover:text-white transition"
             >
               登录
             </button>
           )}
-        </nav>
+        </div>
       </div>
     </header>
   );

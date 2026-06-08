@@ -82,12 +82,11 @@ export default function HomeClient({
   const personalized = filter.sort === "composite" && hasPrefs(prefs);
 
   return (
-    <>
+    <div className="min-h-screen">
       <Header total={jobs.length} onOpenTracking={() => setTrackingOpen(true)} />
 
-      <main className="max-w-7xl mx-auto px-4 py-6 space-y-5">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-5 space-y-4">
         <StatBar jobs={jobs} now={now} newCount={newJobIds.length} />
-
         <FilterBar
           state={filter}
           onChange={patch}
@@ -95,41 +94,39 @@ export default function HomeClient({
           prefsActive={hasPrefs(prefs)}
         />
 
-        {/* Results header */}
+        {/* Results control bar */}
         <div className="flex items-center justify-between">
-          <div className="text-sm text-gray-500">
-            共 <span className="text-gray-800 font-medium">{result.total}</span> 条
-            {personalized && <span className="text-brand-600 ml-1">· 已按偏好排序</span>}
+          <div className="text-xs text-slate-500">
+            <span className="font-mono font-medium text-slate-800">{result.total}</span> 条结果
+            {personalized && <span className="text-cyan-600 ml-1.5">· 个性化排序</span>}
           </div>
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-0.5 p-0.5 bg-slate-100 rounded-md">
             <button
               onClick={() => setView("list")}
-              className={`px-3 h-8 inline-flex items-center rounded-md text-sm transition ${
-                view === "list" ? "bg-brand-500 text-white" : "text-gray-600 hover:text-brand-600 hover:bg-brand-50"
-              }`}
+              className={`px-2.5 py-1 rounded text-[11px] font-medium transition ${view === "list" ? "bg-white text-slate-900 shadow-sm" : "text-slate-500"}`}
             >
               列表
             </button>
             <button
               onClick={() => setView("calendar")}
-              className={`px-3 h-8 inline-flex items-center rounded-md text-sm transition ${
-                view === "calendar" ? "bg-brand-500 text-white" : "text-gray-600 hover:text-brand-600 hover:bg-brand-50"
-              }`}
+              className={`px-2.5 py-1 rounded text-[11px] font-medium transition ${view === "calendar" ? "bg-white text-slate-900 shadow-sm" : "text-slate-500"}`}
             >
               日历
             </button>
           </div>
         </div>
 
-        {/* Content */}
+        {/* Content area */}
         {view === "calendar" ? (
           <CalendarView jobs={jobs} now={now} />
         ) : (
           <>
             {result.items.length === 0 ? (
-              <div className="card p-12 text-center text-gray-400">没有符合条件的岗位，换个筛选条件试试。</div>
+              <div className="card p-16 text-center text-sm text-slate-400">
+                没有符合条件的岗位，试试放宽筛选。
+              </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 grid-animate">
                 {result.items.map((j) => (
                   <JobCard
                     key={j.id}
@@ -142,7 +139,6 @@ export default function HomeClient({
                 ))}
               </div>
             )}
-
             <Pagination
               page={result.page}
               totalPages={result.totalPages}
@@ -157,30 +153,26 @@ export default function HomeClient({
         <SourceStatusBanner meta={meta} />
       </main>
 
-      <footer className="border-t border-gray-200 bg-white mt-8">
-        <div className="max-w-7xl mx-auto px-4 py-5 text-xs text-gray-500 flex flex-wrap justify-between gap-2">
-          <span>仅整理公开招聘信息，投递以官方页面为准</span>
-          <span>{meta?.fetchedAt ? new Date(meta.fetchedAt).toLocaleDateString("zh-CN") + " 更新" : ""}</span>
+      {/* Footer */}
+      <footer className="border-t border-slate-200 mt-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 text-[11px] text-slate-400 flex justify-between">
+          <span>数据来源公开招聘信息，投递以官方页面为准</span>
+          <span className="font-mono">{meta?.fetchedAt ? new Date(meta.fetchedAt).toLocaleDateString("zh-CN") + " synced" : ""}</span>
         </div>
       </footer>
 
       <PrefsPanel
         open={prefsOpen}
         prefs={prefs}
-        onSave={(p) => {
-          setPrefs(p);
-          savePrefs(p);
-          setPage(1);
-        }}
+        onSave={(p) => { setPrefs(p); savePrefs(p); setPage(1); }}
         onClose={() => setPrefsOpen(false)}
       />
-
       <TrackingPanel
         open={trackingOpen}
         onClose={() => setTrackingOpen(false)}
         tracking={tracking}
         jobs={jobs}
       />
-    </>
+    </div>
   );
 }

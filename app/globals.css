@@ -2,38 +2,127 @@
 @tailwind components;
 @tailwind utilities;
 
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
 :root {
-  --bg: #f6f7fb;
-  --panel: #ffffff;
-  --text: #1c2434;
-  --muted: #6b7280;
-  --border: #e5e7eb;
+  --bg: #f0f2f5;
+  --surface: #ffffff;
+  --surface-elevated: #ffffff;
+  --nav: #0f1729;
+  --nav-text: #e2e8f0;
+  --text: #0f172a;
+  --text-secondary: #475569;
+  --muted: #94a3b8;
+  --border: #e2e8f0;
+  --accent: #06b6d4;
+  --accent-soft: #ecfeff;
+  --accent-2: #6366f1;
+  --accent-2-soft: #eef2ff;
 }
 
-html,
-body {
+html, body {
   background: var(--bg);
   color: var(--text);
-  font-family: ui-sans-serif, system-ui, -apple-system, "PingFang SC",
-    "Microsoft YaHei", sans-serif;
+  font-family: 'IBM Plex Sans', -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 * {
   box-sizing: border-box;
 }
 
+.font-mono {
+  font-family: 'IBM Plex Mono', 'SF Mono', Menlo, monospace;
+}
+
 .card {
-  background: var(--panel);
+  background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 12px;
-  transition: box-shadow 0.15s ease, transform 0.15s ease;
+  border-radius: 8px;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
 .card:hover {
-  box-shadow: 0 6px 20px rgba(20, 30, 60, 0.06);
-  transform: translateY(-1px);
+  border-color: #cbd5e1;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+}
+
+/* Glass stat cards */
+.stat-card {
+  background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(248,250,252,0.9));
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  border-radius: 8px;
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.stat-card:hover::before {
+  opacity: 1;
+}
+
+/* Nav dark theme */
+.nav-dark {
+  background: var(--nav);
+  color: var(--nav-text);
+}
+
+/* Subtle grid texture on background */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(15, 23, 42, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(15, 23, 42, 0.02) 1px, transparent 1px);
+  background-size: 40px 40px;
+  z-index: -1;
 }
 
 .scroll-hide::-webkit-scrollbar {
   display: none;
 }
+
+/* Filter chip active state */
+.chip-active {
+  background: var(--nav);
+  color: #ffffff;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.2);
+}
+
+/* Stagger animation for grid items */
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.grid-animate > * {
+  animation: slideUp 0.25s ease-out forwards;
+  opacity: 0;
+}
+.grid-animate > *:nth-child(1) { animation-delay: 0ms; }
+.grid-animate > *:nth-child(2) { animation-delay: 40ms; }
+.grid-animate > *:nth-child(3) { animation-delay: 80ms; }
+.grid-animate > *:nth-child(4) { animation-delay: 120ms; }
+.grid-animate > *:nth-child(5) { animation-delay: 160ms; }
+.grid-animate > *:nth-child(6) { animation-delay: 200ms; }
+.grid-animate > *:nth-child(7) { animation-delay: 240ms; }
+.grid-animate > *:nth-child(8) { animation-delay: 280ms; }
+.grid-animate > *:nth-child(9) { animation-delay: 320ms; }
+.grid-animate > *:nth-child(10) { animation-delay: 360ms; }
+.grid-animate > *:nth-child(11) { animation-delay: 400ms; }
+.grid-animate > *:nth-child(12) { animation-delay: 440ms; }

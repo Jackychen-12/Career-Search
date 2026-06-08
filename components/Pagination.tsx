@@ -21,29 +21,28 @@ export default function Pagination({
     }
   }
 
-  const btn =
-    "min-w-[36px] h-9 px-2 inline-flex items-center justify-center rounded-md text-sm border";
+  const btn = "min-w-[34px] h-8 px-2 inline-flex items-center justify-center rounded-md text-xs border transition";
 
   return (
     <nav className="flex items-center justify-center gap-1.5 mt-6">
       <button
-        className={`${btn} ${page <= 1 ? "border-gray-200 text-gray-300 cursor-not-allowed" : "border-gray-200 text-gray-600 hover:border-brand-500 hover:text-brand-600 bg-white"}`}
+        className={`${btn} ${page <= 1 ? "border-slate-200 text-slate-300 cursor-not-allowed" : "border-slate-200 text-slate-600 hover:border-nav hover:text-nav bg-white"}`}
         onClick={() => onPage(page - 1)}
         disabled={page <= 1}
       >
-        上一页
+        ‹ 上一页
       </button>
       {pages.map((p, idx) =>
         p === "..." ? (
-          <span key={`dot-${idx}`} className="px-1 text-gray-400">…</span>
+          <span key={`dot-${idx}`} className="px-1 text-slate-400 text-xs">…</span>
         ) : (
           <button
             key={p}
             onClick={() => onPage(p)}
             className={`${btn} ${
               p === page
-                ? "border-brand-500 bg-brand-500 text-white"
-                : "border-gray-200 text-gray-600 hover:border-brand-500 hover:text-brand-600 bg-white"
+                ? "border-nav bg-nav text-white font-medium"
+                : "border-slate-200 text-slate-600 hover:border-nav hover:text-nav bg-white"
             }`}
           >
             {p}
@@ -51,11 +50,11 @@ export default function Pagination({
         ),
       )}
       <button
-        className={`${btn} ${page >= totalPages ? "border-gray-200 text-gray-300 cursor-not-allowed" : "border-gray-200 text-gray-600 hover:border-brand-500 hover:text-brand-600 bg-white"}`}
+        className={`${btn} ${page >= totalPages ? "border-slate-200 text-slate-300 cursor-not-allowed" : "border-slate-200 text-slate-600 hover:border-nav hover:text-nav bg-white"}`}
         onClick={() => onPage(page + 1)}
         disabled={page >= totalPages}
       >
-        下一页
+        下一页 ›
       </button>
     </nav>
   );

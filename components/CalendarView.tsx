@@ -50,15 +50,15 @@ export default function CalendarView({ jobs, now }: { jobs: Job[]; now: number }
   const selectedJobs = selected ? (deadlineMap.get(selected) ?? []) : [];
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-4">
+    <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-3">
       <div className="card p-5">
         <div className="flex items-center justify-between mb-4">
-          <button onClick={prevMonth} className="px-3 h-8 rounded-md text-sm text-gray-600 hover:bg-brand-50 hover:text-brand-600 transition">←</button>
-          <h3 className="text-base font-semibold">{year} 年 {month + 1} 月</h3>
-          <button onClick={nextMonth} className="px-3 h-8 rounded-md text-sm text-gray-600 hover:bg-brand-50 hover:text-brand-600 transition">→</button>
+          <button onClick={prevMonth} className="w-8 h-8 rounded-md text-slate-500 hover:bg-slate-100 hover:text-slate-900 transition grid place-items-center text-sm">←</button>
+          <h3 className="text-sm font-semibold text-slate-900">{year} 年 {month + 1} 月</h3>
+          <button onClick={nextMonth} className="w-8 h-8 rounded-md text-slate-500 hover:bg-slate-100 hover:text-slate-900 transition grid place-items-center text-sm">→</button>
         </div>
 
-        <div className="grid grid-cols-7 gap-1 text-center text-xs text-gray-500 mb-2">
+        <div className="grid grid-cols-7 gap-1 text-center text-[11px] text-slate-400 mb-1.5 font-medium">
           {WEEKDAYS.map((w) => <div key={w} className="py-1">{w}</div>)}
         </div>
 
@@ -73,16 +73,16 @@ export default function CalendarView({ jobs, now }: { jobs: Job[]; now: number }
               <button
                 key={key}
                 onClick={() => setSelected(isSelected ? null : key)}
-                className={`relative rounded-lg py-2 text-sm transition ${
-                  isSelected ? "bg-brand-500 text-white" :
-                  isToday ? "bg-brand-50 text-brand-600 font-bold" :
-                  count > 0 ? "hover:bg-gray-50 font-medium" : "text-gray-400"
+                className={`relative rounded-md py-2 text-xs transition ${
+                  isSelected ? "bg-nav text-white" :
+                  isToday ? "bg-cyan-50 text-cyan-700 font-bold ring-1 ring-cyan-200" :
+                  count > 0 ? "hover:bg-slate-50 text-slate-900 font-medium" : "text-slate-300"
                 }`}
               >
                 {day}
                 {count > 0 && !isSelected && (
-                  <span className="absolute -top-0.5 -right-0.5 text-[9px] font-bold rounded-full w-4 h-4 flex items-center justify-center bg-red-500 text-white">
-                    {count > 9 ? "9+" : count}
+                  <span className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 text-[8px] font-bold rounded-full flex items-center justify-center bg-red-500 text-white">
+                    {count > 9 ? "+" : count}
                   </span>
                 )}
               </button>
@@ -91,35 +91,33 @@ export default function CalendarView({ jobs, now }: { jobs: Job[]; now: number }
         </div>
       </div>
 
-      <div className="card p-4 h-fit lg:sticky lg:top-20">
+      {/* Side panel */}
+      <div className="card p-4 h-fit lg:sticky lg:top-16">
         {selected ? (
           <>
-            <h4 className="text-sm font-semibold mb-3">
-              {selected} 截止（{selectedJobs.length} 个岗位）
-            </h4>
-            {selectedJobs.length === 0 ? (
-              <p className="text-sm text-gray-400">当天无截止岗位</p>
-            ) : (
-              <div className="space-y-2 max-h-80 overflow-y-auto">
-                {selectedJobs.map((j) => (
-                  <a
-                    key={j.id}
-                    href={j.applyUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="block p-3 rounded-lg border border-gray-100 hover:border-brand-500 hover:shadow-sm transition"
-                  >
-                    <div className="font-medium text-sm">{j.company}</div>
-                    <div className="text-xs text-brand-600 mt-0.5">{j.title}</div>
-                    <div className="text-xs text-gray-400 mt-1">{j.location.join(" / ")} · {j.jobType}</div>
-                  </a>
-                ))}
-              </div>
-            )}
+            <div className="flex items-center gap-2 mb-3">
+              <span className="text-xs font-mono font-medium text-slate-900">{selected}</span>
+              <span className="text-[11px] text-slate-400">{selectedJobs.length} 个截止</span>
+            </div>
+            <div className="space-y-1.5 max-h-80 overflow-y-auto">
+              {selectedJobs.map((j) => (
+                <a
+                  key={j.id}
+                  href={j.applyUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="block p-2.5 rounded-md border border-slate-100 hover:border-cyan-300 hover:bg-cyan-50/30 transition"
+                >
+                  <div className="text-xs font-medium text-slate-900">{j.company}</div>
+                  <div className="text-[11px] text-cyan-700 mt-0.5 truncate">{j.title}</div>
+                  <div className="text-[10px] text-slate-400 mt-1 font-mono">{j.location[0]} · {j.jobType}</div>
+                </a>
+              ))}
+            </div>
           </>
         ) : (
-          <div className="py-8 text-center text-sm text-gray-400">
-            点击日期查看当天截止的岗位
+          <div className="py-10 text-center text-xs text-slate-400">
+            选择日期查看截止岗位
           </div>
         )}
       </div>

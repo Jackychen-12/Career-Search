@@ -31,13 +31,13 @@ export const CITIES = [
 ];
 
 export const CATEGORY_COLORS: Record<Category, string> = {
-  互联网: "bg-brand-50 text-brand-600",
+  互联网: "bg-cyan-50 text-cyan-700",
   金融: "bg-amber-50 text-amber-700",
-  外企: "bg-emerald-50 text-emerald-700",
-  快消: "bg-pink-50 text-pink-700",
-  实体: "bg-sky-50 text-sky-700",
+  外企: "bg-indigo-50 text-indigo-700",
+  快消: "bg-rose-50 text-rose-700",
+  实体: "bg-slate-100 text-slate-600",
   管培: "bg-violet-50 text-violet-700",
-  其他: "bg-gray-100 text-gray-600",
+  其他: "bg-gray-100 text-gray-500",
 };
 
 export function isCategory(s: string | null | undefined): s is Category {
