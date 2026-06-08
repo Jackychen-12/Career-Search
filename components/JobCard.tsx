@@ -142,27 +142,35 @@ export default function JobCard({
 
       {/* Footer */}
       <div className="flex items-center justify-between pt-2 mt-auto border-t border-black/5">
-        {trackingStatus ? (
-          <select
-            value={trackingStatus}
-            onChange={(e) => onTrack?.(job.id, e.target.value as TrackingStatus)}
-            className="text-[11px] px-2 py-1 rounded-lg border border-gray-200 text-gray-600"
-          >
-            {STATUS_OPTIONS.map((o) => (
-              <option key={o.value} value={o.value}>{o.label}</option>
-            ))}
-          </select>
-        ) : (
-          <span className="text-[10px] text-gray-500" title={job.aiTags?.summary ?? ""}>
-            {profileMatch != null && profileMatch > 0.2 && (
-              <span className="inline-flex items-center gap-1">
-                <span className={`w-1.5 h-1.5 rounded-full ${profileMatch > 0.6 ? "bg-brand-500" : profileMatch > 0.4 ? "bg-brand-400" : "bg-gray-400"}`} />
-                匹配 {Math.round(profileMatch * 100)}%
-                {job.aiTags?.summary && <span className="hidden sm:inline ml-1 text-gray-500">· {job.aiTags.summary}</span>}
+        <div className="flex-1 min-w-0">
+          {trackingStatus && (
+            <select
+              value={trackingStatus}
+              onChange={(e) => onTrack?.(job.id, e.target.value as TrackingStatus)}
+              className="text-[11px] px-2 py-1 rounded-lg border border-gray-200 text-gray-600 mb-1"
+            >
+              {STATUS_OPTIONS.map((o) => (
+                <option key={o.value} value={o.value}>{o.label}</option>
+              ))}
+            </select>
+          )}
+          {profileMatch != null && profileMatch > 0 ? (
+            <div className="flex items-center gap-1.5">
+              <span className={`shrink-0 text-[10px] font-semibold px-1.5 py-0.5 rounded-full ${
+                profileMatch > 0.6 ? "bg-brand-500 text-white" :
+                profileMatch > 0.3 ? "bg-brand-50 text-brand-600" :
+                "bg-gray-100 text-gray-500"
+              }`}>
+                {Math.round(profileMatch * 100)}%
               </span>
-            )}
-          </span>
-        )}
+              {job.aiTags?.summary && (
+                <span className="text-[10px] text-gray-500 truncate">{job.aiTags.summary}</span>
+              )}
+            </div>
+          ) : job.aiTags?.summary ? (
+            <span className="text-[10px] text-gray-400 truncate block">{job.aiTags.summary}</span>
+          ) : null}
+        </div>
         <a
           href={job.applyUrl}
           target="_blank"

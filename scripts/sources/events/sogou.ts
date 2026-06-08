@@ -2,7 +2,13 @@ import type { CampusEvent } from "../../../lib/eventTypes";
 import { getText } from "../../lib/fetchUtil";
 
 const SEARCH_URL = "https://weixin.sogou.com/weixin";
-const QUERIES = ["校园宣讲会 2027届", "秋招宣讲会 2026", "校招宣讲 名企"];
+const QUERIES = [
+  "校园宣讲会 2027届",
+  "2027届校园招聘 宣讲",
+  "秋招宣讲会 名企 2026",
+  "央企 校园招聘 宣讲 2027",
+  "互联网 校招 宣讲会 2027",
+];
 
 function parseDate(text: string): string {
   const match = text.match(/(\d{4})[-.\/年](\d{1,2})[-.\/月](\d{1,2})/);
@@ -13,16 +19,38 @@ function parseDate(text: string): string {
 }
 
 function extractCompany(title: string): string {
-  const patterns = [
-    /【([^】]+)】/,
-    /「([^」]+)」/,
-    /^([^\s|—–·]+?)(?:宣讲|校招|秋招|网申|27届)/,
+  // Clean HTML entities
+  const cleaned = title
+    .replace(/&[a-z]+;/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  // Priority: scan for known company names first
+  const known = [
+    "华为", "华为慧通", "比亚迪", "腾讯", "阿里", "字节跳动", "美团", "百度", "京东", "小米",
+    "中广核", "中国黄金", "中建", "中粮", "国家电网", "中国移动", "中国银行", "国电南自",
+    "碧桂园", "万科", "恒大", "光大证券", "南京银行", "招商银行", "工商银行",
+    "国机集团", "软通动力", "上汽通用五菱", "上汽", "韶音科技", "格见半导体", "长城证券",
+    "双胞胎集团", "微派网络", "南理工",
   ];
-  for (const p of patterns) {
-    const m = title.match(p);
-    if (m && m[1].length <= 15) return m[1].trim();
+  for (const k of known) {
+    if (cleaned.includes(k)) return k;
   }
-  return title.slice(0, 12);
+
+  // Fallback: bracket or regex patterns
+  const bracket = cleaned.match(/【([^】]{2,10})】/) ?? cleaned.match(/「([^」]{2,10})」/);
+  if (bracket) {
+    const name = bracket[1].replace(/(专场|校招|宣讲|招聘|春招|秋招)$/, "").trim();
+    if (name.length >= 2) return name;
+  }
+
+  const companyMatch = cleaned.match(/([^\s|｜·!！,，]{2,8}?)(?:2027|2026|27届|校园招聘)/);
+  if (companyMatch) {
+    const name = companyMatch[1].replace(/^(实习|招聘|活动预告)\s*[|｜]\s*/, "").trim();
+    if (name.length >= 2 && name.length <= 10) return name;
+  }
+
+  return cleaned.replace(/[【】「」]/g, "").slice(0, 8);
 }
 
 function detectType(title: string): CampusEvent["type"] {
@@ -59,9 +87,16 @@ async function searchSogou(query: string): Promise<CampusEvent[]> {
 
     if (!titleMatch || !linkMatch) continue;
 
-    const title = titleMatch[1].replace(/<[^>]+>/g, "").trim();
+    const title = titleMatch[1]
+      .replace(/<[^>]+>/g, "")
+      .replace(/&ldquo;/g, "“").replace(/&rdquo;/g, "”")
+      .replace(/&mdash;/g, "—").replace(/&amp;/g, "&")
+      .replace(/&lt;/g, "<").replace(/&gt;/g, ">")
+      .replace(/&nbsp;/g, " ")
+      .trim();
     if (!title || title.length < 5) continue;
-    if (!/宣讲|校招|秋招|网申|27届|招聘/.test(title)) continue;
+    if (!/宣讲|校招|秋招|网申|27届|校园招聘/.test(title)) continue;
+    if (/幼儿园|小学|中学|高中|培训班|考研|考公|公务员/.test(title)) continue;
 
     let date = "";
     if (timeMatch) {
