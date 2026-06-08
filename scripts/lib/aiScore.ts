@@ -1,29 +1,26 @@
-import { RESUME_KEYWORDS } from "../../config/resume.config";
-import type { Job } from "../../lib/types";
+import type { Job, JobAiTags } from "../../lib/types";
 
 const API_URL = "https://api.deepseek.com/chat/completions";
 const API_KEY = process.env.DEEPSEEK_API_KEY ?? "";
-const BATCH_SIZE = 20;
+const BATCH_SIZE = 15;
 
-interface AiMatchResult {
-  id: string;
-  score: number;
-  reason: string;
+const SYSTEM_PROMPT = `你是一个岗位信息结构化专家。对每个岗位提取以下属性，返回 JSON 数组。
+
+每个对象格式：
+{
+  "id": "岗位id",
+  "skills": ["需要的技能1", "技能2", ...],
+  "roleType": "产品|技术|数据|金融|管培|运营|设计|研究|工程|销售|其他",
+  "industry": "互联网|金融|央国企|外企|快消|制造|咨询|地产|能源|其他",
+  "seniority": "实习|应届|社招",
+  "summary": "一句话概括这个岗位适合什么样的人"
 }
 
-const PROFILE_PROMPT = `你是一个求职匹配专家。基于以下求职者画像，对每个岗位给出 0-100 的匹配分和一句话理由。
+skills 字段提取 3-8 个关键技能词（如 Python、数据分析、用户研究、财务建模等）。
+只返回 JSON 数组，不要其他文字。`;
 
-求职者画像：
-- 目标岗位：${RESUME_KEYWORDS.targetRoles.join("、")}
-- 核心技能：${RESUME_KEYWORDS.skills.join("、")}
-- 目标行业：${(RESUME_KEYWORDS.targetCategories ?? []).join("、")}
-- 偏好公司层级：Tier ${RESUME_KEYWORDS.targetCompanyTiers.join("/")}
-
-请对以下岗位列表打分，返回 JSON 数组格式：[{"id":"岗位id","score":75,"reason":"一句话"}]
-只返回 JSON，不要其他文字。`;
-
-async function callDeepSeek(jobs: { id: string; text: string }[]): Promise<AiMatchResult[]> {
-  const jobList = jobs.map((j) => `- [${j.id}] ${j.text}`).join("\n");
+async function callDeepSeek(jobs: { id: string; text: string }[]): Promise<(JobAiTags & { id: string })[]> {
+  const jobList = jobs.map((j) => `[${j.id}] ${j.text}`).join("\n");
 
   const res = await fetch(API_URL, {
     method: "POST",
@@ -34,8 +31,8 @@ async function callDeepSeek(jobs: { id: string; text: string }[]): Promise<AiMat
     body: JSON.stringify({
       model: "deepseek-chat",
       messages: [
-        { role: "system", content: PROFILE_PROMPT },
-        { role: "user", content: `请对以下 ${jobs.length} 个岗位打分：\n${jobList}` },
+        { role: "system", content: SYSTEM_PROMPT },
+        { role: "user", content: `请分析以下 ${jobs.length} 个岗位：\n${jobList}` },
       ],
       temperature: 0.1,
       max_tokens: 4000,
@@ -52,28 +49,28 @@ async function callDeepSeek(jobs: { id: string; text: string }[]): Promise<AiMat
 
   try {
     const jsonStr = content.replace(/```json\n?/g, "").replace(/```/g, "").trim();
-    return JSON.parse(jsonStr) as AiMatchResult[];
+    return JSON.parse(jsonStr);
   } catch {
-    console.warn("[ai-score] Failed to parse response, skipping batch");
+    console.warn("[ai-tags] Failed to parse response, skipping batch");
     return [];
   }
 }
 
-export async function computeAiScores(jobs: Job[]): Promise<Map<string, { score: number; reason: string }>> {
+export async function extractAiTags(jobs: Job[]): Promise<Map<string, JobAiTags>> {
   if (!API_KEY) {
-    console.log("[ai-score] No DEEPSEEK_API_KEY, skipping AI scoring");
+    console.log("[ai-tags] No DEEPSEEK_API_KEY, skipping AI tag extraction");
     return new Map();
   }
 
-  console.log(`[ai-score] Scoring ${jobs.length} jobs with DeepSeek...`);
-  const results = new Map<string, { score: number; reason: string }>();
+  console.log(`[ai-tags] Extracting tags for ${jobs.length} jobs with DeepSeek...`);
+  const results = new Map<string, JobAiTags>();
 
   const batches: { id: string; text: string }[][] = [];
   for (let i = 0; i < jobs.length; i += BATCH_SIZE) {
     batches.push(
       jobs.slice(i, i + BATCH_SIZE).map((j) => ({
         id: j.id,
-        text: `${j.company} | ${j.title} | ${j.category} | ${j.location.join("/")} | ${j.jobType}${j.description ? " | " + j.description.slice(0, 60) : ""}`,
+        text: `${j.company} | ${j.title} | ${j.category} | ${j.location.join("/")} | ${j.jobType}${j.description ? " | " + j.description.slice(0, 80) : ""}`,
       })),
     );
   }
@@ -83,18 +80,24 @@ export async function computeAiScores(jobs: Job[]): Promise<Map<string, { score:
     try {
       const batchResults = await callDeepSeek(batch);
       for (const r of batchResults) {
-        if (r.id && typeof r.score === "number") {
-          results.set(r.id, { score: Math.min(100, Math.max(0, r.score)) / 100, reason: r.reason ?? "" });
+        if (r.id && Array.isArray(r.skills)) {
+          results.set(r.id, {
+            skills: r.skills,
+            roleType: r.roleType ?? "其他",
+            industry: r.industry ?? "其他",
+            seniority: r.seniority ?? "应届",
+            summary: r.summary ?? "",
+          });
         }
       }
       processed += batch.length;
-      if (processed % 100 === 0) console.log(`[ai-score] ${processed}/${jobs.length} done`);
-      await new Promise((r) => setTimeout(r, 500));
+      if (processed % 60 === 0) console.log(`[ai-tags] ${processed}/${jobs.length} done`);
+      await new Promise((r) => setTimeout(r, 300));
     } catch (e) {
-      console.warn(`[ai-score] Batch failed: ${(e as Error).message}`);
+      console.warn(`[ai-tags] Batch failed: ${(e as Error).message}`);
     }
   }
 
-  console.log(`[ai-score] Done. ${results.size} jobs scored.`);
+  console.log(`[ai-tags] Done. ${results.size} jobs tagged.`);
   return results;
 }

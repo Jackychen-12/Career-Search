@@ -3,7 +3,7 @@ import path from "node:path";
 import { DATA_DIR, META_PATH, STORE_PATH } from "../../lib/config";
 import { finalizeJobs } from "../../lib/scoring";
 import type { Job, RawJob } from "../../lib/types";
-import { computeAiScores } from "./aiScore";
+import { extractAiTags } from "./aiScore";
 
 /** Build an id -> firstSeen map from the previous snapshot (for accurate freshness). */
 function loadPrevFirstSeen(): Map<string, string> {
@@ -36,17 +36,13 @@ export async function buildAndWrite(
   const now = new Date();
   let jobs = finalizeJobs(raws, prev, now);
 
-  // AI scoring (only for jobs that don't already have a high aiMatch from keyword rules)
-  const aiScores = await computeAiScores(jobs);
-  if (aiScores.size > 0) {
+  // AI tag extraction (profile-independent, used for client-side matching)
+  const aiTags = await extractAiTags(jobs);
+  if (aiTags.size > 0) {
     jobs = jobs.map((j) => {
-      const ai = aiScores.get(j.id);
-      if (ai) {
-        return { ...j, scores: { ...j.scores, aiMatch: Math.max(j.scores.aiMatch, ai.score) }, aiReason: ai.reason };
-      }
-      return j;
+      const tags = aiTags.get(j.id);
+      return tags ? { ...j, aiTags: tags } : j;
     });
-    jobs.sort((a, b) => b.scores.base - a.scores.base);
   }
 
   const prevIds = new Set(prev.keys());

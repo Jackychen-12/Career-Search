@@ -12,6 +12,7 @@ import StatBar from "./StatBar";
 import TrackingPanel from "./TrackingPanel";
 import { isLoggedIn } from "@/lib/auth";
 import { queryJobs } from "@/lib/filter";
+import { computeProfileMatch } from "@/lib/matchScore";
 import { EMPTY_PREFS, loadPrefs, savePrefs } from "@/lib/prefs";
 import { hasPrefs } from "@/lib/ranking";
 import { loadTracking, removeTracking, saveTracking, type TrackingData, type TrackingStatus } from "@/lib/tracker";
@@ -139,6 +140,7 @@ export default function HomeClient({
                       isNew={newJobIds.includes(j.id)}
                       trackingStatus={tracking[j.id]?.status ?? null}
                       onTrack={loggedIn ? handleTrack : undefined}
+                      profileMatch={hasPrefs(prefs) ? computeProfileMatch(j, prefs) : undefined}
                     />
                   ))}
                 </div>

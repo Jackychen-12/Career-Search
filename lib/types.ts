@@ -29,7 +29,16 @@ export interface JobScores {
   freshness: number; // 0–1, more recently seen -> higher
   tier: number; // 0–1, from companyTier
   base: number; // 0–1, weighted composite (user-independent)
-  aiMatch: number; // 0–1, AI match score (DeepSeek or keyword fallback)
+  aiMatch: number; // 0–1, client-side profile match (computed in browser)
+}
+
+/** AI-extracted structured attributes for each job (build-time, profile-independent). */
+export interface JobAiTags {
+  skills: string[];
+  roleType: string;
+  industry: string;
+  seniority: string;
+  summary: string;
 }
 
 export interface Job {
@@ -53,7 +62,7 @@ export interface Job {
   detailUrl: string | null;
   tags: string[];
   scores: JobScores;
-  aiReason?: string;
+  aiTags?: JobAiTags;
 }
 
 /** Normalized job before firstSeen/scores are attached. */

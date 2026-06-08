@@ -1,5 +1,5 @@
 import type { Job, JobsQuery } from "./types";
-import { finalScore } from "./ranking";
+import { finalScore, matchScore } from "./ranking";
 import { daysUntil } from "./scoring";
 
 export function paginate<T>(arr: T[], page: number, pageSize: number) {
@@ -56,7 +56,7 @@ export function filterJobs(pool: Job[], q: JobsQuery, now: Date = new Date()): J
   } else if (sort === "fresh") {
     sorted.sort((a, b) => b.firstSeen.localeCompare(a.firstSeen));
   } else if (sort === "aiMatch") {
-    sorted.sort((a, b) => b.scores.aiMatch - a.scores.aiMatch);
+    sorted.sort((a, b) => matchScore(b, prefs) - matchScore(a, prefs));
   } else {
     sorted.sort((a, b) => finalScore(b, prefs) - finalScore(a, prefs));
   }

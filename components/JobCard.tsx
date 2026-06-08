@@ -31,12 +31,14 @@ export default function JobCard({
   isNew,
   trackingStatus,
   onTrack,
+  profileMatch,
 }: {
   job: Job;
   now: number;
   isNew?: boolean;
   trackingStatus?: TrackingStatus | null;
   onTrack?: (jobId: string, status: TrackingStatus | null) => void;
+  profileMatch?: number;
 }) {
   const dl = daysUntil(job.deadline, new Date(now));
   const urgent = dl !== null && dl >= 0 && dl <= 15;
@@ -151,12 +153,12 @@ export default function JobCard({
             ))}
           </select>
         ) : (
-          <span className="text-[10px] text-gray-500" title={job.aiReason ?? ""}>
-            {job.scores.aiMatch > 0.3 && (
+          <span className="text-[10px] text-gray-500" title={job.aiTags?.summary ?? ""}>
+            {profileMatch != null && profileMatch > 0.2 && (
               <span className="inline-flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-brand-400" />
-                AI {Math.round(job.scores.aiMatch * 100)}%
-                {job.aiReason && <span className="hidden sm:inline ml-1 text-gray-500">· {job.aiReason}</span>}
+                <span className={`w-1.5 h-1.5 rounded-full ${profileMatch > 0.6 ? "bg-green-500" : profileMatch > 0.4 ? "bg-brand-400" : "bg-gray-400"}`} />
+                匹配 {Math.round(profileMatch * 100)}%
+                {job.aiTags?.summary && <span className="hidden sm:inline ml-1 text-gray-500">· {job.aiTags.summary}</span>}
               </span>
             )}
           </span>
