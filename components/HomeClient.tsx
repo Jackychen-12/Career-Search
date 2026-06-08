@@ -68,6 +68,9 @@ export default function HomeClient({
       setLoggedIn(isAuth);
       if (isAuth) {
         loadTracking().then(setTracking);
+        if (!hasPrefs(p) && typeof window !== "undefined" && !sessionStorage.getItem("skip-profile")) {
+          window.location.href = "/profile/";
+        }
       }
     });
 

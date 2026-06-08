@@ -123,15 +123,20 @@ export default function ProfileClient({ jobs }: { jobs: Job[] }) {
       <header className="sticky top-0 z-40 backdrop-blur-xl bg-white/60 border-b border-black/5">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
           <a href={basePath + "/"} className="text-[15px] font-bold text-gray-900 hover:text-brand-600 transition">← 返回首页</a>
-          {user && (
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-500">{user.login}</span>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => { sessionStorage.setItem("skip-profile", "1"); window.location.href = "/"; }}
+              className="text-[13px] text-gray-500 hover:text-brand-600 transition"
+            >
+              跳过
+            </button>
+            {user && (
               <div className="w-7 h-7 rounded-full overflow-hidden ring-2 ring-white shadow-sm">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={user.avatar_url} alt="" className="w-full h-full" />
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </header>
 
