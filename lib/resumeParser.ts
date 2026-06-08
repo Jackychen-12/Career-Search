@@ -1,4 +1,4 @@
-const WORKER_URL = process.env.NEXT_PUBLIC_OAUTH_WORKER_URL ?? "";
+const WORKER_URL = process.env.NEXT_PUBLIC_OAUTH_WORKER_URL || "https://career-search-oauth.keyu-chen.workers.dev";
 
 export interface ParsedResume {
   school?: string;

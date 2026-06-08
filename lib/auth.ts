@@ -3,8 +3,8 @@ const USER_KEY = "career-search:gh-user";
 
 // These are set at build time or hard-coded for the public OAuth App.
 // The client_id is NOT secret — it's safe to embed in client code.
-const CLIENT_ID = process.env.NEXT_PUBLIC_GITHUB_CLIENT_ID ?? "";
-const WORKER_URL = process.env.NEXT_PUBLIC_OAUTH_WORKER_URL ?? "";
+const CLIENT_ID = process.env.NEXT_PUBLIC_GITHUB_CLIENT_ID || "Ov23liukXeNKV2SszGwS";
+const WORKER_URL = process.env.NEXT_PUBLIC_OAUTH_WORKER_URL || "https://career-search-oauth.keyu-chen.workers.dev";
 
 export interface GhUser {
   login: string;
