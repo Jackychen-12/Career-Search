@@ -1,12 +1,12 @@
 {
-  "fetchedAt": "2026-06-08T03:57:50.850Z",
-  "count": 1073,
+  "fetchedAt": "2026-06-08T05:10:46.974Z",
+  "count": 1072,
   "sources": {
     "seed": 74,
     "greenhouse": 13,
     "lever": 0,
     "ashby": 0,
-    "repo": 1102,
+    "repo": 1101,
     "official:bytedance": 0,
     "official:meituan": 0,
     "official:kuaishou": 0,
