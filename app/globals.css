@@ -2,27 +2,20 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=JetBrains+Mono:wght@400;500&display=swap');
-
 :root {
-  --bg: #fafafa;
-  --surface: #ffffff;
-  --text: #0f172a;
-  --muted: #64748b;
-  --border: #e2e8f0;
-  --accent: #0f172a;
-  --accent-soft: #f1f5f9;
-  --highlight: #2563eb;
-  --highlight-soft: #eff6ff;
-  --success: #059669;
-  --warning: #dc2626;
+  --bg: #f6f7fb;
+  --panel: #ffffff;
+  --text: #1c2434;
+  --muted: #6b7280;
+  --border: #e5e7eb;
 }
 
-html, body {
+html,
+body {
   background: var(--bg);
   color: var(--text);
-  font-family: 'DM Sans', -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;
-  -webkit-font-smoothing: antialiased;
+  font-family: ui-sans-serif, system-ui, -apple-system, "PingFang SC",
+    "Microsoft YaHei", sans-serif;
 }
 
 * {
@@ -30,50 +23,17 @@ html, body {
 }
 
 .card {
-  background: var(--surface);
+  background: var(--panel);
   border: 1px solid var(--border);
-  border-radius: 10px;
-  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+  border-radius: 12px;
+  transition: box-shadow 0.15s ease, transform 0.15s ease;
 }
 
 .card:hover {
-  border-color: #cbd5e1;
-  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
-}
-
-.mono {
-  font-family: 'JetBrains Mono', monospace;
+  box-shadow: 0 6px 20px rgba(20, 30, 60, 0.06);
+  transform: translateY(-1px);
 }
 
 .scroll-hide::-webkit-scrollbar {
   display: none;
 }
-
-/* Subtle entrance animation */
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.animate-in {
-  animation: fadeUp 0.3s ease forwards;
-}
-
-/* Staggered grid items */
-.grid > * {
-  animation: fadeUp 0.25s ease forwards;
-  opacity: 0;
-}
-
-.grid > *:nth-child(1) { animation-delay: 0ms; }
-.grid > *:nth-child(2) { animation-delay: 30ms; }
-.grid > *:nth-child(3) { animation-delay: 60ms; }
-.grid > *:nth-child(4) { animation-delay: 90ms; }
-.grid > *:nth-child(5) { animation-delay: 120ms; }
-.grid > *:nth-child(6) { animation-delay: 150ms; }
-.grid > *:nth-child(7) { animation-delay: 180ms; }
-.grid > *:nth-child(8) { animation-delay: 210ms; }
-.grid > *:nth-child(9) { animation-delay: 240ms; }
-.grid > *:nth-child(10) { animation-delay: 270ms; }
-.grid > *:nth-child(11) { animation-delay: 300ms; }
-.grid > *:nth-child(12) { animation-delay: 330ms; }

@@ -13,7 +13,7 @@ export interface FilterState {
   sort: SortKey;
 }
 
-function Tag({
+function Pill({
   active,
   onClick,
   children,
@@ -25,10 +25,10 @@ function Tag({
   return (
     <button
       onClick={onClick}
-      className={`px-2.5 py-1 rounded-md text-xs font-medium transition whitespace-nowrap ${
+      className={`shrink-0 px-3 h-8 inline-flex items-center rounded-md text-sm transition ${
         active
-          ? "bg-gray-900 text-white"
-          : "bg-transparent text-gray-500 hover:text-gray-900 hover:bg-gray-100"
+          ? "bg-brand-500 text-white"
+          : "text-gray-600 hover:text-brand-600 hover:bg-brand-50"
       }`}
     >
       {children}
@@ -36,34 +36,32 @@ function Tag({
   );
 }
 
-function Row<T extends string>({
-  label,
+function Group<T extends string>({
+  title,
   options,
   value,
   onSelect,
 }: {
-  label: string;
+  title: string;
   options: readonly T[];
   value: T | "all";
   onSelect: (v: T | "all") => void;
 }) {
   return (
-    <div className="flex items-center gap-1">
-      <span className="text-[11px] text-gray-400 w-10 shrink-0">{label}</span>
-      <div className="flex flex-wrap gap-0.5">
-        <Tag active={value === "all"} onClick={() => onSelect("all")}>全部</Tag>
-        {options.map((o) => (
-          <Tag key={o} active={value === o} onClick={() => onSelect(o)}>{o}</Tag>
-        ))}
-      </div>
+    <div className="flex items-center gap-1 overflow-x-auto scroll-hide">
+      <span className="text-xs text-gray-400 shrink-0 mr-1">{title}</span>
+      <Pill active={value === "all"} onClick={() => onSelect("all")}>全部</Pill>
+      {options.map((o) => (
+        <Pill key={o} active={value === o} onClick={() => onSelect(o)}>{o}</Pill>
+      ))}
     </div>
   );
 }
 
 const SORTS: { key: SortKey; label: string }[] = [
   { key: "composite", label: "综合" },
-  { key: "aiMatch", label: "AI匹配" },
-  { key: "deadline", label: "截止" },
+  { key: "aiMatch", label: "AI 匹配" },
+  { key: "deadline", label: "最近截止" },
   { key: "fresh", label: "最新" },
 ];
 
@@ -79,72 +77,69 @@ export default function FilterBar({
   prefsActive: boolean;
 }) {
   return (
-    <div className="space-y-3">
-      {/* Search + actions row */}
+    <div className="card p-4 sm:p-5 flex flex-col gap-3">
+      {/* Search row */}
       <div className="flex gap-2">
-        <div className="flex-1 relative">
-          <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <circle cx="11" cy="11" r="8" />
-            <path d="m21 21-4.35-4.35" />
+        <div className="relative flex-1">
+          <svg
+            className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+          >
+            <circle cx="11" cy="11" r="7" />
+            <path d="m20 20-3.5-3.5" />
           </svg>
           <input
             value={state.keyword}
             onChange={(e) => onChange({ keyword: e.target.value })}
             placeholder="搜索公司、岗位、城市..."
-            className="w-full pl-9 pr-4 py-2.5 rounded-lg border border-gray-200 bg-white text-sm outline-none focus:border-gray-400 focus:ring-1 focus:ring-gray-200 transition placeholder:text-gray-300"
+            className="w-full h-9 pl-9 pr-3 rounded-full border border-gray-200 bg-gray-50 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:bg-white transition"
           />
         </div>
         <button
           onClick={onOpenPrefs}
-          className={`px-3 py-2.5 rounded-lg text-xs font-medium border transition ${
+          className={`px-4 h-9 rounded-full text-sm font-medium transition ${
             prefsActive
-              ? "border-brand-500 bg-brand-50 text-brand-700"
-              : "border-gray-200 bg-white text-gray-500 hover:border-gray-300 hover:text-gray-700"
+              ? "bg-brand-500 text-white"
+              : "border border-gray-200 text-gray-600 hover:text-brand-600 hover:border-brand-500"
           }`}
         >
-          {prefsActive ? "偏好 ✓" : "偏好"}
+          {prefsActive ? "偏好 ✓" : "设置偏好"}
         </button>
       </div>
 
-      {/* Filter tags */}
-      <div className="space-y-1.5">
-        <Row label="行业" options={CATEGORIES} value={state.category} onSelect={(v) => onChange({ category: v })} />
-        <Row label="城市" options={CITIES} value={state.city} onSelect={(v) => onChange({ city: v })} />
-        <Row label="类型" options={JOB_TYPES} value={state.jobType} onSelect={(v) => onChange({ jobType: v })} />
-      </div>
+      {/* Category nav */}
+      <Group title="行业" options={CATEGORIES} value={state.category} onSelect={(v) => onChange({ category: v })} />
+      <Group title="城市" options={CITIES} value={state.city} onSelect={(v) => onChange({ city: v })} />
+      <Group title="类型" options={JOB_TYPES} value={state.jobType} onSelect={(v) => onChange({ jobType: v })} />
 
-      {/* Bottom controls */}
-      <div className="flex items-center justify-between pt-1">
-        <div className="flex items-center gap-2">
-          <div className="flex items-center gap-0.5">
-            {REGIONS.map((r) => (
-              <Tag key={r} active={state.region === r} onClick={() => onChange({ region: state.region === r ? "all" : r })}>{r}</Tag>
-            ))}
-          </div>
-          <label className="flex items-center gap-1 text-xs text-gray-500 cursor-pointer select-none ml-1">
+      {/* Bottom row: region + urgent + sort */}
+      <div className="flex items-center justify-between flex-wrap gap-2 pt-2 border-t border-gray-100">
+        <div className="flex items-center gap-1">
+          <span className="text-xs text-gray-400 mr-1">地区</span>
+          <Pill active={state.region === "all"} onClick={() => onChange({ region: "all" })}>全部</Pill>
+          {REGIONS.map((r) => (
+            <Pill key={r} active={state.region === r} onClick={() => onChange({ region: r })}>{r}</Pill>
+          ))}
+          <label className="flex items-center gap-1.5 text-sm text-gray-600 ml-3 cursor-pointer select-none">
             <input
               type="checkbox"
               checked={state.urgentOnly}
               onChange={(e) => onChange({ urgentOnly: e.target.checked })}
-              className="w-3.5 h-3.5 rounded border-gray-300 accent-red-600"
+              className="accent-brand-500"
             />
-            紧急
+            仅看临近截止
           </label>
         </div>
 
-        <div className="flex items-center gap-0.5 bg-gray-100 rounded-lg p-0.5">
+        <div className="flex items-center gap-1">
+          <span className="text-xs text-gray-400 mr-1">排序</span>
           {SORTS.map((s) => (
-            <button
-              key={s.key}
-              onClick={() => onChange({ sort: s.key })}
-              className={`px-2.5 py-1 rounded-md text-[11px] font-medium transition ${
-                state.sort === s.key
-                  ? "bg-white text-gray-900 shadow-sm"
-                  : "text-gray-500 hover:text-gray-700"
-              }`}
-            >
+            <Pill key={s.key} active={state.sort === s.key} onClick={() => onChange({ sort: s.key })}>
               {s.label}
-            </button>
+            </Pill>
           ))}
         </div>
       </div>

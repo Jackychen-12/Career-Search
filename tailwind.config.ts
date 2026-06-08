@@ -6,22 +6,26 @@ const config: Config = {
     extend: {
       colors: {
         brand: {
-          50: "#f0f4ff",
-          100: "#dbe4ff",
-          500: "#2563eb",
-          600: "#1d4ed8",
-          700: "#1e40af",
+          50: "#eef4ff",
+          100: "#d9e6ff",
+          500: "#3b6cff",
+          600: "#2453ee",
+          700: "#1a3fc7",
         },
       },
       fontFamily: {
         sans: [
-          "DM Sans",
+          "ui-sans-serif",
+          "system-ui",
           "-apple-system",
+          "Segoe UI",
           "PingFang SC",
+          "Hiragino Sans GB",
           "Microsoft YaHei",
+          "Helvetica Neue",
+          "Arial",
           "sans-serif",
         ],
-        mono: ["JetBrains Mono", "monospace"],
       },
     },
   },
