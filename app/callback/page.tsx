@@ -11,7 +11,7 @@ export default function CallbackPage() {
       if (event === "SIGNED_IN") {
         setStatus("success");
         setTimeout(() => {
-          window.location.href = (process.env.NEXT_PUBLIC_BASE_PATH || "") + "/";
+          window.location.href = "/";
         }, 800);
       }
     });
@@ -30,7 +30,7 @@ export default function CallbackPage() {
         {status === "error" && (
           <div>
             <p className="text-red-600 font-medium">登录失败</p>
-            <a href={(process.env.NEXT_PUBLIC_BASE_PATH || "") + "/"} className="text-sm text-brand-600 mt-2 inline-block">
+            <a href={"/"} className="text-sm text-brand-600 mt-2 inline-block">
               返回首页
             </a>
           </div>

@@ -69,7 +69,7 @@ export default function HomeClient({
       if (isAuth) {
         loadTracking().then(setTracking);
         if (!hasPrefs(p) && typeof window !== "undefined") {
-          window.location.href = (process.env.NEXT_PUBLIC_BASE_PATH || "") + "/profile/";
+          window.location.href = "/profile/";
         }
       }
     });

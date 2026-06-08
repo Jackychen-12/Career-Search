@@ -68,7 +68,7 @@ export default function ReportClient({ jobs }: { jobs: Job[] }) {
       <div className="min-h-screen flex flex-col">
         <header className="sticky top-0 z-40 backdrop-blur-xl bg-white/60 border-b border-black/5">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 h-14 flex items-center">
-            <a href={(process.env.NEXT_PUBLIC_BASE_PATH ?? "") + "/"} className="text-[15px] font-bold text-gray-900">← Career Search</a>
+            <a href={"/"} className="text-[15px] font-bold text-gray-900">← Career Search</a>
           </div>
         </header>
         <div className="flex-1 flex items-center justify-center">
@@ -76,7 +76,7 @@ export default function ReportClient({ jobs }: { jobs: Job[] }) {
             <div className="text-3xl mb-4">📊</div>
             <h2 className="text-lg font-bold text-gray-900 mb-2">尚未设置求职画像</h2>
             <p className="text-sm text-gray-500 mb-4">请先在首页点击「设置画像」或上传简历，才能生成求职报告。</p>
-            <a href={(process.env.NEXT_PUBLIC_BASE_PATH ?? "") + "/"} className="px-4 py-2 rounded-lg text-sm font-medium bg-brand-500 text-white hover:bg-brand-600 transition">
+            <a href={"/"} className="px-4 py-2 rounded-lg text-sm font-medium bg-brand-500 text-white hover:bg-brand-600 transition">
               返回首页设置
             </a>
           </div>
@@ -93,7 +93,7 @@ export default function ReportClient({ jobs }: { jobs: Job[] }) {
       <header className="sticky top-0 z-40 backdrop-blur-xl bg-white/60 border-b border-black/5">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <a href={(process.env.NEXT_PUBLIC_BASE_PATH ?? "") + "/"} className="text-[15px] font-bold text-gray-900 hover:text-brand-600 transition">← Career Search</a>
+            <a href={"/"} className="text-[15px] font-bold text-gray-900 hover:text-brand-600 transition">← Career Search</a>
             <span className="text-gray-300">·</span>
             <span className="text-[14px] font-medium text-gray-700">求职报告</span>
           </div>

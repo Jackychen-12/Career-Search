@@ -70,19 +70,20 @@ html, body {
 }
 
 /* Dark mode */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: linear-gradient(180deg, #0f1117 0%, #161927 100%);
-    --surface: rgba(30, 33, 48, 0.8);
-    --surface-solid: #1e2130;
-    --text: #e2e8f0;
-    --text-secondary: #94a3b8;
-    --border: rgba(255, 255, 255, 0.08);
-  }
-  html, body { background: #0f1117; color: var(--text); }
-  .stat-card { background: var(--surface-solid); border-color: var(--border); }
-  input, select, textarea { background: var(--surface-solid) !important; color: var(--text) !important; border-color: var(--border) !important; }
+[data-theme="dark"] {
+  --bg: linear-gradient(180deg, #0f1117 0%, #161927 100%);
+  --surface: rgba(30, 33, 48, 0.8);
+  --surface-solid: #1e2130;
+  --text: #e2e8f0;
+  --text-secondary: #94a3b8;
+  --border: rgba(255, 255, 255, 0.08);
 }
+[data-theme="dark"] body { background: #0f1117; color: var(--text); }
+[data-theme="dark"] .card { background: var(--surface); border-color: var(--border); }
+[data-theme="dark"] .stat-card { background: var(--surface-solid); border-color: var(--border); }
+[data-theme="dark"] input, [data-theme="dark"] select, [data-theme="dark"] textarea { background: var(--surface-solid) !important; color: var(--text) !important; border-color: var(--border) !important; }
+[data-theme="dark"] header { background: rgba(15, 17, 23, 0.8) !important; }
+[data-theme="dark"] footer { background: transparent; border-color: var(--border); }
 
 /* Mobile optimization */
 @media (max-width: 640px) {

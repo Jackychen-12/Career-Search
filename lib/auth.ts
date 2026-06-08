@@ -11,7 +11,7 @@ export async function signInWithGitHub() {
   const { error } = await supabase.auth.signInWithOAuth({
     provider: "github",
     options: {
-      redirectTo: window.location.origin + (process.env.NEXT_PUBLIC_BASE_PATH || "") + "/callback/",
+      redirectTo: window.location.origin + "/callback/",
       scopes: "gist",
     },
   });
@@ -37,20 +37,4 @@ export async function getUser(): Promise<GhUser | null> {
     name: meta?.full_name ?? meta?.name ?? null,
     email: data.user.email ?? undefined,
   };
-}
-
-export function isLoggedIn(): boolean {
-  return false;
-}
-
-export function login() {
-  signInWithGitHub();
-}
-
-export function logout() {
-  signOut();
-}
-
-export function getToken(): string | null {
-  return null;
 }

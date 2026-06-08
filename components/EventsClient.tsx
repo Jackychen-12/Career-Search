@@ -36,7 +36,7 @@ export default function EventsClient({ events }: { events: CampusEvent[] }) {
       <header className="sticky top-0 z-40 backdrop-blur-xl bg-white/60 border-b border-black/5">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <a href={(process.env.NEXT_PUBLIC_BASE_PATH ?? "") + "/"} className="text-[15px] font-bold text-gray-900 hover:text-brand-600 transition">
+            <a href={"/"} className="text-[15px] font-bold text-gray-900 hover:text-brand-600 transition">
               ← Career Search
             </a>
             <span className="text-gray-300">·</span>
