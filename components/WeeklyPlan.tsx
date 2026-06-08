@@ -50,14 +50,21 @@ export default function WeeklyPlan({
     const now = new Date();
     const items: PlanItem[] = [];
 
-    for (const job of jobs) {
-      if (tracking[job.id]?.status === "applied" || tracking[job.id]?.status === "interview" ||
-          tracking[job.id]?.status === "offer" || tracking[job.id]?.status === "rejected" ||
-          tracking[job.id]?.status === "withdrawn" || tracking[job.id]?.status === "written" ||
-          tracking[job.id]?.status === "hr") continue;
+    const skipStatuses = new Set(["applied", "interview", "offer", "rejected", "withdrawn", "written", "hr"]);
 
-      const { score, reasons } = computeProfileMatchDetailed(job, prefs);
-      if (score < 0.2) continue;
+    for (const job of jobs) {
+      if (skipStatuses.has(tracking[job.id]?.status)) continue;
+
+      let { score, reasons } = computeProfileMatchDetailed(job, prefs);
+
+      // 大陆/香港优先，海外降权
+      if (job.region === "海外" || job.category === "外企") {
+        score *= 0.5;
+      } else if (job.region === "香港") {
+        score *= 0.9;
+      }
+
+      if (score < 0.15) continue;
 
       const dl = daysUntil(job.deadline, now);
       if (dl !== null && dl < 0) continue;
