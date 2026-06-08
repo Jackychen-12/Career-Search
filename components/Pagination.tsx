@@ -16,37 +16,34 @@ export default function Pagination({
   const to = Math.min(totalPages, from + 4);
   for (let i = from; i <= to; i++) pages.push(i);
 
-  const btn =
-    "min-w-[36px] h-9 px-2 rounded-lg border text-sm transition disabled:opacity-40 disabled:cursor-not-allowed";
-
   return (
-    <nav className="flex items-center justify-center gap-2 mt-8">
+    <nav className="flex items-center justify-center gap-1 pt-6">
       <button
-        className={`${btn} border-gray-200 bg-white hover:border-brand-500`}
+        className="px-3 py-1.5 rounded-md text-xs text-gray-500 hover:text-gray-900 hover:bg-gray-100 transition disabled:opacity-30 disabled:cursor-not-allowed"
         onClick={() => onPage(page - 1)}
         disabled={page <= 1}
       >
-        上一页
+        ←
       </button>
       {pages.map((p) => (
         <button
           key={p}
           onClick={() => onPage(p)}
-          className={`${btn} ${
+          className={`w-8 h-8 rounded-md text-xs font-medium transition ${
             p === page
-              ? "border-brand-600 bg-brand-600 text-white font-semibold"
-              : "border-gray-200 bg-white hover:border-brand-500"
+              ? "bg-gray-900 text-white"
+              : "text-gray-500 hover:text-gray-900 hover:bg-gray-100"
           }`}
         >
           {p}
         </button>
       ))}
       <button
-        className={`${btn} border-gray-200 bg-white hover:border-brand-500`}
+        className="px-3 py-1.5 rounded-md text-xs text-gray-500 hover:text-gray-900 hover:bg-gray-100 transition disabled:opacity-30 disabled:cursor-not-allowed"
         onClick={() => onPage(page + 1)}
         disabled={page >= totalPages}
       >
-        下一页
+        →
       </button>
     </nav>
   );

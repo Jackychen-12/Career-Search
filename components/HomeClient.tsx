@@ -82,12 +82,14 @@ export default function HomeClient({
   const personalized = filter.sort === "composite" && hasPrefs(prefs);
 
   return (
-    <>
+    <div className="min-h-screen flex flex-col">
       <Header total={jobs.length} onOpenTracking={() => setTrackingOpen(true)} />
 
-      <main id="jobs" className="max-w-6xl mx-auto px-4 py-6 space-y-5">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 space-y-5">
+        {/* Stats */}
         <StatBar jobs={jobs} now={now} newCount={newJobIds.length} />
 
+        {/* Filters */}
         <FilterBar
           state={filter}
           onChange={patch}
@@ -95,35 +97,39 @@ export default function HomeClient({
           prefsActive={hasPrefs(prefs)}
         />
 
-        <div className="flex items-center justify-between">
-          <div className="text-sm text-gray-500">
-            共 {result.total} 个岗位
-            {personalized && <span className="text-brand-600"> · 已按你的方向优先排序</span>}
-          </div>
-          <div className="flex gap-1">
+        {/* Results header */}
+        <div className="flex items-center justify-between pt-2">
+          <p className="text-xs text-gray-400">
+            {result.total} 条结果
+            {personalized && <span className="text-brand-500 ml-1">· 个性化排序</span>}
+          </p>
+          <div className="flex items-center gap-0.5 bg-gray-100 rounded-md p-0.5">
             <button
               onClick={() => setView("list")}
-              className={`px-3 py-1 rounded-lg text-sm transition ${view === "list" ? "bg-brand-50 text-brand-700 font-medium" : "text-gray-500 hover:text-brand-600"}`}
+              className={`px-2 py-1 rounded text-[11px] font-medium transition ${view === "list" ? "bg-white text-gray-900 shadow-sm" : "text-gray-500"}`}
             >
               列表
             </button>
             <button
               onClick={() => setView("calendar")}
-              className={`px-3 py-1 rounded-lg text-sm transition ${view === "calendar" ? "bg-brand-50 text-brand-700 font-medium" : "text-gray-500 hover:text-brand-600"}`}
+              className={`px-2 py-1 rounded text-[11px] font-medium transition ${view === "calendar" ? "bg-white text-gray-900 shadow-sm" : "text-gray-500"}`}
             >
               日历
             </button>
           </div>
         </div>
 
+        {/* Content */}
         {view === "calendar" ? (
           <CalendarView jobs={jobs} now={now} />
         ) : (
           <>
             {result.items.length === 0 ? (
-              <div className="card p-12 text-center text-gray-400">没有符合条件的岗位，换个筛选条件试试。</div>
+              <div className="py-20 text-center text-sm text-gray-400">
+                没有符合条件的岗位
+              </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
                 {result.items.map((j) => (
                   <JobCard
                     key={j.id}
@@ -151,19 +157,11 @@ export default function HomeClient({
         <SourceStatusBanner meta={meta} />
       </main>
 
-      <footer className="border-t border-gray-200 bg-white mt-8">
-        <div className="max-w-6xl mx-auto px-4 py-6 text-xs text-gray-500 flex flex-wrap justify-between gap-2">
-          <span>
-            © {new Date(now).getFullYear()} Career-Search · 仅整理公开招聘信息，投递以官方页面为准
-          </span>
-          <a
-            href="https://github.com/keyuchen-del/Career-Search"
-            target="_blank"
-            rel="noreferrer"
-            className="hover:text-brand-600"
-          >
-            GitHub: keyuchen-del/Career-Search
-          </a>
+      {/* Footer — minimal */}
+      <footer className="border-t border-gray-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 text-[11px] text-gray-400 flex justify-between">
+          <span>数据来源公开招聘信息，投递以官方页面为准</span>
+          <span className="font-mono">{meta?.fetchedAt ? new Date(meta.fetchedAt).toLocaleDateString("zh-CN") : ""} 更新</span>
         </div>
       </footer>
 
@@ -184,6 +182,6 @@ export default function HomeClient({
         tracking={tracking}
         jobs={jobs}
       />
-    </>
+    </div>
   );
 }
