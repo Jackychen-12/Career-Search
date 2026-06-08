@@ -13,7 +13,8 @@ import Sidebar from "./Sidebar";
 import StatBar from "./StatBar";
 import TrackingPanel from "./TrackingPanel";
 import WeeklyPlan from "./WeeklyPlan";
-import { isLoggedIn } from "@/lib/auth";
+import { getSession } from "@/lib/auth";
+import { supabase } from "@/lib/supabase";
 import { queryJobs } from "@/lib/filter";
 import { computeProfileMatchDetailed, type MatchResult } from "@/lib/matchScore";
 import { EMPTY_PREFS, loadPrefs, savePrefs } from "@/lib/prefs";
@@ -61,13 +62,28 @@ export default function HomeClient({
   useEffect(() => {
     const p = loadPrefs();
     setPrefs(p);
-    setLoggedIn(isLoggedIn());
-    if (isLoggedIn()) {
-      loadTracking().then(setTracking);
-      if (!hasPrefs(p) && typeof window !== "undefined") {
-        window.location.href = (process.env.NEXT_PUBLIC_BASE_PATH || "") + "/profile/";
+
+    getSession().then((session) => {
+      const isAuth = !!session;
+      setLoggedIn(isAuth);
+      if (isAuth) {
+        loadTracking().then(setTracking);
+        if (!hasPrefs(p) && typeof window !== "undefined") {
+          window.location.href = (process.env.NEXT_PUBLIC_BASE_PATH || "") + "/profile/";
+        }
       }
-    }
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "SIGNED_IN") {
+        setLoggedIn(true);
+        loadTracking().then(setTracking);
+      } else if (event === "SIGNED_OUT") {
+        setLoggedIn(false);
+      }
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
   function patch(p: Partial<FilterState>) {

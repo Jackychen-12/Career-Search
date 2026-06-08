@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { CATEGORIES, CITIES, JOB_TYPES } from "@/lib/taxonomy";
 import { EMPTY_PREFS, loadPrefs, savePrefs } from "@/lib/prefs";
-import { isLoggedIn, getUser, login, type GhUser } from "@/lib/auth";
+import { getSession, getUser, signInWithGitHub, type GhUser } from "@/lib/auth";
 import { hasPrefs } from "@/lib/ranking";
 import { extractPdfText, parseResumeWithAI, extractKeywordsLocal, type ParsedResume } from "@/lib/resumeParser";
 import { computeProfileMatchDetailed } from "@/lib/matchScore";
@@ -34,8 +34,8 @@ export default function ProfileClient({ jobs }: { jobs: Job[] }) {
   const fileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    setLoggedIn(isLoggedIn());
-    setUser(getUser());
+    getSession().then((s) => setLoggedIn(!!s));
+    getUser().then(setUser);
     const p = loadPrefs();
     if (hasPrefs(p)) {
       setDraft(p);
@@ -110,7 +110,7 @@ export default function ProfileClient({ jobs }: { jobs: Job[] }) {
           </div>
           <h1 className="text-xl font-bold text-gray-900 mb-2">Career Search</h1>
           <p className="text-sm text-gray-500 mb-6">登录后建立你的求职画像，获取 AI 匹配推荐</p>
-          <button onClick={login} className="px-6 py-2.5 rounded-lg text-sm font-semibold text-white bg-brand-500 hover:bg-brand-600 shadow-sm transition">
+          <button onClick={() => signInWithGitHub()} className="px-6 py-2.5 rounded-lg text-sm font-semibold text-white bg-brand-500 hover:bg-brand-600 shadow-sm transition">
             GitHub 登录
           </button>
         </div>

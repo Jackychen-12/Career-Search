@@ -11,6 +11,7 @@
     "crawl": "tsx scripts/crawl.ts"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.107.0",
     "fast-xml-parser": "4.4.1",
     "next": "14.2.5",
     "pdfjs-dist": "^6.0.227",

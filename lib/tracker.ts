@@ -1,4 +1,4 @@
-import { getToken } from "./auth";
+import { supabase } from "./supabase";
 
 export type TrackingStatus = "saved" | "applied" | "written" | "interview" | "hr" | "offer" | "rejected" | "withdrawn";
 
@@ -18,81 +18,76 @@ export interface TrackingEntry {
 export type TrackingData = Record<string, TrackingEntry>;
 
 const CACHE_KEY = "career-search:tracking";
-const GIST_FILENAME = "career-search-tracking.json";
-
-let gistId: string | null = null;
 
 function getCache(): TrackingData {
+  if (typeof window === "undefined") return {};
   try {
     const raw = localStorage.getItem(CACHE_KEY);
     return raw ? JSON.parse(raw) : {};
-  } catch {
-    return {};
-  }
+  } catch { return {}; }
 }
 
 function setCache(data: TrackingData) {
-  localStorage.setItem(CACHE_KEY, JSON.stringify(data));
-}
-
-async function findOrCreateGist(token: string): Promise<string> {
-  if (gistId) return gistId;
-
-  const res = await fetch("https://api.github.com/gists?per_page=100", {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-  if (!res.ok) throw new Error("Failed to list gists");
-  const gists = (await res.json()) as { id: string; files: Record<string, unknown> }[];
-  const existing = gists.find((g) => GIST_FILENAME in g.files);
-  if (existing) {
-    gistId = existing.id;
-    return gistId;
+  if (typeof window !== "undefined") {
+    localStorage.setItem(CACHE_KEY, JSON.stringify(data));
   }
-
-  const createRes = await fetch("https://api.github.com/gists", {
-    method: "POST",
-    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-    body: JSON.stringify({
-      description: "Career-Search tracking data",
-      public: false,
-      files: { [GIST_FILENAME]: { content: "{}" } },
-    }),
-  });
-  if (!createRes.ok) throw new Error("Failed to create gist");
-  const created = (await createRes.json()) as { id: string };
-  gistId = created.id;
-  return gistId;
 }
 
 export async function loadTracking(): Promise<TrackingData> {
-  const token = getToken();
-  if (!token) return getCache();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return getCache();
 
-  try {
-    const id = await findOrCreateGist(token);
-    const res = await fetch(`https://api.github.com/gists/${id}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    if (!res.ok) return getCache();
-    const gist = (await res.json()) as { files: Record<string, { content: string }> };
-    const content = gist.files[GIST_FILENAME]?.content ?? "{}";
-    const data = JSON.parse(content) as TrackingData;
-    setCache(data);
-    return data;
-  } catch {
-    return getCache();
+  const { data, error } = await supabase
+    .from("tracking")
+    .select("*")
+    .eq("user_id", user.id);
+
+  if (error || !data) return getCache();
+
+  const result: TrackingData = {};
+  for (const row of data) {
+    result[row.job_id] = {
+      status: row.status as TrackingStatus,
+      updatedAt: row.updated_at,
+      appliedAt: row.applied_at ?? undefined,
+      interviewAt: row.interview_at ?? undefined,
+      offerAt: row.offer_at ?? undefined,
+      notes: row.notes ?? undefined,
+      channel: row.channel ?? undefined,
+      contact: row.contact ?? undefined,
+      salary: row.salary ?? undefined,
+      priority: row.priority as TrackingEntry["priority"] ?? undefined,
+    };
   }
+  setCache(result);
+  return result;
 }
-
-let saveTimer: ReturnType<typeof setTimeout> | null = null;
 
 export async function saveTracking(jobId: string, status: TrackingStatus, extra?: Partial<TrackingEntry>): Promise<TrackingData> {
   const data = getCache();
-  data[jobId] = { ...data[jobId], ...extra, status, updatedAt: new Date().toISOString() };
+  const entry: TrackingEntry = { ...data[jobId], ...extra, status, updatedAt: new Date().toISOString() };
+  data[jobId] = entry;
   setCache(data);
 
-  if (saveTimer) clearTimeout(saveTimer);
-  saveTimer = setTimeout(() => syncToGist(data), 1500);
+  const { data: { user } } = await supabase.auth.getUser();
+  if (user) {
+    await supabase.from("tracking").upsert({
+      user_id: user.id,
+      job_id: jobId,
+      status,
+      priority: entry.priority ?? null,
+      applied_at: entry.appliedAt ?? null,
+      interview_at: entry.interviewAt ?? null,
+      offer_at: entry.offerAt ?? null,
+      channel: entry.channel ?? null,
+      contact: entry.contact ?? null,
+      salary: entry.salary ?? null,
+      notes: entry.notes ?? null,
+      updated_at: new Date().toISOString(),
+    }, { onConflict: "user_id,job_id" });
+
+    await updateJobStats(jobId, status);
+  }
 
   return data;
 }
@@ -102,25 +97,22 @@ export async function removeTracking(jobId: string): Promise<TrackingData> {
   delete data[jobId];
   setCache(data);
 
-  if (saveTimer) clearTimeout(saveTimer);
-  saveTimer = setTimeout(() => syncToGist(data), 1500);
+  const { data: { user } } = await supabase.auth.getUser();
+  if (user) {
+    await supabase.from("tracking").delete().eq("user_id", user.id).eq("job_id", jobId);
+  }
 
   return data;
 }
 
-async function syncToGist(data: TrackingData) {
-  const token = getToken();
-  if (!token) return;
-  try {
-    const id = await findOrCreateGist(token);
-    await fetch(`https://api.github.com/gists/${id}`, {
-      method: "PATCH",
-      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-      body: JSON.stringify({
-        files: { [GIST_FILENAME]: { content: JSON.stringify(data, null, 2) } },
-      }),
-    });
-  } catch {
-    // silent — local cache is still valid
+async function updateJobStats(jobId: string, status: TrackingStatus) {
+  const field = status === "saved" ? "save_count" : status === "applied" ? "apply_count" : null;
+  if (!field) return;
+
+  const { data } = await supabase.from("job_stats").select("*").eq("job_id", jobId).single();
+  if (data) {
+    await supabase.from("job_stats").update({ [field]: (data[field] ?? 0) + 1, updated_at: new Date().toISOString() }).eq("job_id", jobId);
+  } else {
+    await supabase.from("job_stats").insert({ job_id: jobId, [field]: 1 });
   }
 }
