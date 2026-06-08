@@ -4,6 +4,7 @@ import { CATEGORY_COLORS } from "@/lib/taxonomy";
 import { daysUntil } from "@/lib/scoring";
 import type { Job } from "@/lib/types";
 import type { TrackingStatus } from "@/lib/tracker";
+import type { MatchResult } from "@/lib/matchScore";
 
 const STATUS_OPTIONS: { value: TrackingStatus; label: string }[] = [
   { value: "saved", label: "收藏" },
@@ -31,14 +32,14 @@ export default function JobCard({
   isNew,
   trackingStatus,
   onTrack,
-  profileMatch,
+  matchResult,
 }: {
   job: Job;
   now: number;
   isNew?: boolean;
   trackingStatus?: TrackingStatus | null;
   onTrack?: (jobId: string, status: TrackingStatus | null) => void;
-  profileMatch?: number;
+  matchResult?: MatchResult;
 }) {
   const dl = daysUntil(job.deadline, new Date(now));
   const urgent = dl !== null && dl >= 0 && dl <= 15;
@@ -154,18 +155,20 @@ export default function JobCard({
               ))}
             </select>
           )}
-          {profileMatch != null && profileMatch > 0 ? (
-            <div className="flex items-center gap-1.5">
-              <span className={`shrink-0 text-[10px] font-semibold px-1.5 py-0.5 rounded-full ${
-                profileMatch > 0.6 ? "bg-brand-500 text-white" :
-                profileMatch > 0.3 ? "bg-brand-50 text-brand-600" :
-                "bg-gray-100 text-gray-500"
-              }`}>
-                {Math.round(profileMatch * 100)}%
-              </span>
-              {job.aiTags?.summary && (
-                <span className="text-[10px] text-gray-500 truncate">{job.aiTags.summary}</span>
-              )}
+          {matchResult && matchResult.score > 0 ? (
+            <div className="space-y-0.5">
+              <div className="flex items-center gap-1.5">
+                <span className={`shrink-0 text-[10px] font-semibold px-1.5 py-0.5 rounded-full ${
+                  matchResult.score > 0.6 ? "bg-brand-500 text-white" :
+                  matchResult.score > 0.3 ? "bg-brand-50 text-brand-600" :
+                  "bg-gray-100 text-gray-500"
+                }`}>
+                  {Math.round(matchResult.score * 100)}%
+                </span>
+                <span className="text-[10px] text-gray-500 truncate">
+                  {matchResult.reasons.slice(0, 2).join(" · ")}
+                </span>
+              </div>
             </div>
           ) : job.aiTags?.summary ? (
             <span className="text-[10px] text-gray-400 truncate block">{job.aiTags.summary}</span>

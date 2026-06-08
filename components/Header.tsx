@@ -27,6 +27,12 @@ export default function Header({ total, onOpenTracking }: { total: number; onOpe
 
         <nav className="flex items-center gap-3 text-sm">
           <a
+            href={(process.env.NEXT_PUBLIC_BASE_PATH ?? "") + "/report/"}
+            className="text-[13px] text-gray-500 hover:text-brand-600 transition"
+          >
+            求职报告
+          </a>
+          <a
             href={(process.env.NEXT_PUBLIC_BASE_PATH ?? "") + "/events/"}
             className="text-[13px] text-gray-500 hover:text-brand-600 transition"
           >

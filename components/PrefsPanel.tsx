@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { CATEGORIES, CITIES, JOB_TYPES } from "@/lib/taxonomy";
 import { EMPTY_PREFS } from "@/lib/prefs";
+import { extractPdfText, parseResumeWithAI, extractKeywordsLocal, type ParsedResume } from "@/lib/resumeParser";
 import type { Category, JobType, Prefs } from "@/lib/types";
 
 function toggle<T>(arr: T[], v: T): T[] {
@@ -24,37 +25,7 @@ function Chip({ active, onClick, children }: { active: boolean; onClick: () => v
   );
 }
 
-function extractKeywords(text: string): string[] {
-  const keywords = new Set<string>();
-  const patterns = [
-    /(?:熟悉|精通|掌握|了解|擅长|使用|具备)[：:]?\s*([^。，；\n]+)/g,
-    /(?:技能|技术|工具|语言)[：:]?\s*([^。\n]+)/g,
-  ];
-  for (const p of patterns) {
-    let m;
-    while ((m = p.exec(text)) !== null) {
-      m[1].split(/[,，、/|;；\s]+/).forEach((w) => {
-        const t = w.trim();
-        if (t.length >= 2 && t.length <= 10) keywords.add(t);
-      });
-    }
-  }
-  const commonSkills = [
-    "Python", "Java", "JavaScript", "TypeScript", "Go", "C++", "SQL", "R",
-    "机器学习", "深度学习", "NLP", "CV", "大模型", "LLM", "AI", "AIGC",
-    "数据分析", "数据挖掘", "数据可视化", "Tableau", "PowerBI",
-    "产品经理", "产品设计", "用户研究", "需求分析", "PRD",
-    "项目管理", "敏捷", "Scrum",
-    "金融", "投行", "风控", "量化", "CFA", "FRM",
-    "运营", "增长", "内容", "社群",
-    "React", "Vue", "Node", "Docker", "Kubernetes", "AWS",
-    "Excel", "PPT", "Figma", "Sketch",
-  ];
-  for (const skill of commonSkills) {
-    if (text.includes(skill)) keywords.add(skill);
-  }
-  return [...keywords].slice(0, 30);
-}
+type Tab = "manual" | "upload" | "paste";
 
 export default function PrefsPanel({
   open,
@@ -68,15 +39,62 @@ export default function PrefsPanel({
   onClose: () => void;
 }) {
   const [draft, setDraft] = useState<Prefs>(prefs);
+  const [tab, setTab] = useState<Tab>("manual");
   const [resumeText, setResumeText] = useState("");
-  const [tab, setTab] = useState<"profile" | "resume">("profile");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [aiResult, setAiResult] = useState<ParsedResume | null>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
+
   if (!open) return null;
 
-  function handleExtract() {
-    if (!resumeText.trim()) return;
-    const extracted = extractKeywords(resumeText);
-    setDraft({ ...draft, resumeKeywords: extracted });
+  async function handleFileUpload(file: File) {
+    setLoading(true);
+    setError("");
+    try {
+      const text = await extractPdfText(file);
+      setResumeText(text);
+      await handleAIParse(text);
+    } catch (e) {
+      setError(`PDF 读取失败: ${(e as Error).message}`);
+      setLoading(false);
+    }
   }
+
+  async function handleAIParse(text: string) {
+    setLoading(true);
+    setError("");
+    try {
+      const result = await parseResumeWithAI(text);
+      setAiResult(result);
+      setDraft({
+        ...draft,
+        school: result.school ?? draft.school,
+        major: result.major ?? draft.major,
+        degree: (result.degree as Prefs["degree"]) ?? draft.degree,
+        skills: result.skills.length > 0 ? result.skills : draft.skills,
+        targetRoles: result.targetRoles.length > 0 ? result.targetRoles : draft.targetRoles,
+        resumeKeywords: [...new Set([...(draft.resumeKeywords ?? []), ...result.skills])],
+      });
+    } catch (e) {
+      setError(`AI 解析失败: ${(e as Error).message}。已用规则提取关键词。`);
+      const keywords = extractKeywordsLocal(text);
+      setDraft({ ...draft, resumeKeywords: keywords, skills: keywords.slice(0, 10) });
+    }
+    setLoading(false);
+  }
+
+  function handleLocalExtract() {
+    if (!resumeText.trim()) return;
+    const keywords = extractKeywordsLocal(resumeText);
+    setDraft({ ...draft, resumeKeywords: keywords, skills: keywords.slice(0, 10) });
+  }
+
+  const TABS: { key: Tab; label: string }[] = [
+    { key: "manual", label: "手动填写" },
+    { key: "upload", label: "上传简历" },
+    { key: "paste", label: "粘贴文本" },
+  ];
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50" onClick={onClose}>
@@ -90,50 +108,37 @@ export default function PrefsPanel({
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-0.5 p-0.5 bg-slate-100 rounded-md mb-4">
-          <button
-            onClick={() => setTab("profile")}
-            className={`flex-1 py-1.5 rounded text-xs font-medium transition ${tab === "profile" ? "bg-white text-gray-900 shadow-sm" : "text-gray-500"}`}
-          >
-            手动填写
-          </button>
-          <button
-            onClick={() => setTab("resume")}
-            className={`flex-1 py-1.5 rounded text-xs font-medium transition ${tab === "resume" ? "bg-white text-gray-900 shadow-sm" : "text-gray-500"}`}
-          >
-            简历提取
-          </button>
+        <div className="flex gap-0.5 p-0.5 bg-gray-100 rounded-lg mb-4">
+          {TABS.map((t) => (
+            <button
+              key={t.key}
+              onClick={() => setTab(t.key)}
+              className={`flex-1 py-1.5 rounded-md text-xs font-medium transition ${tab === t.key ? "bg-white text-gray-900 shadow-sm" : "text-gray-500"}`}
+            >
+              {t.label}
+            </button>
+          ))}
         </div>
 
-        {tab === "profile" ? (
+        {error && (
+          <div className="mb-3 p-2.5 rounded-lg bg-red-50 text-xs text-red-600">{error}</div>
+        )}
+
+        {/* Tab: Manual */}
+        {tab === "manual" && (
           <div className="space-y-4">
-            {/* Basic info */}
             <div className="grid grid-cols-3 gap-2">
               <div>
                 <label className="text-[11px] text-gray-500 mb-1 block">学校</label>
-                <input
-                  value={draft.school ?? ""}
-                  onChange={(e) => setDraft({ ...draft, school: e.target.value })}
-                  placeholder="如：北大"
-                  className="w-full px-2.5 py-1.5 rounded-md border border-gray-200 text-xs focus:outline-none focus:border-brand-500"
-                />
+                <input value={draft.school ?? ""} onChange={(e) => setDraft({ ...draft, school: e.target.value })} placeholder="如：北大" className="w-full px-2.5 py-1.5 rounded-md border border-gray-200 text-xs focus:outline-none focus:border-brand-500" />
               </div>
               <div>
                 <label className="text-[11px] text-gray-500 mb-1 block">专业</label>
-                <input
-                  value={draft.major ?? ""}
-                  onChange={(e) => setDraft({ ...draft, major: e.target.value })}
-                  placeholder="如：计算机"
-                  className="w-full px-2.5 py-1.5 rounded-md border border-gray-200 text-xs focus:outline-none focus:border-brand-500"
-                />
+                <input value={draft.major ?? ""} onChange={(e) => setDraft({ ...draft, major: e.target.value })} placeholder="如：计算机" className="w-full px-2.5 py-1.5 rounded-md border border-gray-200 text-xs focus:outline-none focus:border-brand-500" />
               </div>
               <div>
                 <label className="text-[11px] text-gray-500 mb-1 block">学历</label>
-                <select
-                  value={draft.degree ?? ""}
-                  onChange={(e) => setDraft({ ...draft, degree: e.target.value as Prefs["degree"] })}
-                  className="w-full px-2.5 py-1.5 rounded-md border border-gray-200 text-xs focus:outline-none focus:border-brand-500"
-                >
+                <select value={draft.degree ?? ""} onChange={(e) => setDraft({ ...draft, degree: e.target.value as Prefs["degree"] })} className="w-full px-2.5 py-1.5 rounded-md border border-gray-200 text-xs focus:outline-none focus:border-brand-500">
                   <option value="">不限</option>
                   <option value="本科">本科</option>
                   <option value="硕士">硕士</option>
@@ -141,90 +146,116 @@ export default function PrefsPanel({
                 </select>
               </div>
             </div>
-
-            {/* Skills */}
             <div>
               <label className="text-[11px] text-gray-500 mb-1 block">核心技能（逗号分隔）</label>
-              <input
-                value={(draft.skills ?? []).join(", ")}
-                onChange={(e) => setDraft({ ...draft, skills: e.target.value.split(/[,，]/).map((s) => s.trim()).filter(Boolean) })}
-                placeholder="如：Python, 数据分析, AI, 产品经理"
-                className="w-full px-2.5 py-1.5 rounded-md border border-gray-200 text-xs focus:outline-none focus:border-brand-500"
-              />
+              <input value={(draft.skills ?? []).join(", ")} onChange={(e) => setDraft({ ...draft, skills: e.target.value.split(/[,，]/).map((s) => s.trim()).filter(Boolean) })} placeholder="如：Python, 数据分析, AI, 产品经理" className="w-full px-2.5 py-1.5 rounded-md border border-gray-200 text-xs focus:outline-none focus:border-brand-500" />
             </div>
-
-            {/* Target roles */}
             <div>
               <label className="text-[11px] text-gray-500 mb-1 block">目标岗位（逗号分隔）</label>
-              <input
-                value={(draft.targetRoles ?? []).join(", ")}
-                onChange={(e) => setDraft({ ...draft, targetRoles: e.target.value.split(/[,，]/).map((s) => s.trim()).filter(Boolean) })}
-                placeholder="如：AI产品经理, 管培生, 数据分析师"
-                className="w-full px-2.5 py-1.5 rounded-md border border-gray-200 text-xs focus:outline-none focus:border-brand-500"
-              />
+              <input value={(draft.targetRoles ?? []).join(", ")} onChange={(e) => setDraft({ ...draft, targetRoles: e.target.value.split(/[,，]/).map((s) => s.trim()).filter(Boolean) })} placeholder="如：AI产品经理, 管培生, 数据分析师" className="w-full px-2.5 py-1.5 rounded-md border border-gray-200 text-xs focus:outline-none focus:border-brand-500" />
             </div>
-
-            {/* Categories */}
             <div>
               <div className="text-[11px] text-gray-500 mb-1.5">意向行业</div>
               <div className="flex flex-wrap gap-1.5">
-                {CATEGORIES.map((c) => (
-                  <Chip key={c} active={draft.categories.includes(c)} onClick={() => setDraft({ ...draft, categories: toggle<Category>(draft.categories, c) })}>
-                    {c}
-                  </Chip>
-                ))}
+                {CATEGORIES.map((c) => <Chip key={c} active={draft.categories.includes(c)} onClick={() => setDraft({ ...draft, categories: toggle<Category>(draft.categories, c) })}>{c}</Chip>)}
               </div>
             </div>
-
-            {/* Job types */}
             <div>
               <div className="text-[11px] text-gray-500 mb-1.5">岗位类型</div>
               <div className="flex flex-wrap gap-1.5">
-                {JOB_TYPES.map((t) => (
-                  <Chip key={t} active={draft.jobTypes.includes(t)} onClick={() => setDraft({ ...draft, jobTypes: toggle<JobType>(draft.jobTypes, t) })}>
-                    {t}
-                  </Chip>
-                ))}
+                {JOB_TYPES.map((t) => <Chip key={t} active={draft.jobTypes.includes(t)} onClick={() => setDraft({ ...draft, jobTypes: toggle<JobType>(draft.jobTypes, t) })}>{t}</Chip>)}
               </div>
             </div>
-
-            {/* Cities */}
             <div>
               <div className="text-[11px] text-gray-500 mb-1.5">意向城市</div>
               <div className="flex flex-wrap gap-1.5">
-                {CITIES.map((c) => (
-                  <Chip key={c} active={draft.cities.includes(c)} onClick={() => setDraft({ ...draft, cities: toggle<string>(draft.cities, c) })}>
-                    {c}
-                  </Chip>
-                ))}
+                {CITIES.map((c) => <Chip key={c} active={draft.cities.includes(c)} onClick={() => setDraft({ ...draft, cities: toggle<string>(draft.cities, c) })}>{c}</Chip>)}
               </div>
             </div>
           </div>
-        ) : (
+        )}
+
+        {/* Tab: Upload PDF */}
+        {tab === "upload" && (
+          <div className="space-y-4">
+            <div
+              className="border-2 border-dashed border-gray-200 rounded-lg p-8 text-center cursor-pointer hover:border-brand-400 transition"
+              onClick={() => fileRef.current?.click()}
+            >
+              <input
+                ref={fileRef}
+                type="file"
+                accept=".pdf"
+                className="hidden"
+                onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFileUpload(f); }}
+              />
+              {loading ? (
+                <div className="text-sm text-brand-600">解析中...</div>
+              ) : (
+                <>
+                  <div className="text-2xl text-gray-300 mb-2">PDF</div>
+                  <div className="text-sm text-gray-500">点击上传简历 PDF</div>
+                  <div className="text-[11px] text-gray-400 mt-1">AI 自动解析学校/技能/岗位方向</div>
+                </>
+              )}
+            </div>
+
+            {aiResult && (
+              <div className="space-y-2 p-3 bg-gray-50 rounded-lg">
+                <div className="text-xs font-semibold text-gray-700">AI 解析结果</div>
+                {aiResult.school && <div className="text-[11px] text-gray-600">学校：{aiResult.school} · {aiResult.major} · {aiResult.degree}</div>}
+                {aiResult.skills.length > 0 && (
+                  <div className="flex flex-wrap gap-1">
+                    {aiResult.skills.map((s) => <span key={s} className="text-[10px] px-2 py-0.5 rounded-full bg-brand-50 text-brand-600">{s}</span>)}
+                  </div>
+                )}
+                {aiResult.targetRoles.length > 0 && (
+                  <div className="text-[11px] text-gray-600">推荐方向：{aiResult.targetRoles.join("、")}</div>
+                )}
+                {aiResult.strengths.length > 0 && (
+                  <div className="text-[11px] text-gray-600">优势：{aiResult.strengths.join("、")}</div>
+                )}
+                {aiResult.weaknesses.length > 0 && (
+                  <div className="text-[11px] text-gray-500">待提升：{aiResult.weaknesses.join("、")}</div>
+                )}
+                <div className="text-[11px] text-brand-600 font-medium">{aiResult.summary}</div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Tab: Paste text */}
+        {tab === "paste" && (
           <div className="space-y-3">
-            <p className="text-xs text-gray-500">粘贴简历全文（或核心段落），自动提取技能关键词用于 AI 匹配。</p>
+            <p className="text-xs text-gray-500">粘贴简历文本，可选 AI 解析或本地关键词提取。</p>
             <textarea
               value={resumeText}
               onChange={(e) => setResumeText(e.target.value)}
               placeholder="粘贴简历文本..."
               rows={8}
-              className="w-full px-3 py-2 rounded-md border border-gray-200 text-xs leading-relaxed resize-none focus:outline-none focus:border-brand-500"
+              className="w-full px-3 py-2 rounded-lg border border-gray-200 text-xs leading-relaxed resize-none focus:outline-none focus:border-brand-500"
             />
-            <button
-              onClick={handleExtract}
-              className="w-full py-2 rounded-md text-xs font-medium bg-brand-500 text-white hover:bg-brand-600 transition"
-            >
-              提取关键词
-            </button>
+            <div className="flex gap-2">
+              <button
+                onClick={() => handleAIParse(resumeText)}
+                disabled={loading || !resumeText.trim()}
+                className="flex-1 py-2 rounded-lg text-xs font-medium bg-brand-500 text-white hover:bg-brand-600 disabled:opacity-50 transition"
+              >
+                {loading ? "解析中..." : "AI 智能解析"}
+              </button>
+              <button
+                onClick={handleLocalExtract}
+                disabled={!resumeText.trim()}
+                className="py-2 px-4 rounded-lg text-xs border border-gray-200 text-gray-600 hover:border-gray-400 disabled:opacity-50"
+              >
+                本地提取
+              </button>
+            </div>
             {(draft.resumeKeywords ?? []).length > 0 && (
               <div>
                 <div className="text-[11px] text-gray-500 mb-1.5">已提取 {draft.resumeKeywords!.length} 个关键词：</div>
                 <div className="flex flex-wrap gap-1">
-                  {draft.resumeKeywords!.map((k) => (
-                    <span key={k} className="text-[10px] px-2 py-0.5 rounded bg-brand-50 text-brand-600 border border-brand-100">
-                      {k}
-                    </span>
-                  ))}
+                  {draft.resumeKeywords!.map((k) => <span key={k} className="text-[10px] px-2 py-0.5 rounded-full bg-brand-50 text-brand-600">{k}</span>)}
                 </div>
               </div>
             )}
@@ -234,7 +265,7 @@ export default function PrefsPanel({
         {/* Actions */}
         <div className="flex gap-2 mt-5 pt-4 border-t border-gray-100">
           <button
-            onClick={() => { setDraft(EMPTY_PREFS); setResumeText(""); }}
+            onClick={() => { setDraft(EMPTY_PREFS); setResumeText(""); setAiResult(null); setError(""); }}
             className="px-4 py-2.5 rounded-lg text-sm border border-gray-200 text-gray-600 hover:border-gray-400"
           >
             清空

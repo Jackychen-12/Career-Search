@@ -5,11 +5,14 @@ function norm(s: string): string {
   return s.toLowerCase().replace(/[\s_\-·]/g, "");
 }
 
-/** Build-time fallback: keyword matching for jobs without AI tags. */
+export interface MatchResult {
+  score: number;
+  reasons: string[];
+}
+
 export function computeAiMatch(job: NormalizedJob): number {
   const text = norm([job.title, job.description ?? "", job.company, ...job.tags].join(" "));
   const titleNorm = norm(job.title);
-
   const skills = RESUME_KEYWORDS.skills.map(norm);
   const roles = RESUME_KEYWORDS.targetRoles.map(norm);
   const categories = (RESUME_KEYWORDS.targetCategories ?? []).map(norm);
@@ -27,112 +30,83 @@ export function computeAiMatch(job: NormalizedJob): number {
   return Math.min(1, skillScore * 0.35 + roleScore * 0.4 + tierBonus + categoryBonus);
 }
 
-/** Client-side: compute match between a user's profile and a job's AI-extracted tags. */
 export function computeProfileMatch(job: Job, prefs: Prefs): number {
+  return computeProfileMatchDetailed(job, prefs).score;
+}
+
+export function computeProfileMatchDetailed(job: Job, prefs: Prefs): MatchResult {
   const userSkills = [...(prefs.skills ?? []), ...(prefs.resumeKeywords ?? [])].map(norm);
   const userRoles = (prefs.targetRoles ?? []).map(norm);
   const userCategories = prefs.categories.map(norm);
   const userCities = prefs.cities;
+  const reasons: string[] = [];
 
-  if (userSkills.length === 0 && userRoles.length === 0 && userCategories.length === 0) return 0;
+  if (userSkills.length === 0 && userRoles.length === 0 && userCategories.length === 0) {
+    return { score: 0, reasons: [] };
+  }
 
   const tags = job.aiTags;
 
-  if (tags) {
-    return matchWithAiTags(tags, userSkills, userRoles, userCategories, userCities, job);
-  }
-  return matchWithKeywords(job, userSkills, userRoles, userCategories, userCities);
-}
-
-function matchWithAiTags(
-  tags: JobAiTags,
-  userSkills: string[],
-  userRoles: string[],
-  userCategories: string[],
-  userCities: string[],
-  job: Job,
-): number {
   let score = 0;
-  let weights = 0;
 
   // Skill match (40%)
-  if (userSkills.length > 0 && tags.skills.length > 0) {
-    const jobSkills = tags.skills.map(norm);
-    let hits = 0;
+  if (userSkills.length > 0) {
+    const jobSkills = tags ? tags.skills.map(norm) : [];
+    const text = norm([job.title, job.description ?? "", ...job.tags].join(" "));
+    const matched: string[] = [];
+
     for (const us of userSkills) {
-      if (jobSkills.some((js) => js.includes(us) || us.includes(js))) hits++;
+      const hit = jobSkills.some((js) => js.includes(us) || us.includes(js)) || text.includes(us);
+      if (hit) matched.push(us);
     }
-    score += 0.4 * Math.min(hits / Math.max(userSkills.length * 0.2, 1), 1);
-    weights += 0.4;
+
+    const skillScore = Math.min(matched.length / Math.max(userSkills.length * 0.2, 1), 1);
+    score += 0.4 * skillScore;
+
+    if (matched.length > 0) {
+      const display = [...new Set(matched)].slice(0, 3).map((s) => {
+        const original = [...(prefs.skills ?? []), ...(prefs.resumeKeywords ?? [])].find((o) => norm(o) === s);
+        return original ?? s;
+      });
+      reasons.push(`技能匹配: ${display.join(", ")}`);
+    }
   }
 
-  // Role type match (30%)
+  // Role match (30%)
   if (userRoles.length > 0) {
-    const roleNorm = norm(tags.roleType);
     const titleNorm = norm(job.title);
-    let roleMatch = 0;
+    const roleNorm = tags ? norm(tags.roleType) : "";
+    let roleMatch = false;
+
     for (const ur of userRoles) {
-      if (roleNorm.includes(ur) || ur.includes(roleNorm) || titleNorm.includes(ur)) {
-        roleMatch = 1;
+      if (titleNorm.includes(ur) || roleNorm.includes(ur) || ur.includes(roleNorm)) {
+        const original = (prefs.targetRoles ?? []).find((o) => norm(o) === ur);
+        reasons.push(`岗位方向: ${original ?? ur}`);
+        roleMatch = true;
         break;
       }
     }
-    score += 0.3 * roleMatch;
-    weights += 0.3;
+    score += roleMatch ? 0.3 : 0;
   }
 
-  // Industry/category match (15%)
+  // Category match (15%)
   if (userCategories.length > 0) {
-    const indNorm = norm(tags.industry);
     const catNorm = norm(job.category);
-    const match = userCategories.some((c) => indNorm.includes(c) || catNorm.includes(c) || c.includes(indNorm));
-    score += match ? 0.15 : 0;
-    weights += 0.15;
+    const indNorm = tags ? norm(tags.industry) : "";
+    if (userCategories.some((c) => catNorm.includes(c) || indNorm.includes(c) || c.includes(catNorm))) {
+      reasons.push(`行业匹配: ${job.category}`);
+      score += 0.15;
+    }
   }
 
   // City match (15%)
   if (userCities.length > 0) {
-    const cityMatch = job.location.some((l) => userCities.some((c) => l.includes(c)));
-    score += cityMatch ? 0.15 : 0;
-    weights += 0.15;
+    const matchedCity = job.location.find((l) => userCities.some((c) => l.includes(c)));
+    if (matchedCity) {
+      reasons.push(`城市: ${matchedCity}`);
+      score += 0.15;
+    }
   }
 
-  return weights > 0 ? Math.min(1, score / weights * (weights + 0.2)) : 0;
-}
-
-function matchWithKeywords(
-  job: Job,
-  userSkills: string[],
-  userRoles: string[],
-  userCategories: string[],
-  userCities: string[],
-): number {
-  const text = norm([job.title, job.description ?? "", job.company, ...job.tags].join(" "));
-  const titleNorm = norm(job.title);
-
-  let score = 0;
-
-  if (userSkills.length > 0) {
-    let hits = 0;
-    for (const s of userSkills) { if (text.includes(s)) hits++; }
-    score += 0.4 * Math.min(hits / Math.max(userSkills.length * 0.2, 1), 1);
-  }
-
-  if (userRoles.length > 0) {
-    let hits = 0;
-    for (const r of userRoles) { if (titleNorm.includes(r) || text.includes(r)) hits++; }
-    score += 0.35 * Math.min(hits / Math.max(userRoles.length * 0.15, 1), 1);
-  }
-
-  if (userCategories.length > 0) {
-    const catMatch = userCategories.includes(norm(job.category));
-    score += catMatch ? 0.15 : 0;
-  }
-
-  if (userCities.length > 0) {
-    const cityMatch = job.location.some((l) => userCities.some((c) => l.includes(c)));
-    score += cityMatch ? 0.1 : 0;
-  }
-
-  return Math.min(1, score);
+  return { score: Math.min(1, score), reasons };
 }
