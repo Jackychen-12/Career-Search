@@ -2,6 +2,7 @@
 
 import type { Job } from "@/lib/types";
 import type { TrackingData, TrackingStatus } from "@/lib/tracker";
+import * as XLSX from "xlsx";
 
 const STATUS_LABELS: Record<TrackingStatus, { label: string; color: string }> = {
   saved: { label: "已收藏", color: "bg-gray-100 text-gray-700" },
@@ -45,9 +46,32 @@ export default function TrackingPanel({
       >
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-bold">我的投递追踪</h3>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-700 text-xl leading-none">
-            ×
-          </button>
+          <div className="flex items-center gap-2">
+            {trackedJobs.length > 0 && (
+              <button
+                onClick={() => {
+                  const data = trackedJobs.map((t) => ({
+                    公司: t.job.company,
+                    岗位: t.job.title,
+                    状态: STATUS_LABELS[t.entry.status].label,
+                    城市: t.job.location.join("/"),
+                    类型: t.job.jobType,
+                    截止日期: t.job.deadline?.slice(0, 10) ?? "滚动",
+                    投递链接: t.job.applyUrl,
+                    更新时间: t.entry.updatedAt.slice(0, 10),
+                  }));
+                  const ws = XLSX.utils.json_to_sheet(data);
+                  const wb = XLSX.utils.book_new();
+                  XLSX.utils.book_append_sheet(wb, ws, "投递记录");
+                  XLSX.writeFile(wb, "投递记录.xlsx");
+                }}
+                className="text-xs text-brand-600 hover:text-brand-700"
+              >
+                导出 Excel
+              </button>
+            )}
+            <button onClick={onClose} className="text-gray-400 hover:text-gray-700 text-xl leading-none">×</button>
+          </div>
         </div>
 
         {trackedJobs.length === 0 ? (

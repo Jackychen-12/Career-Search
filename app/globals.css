@@ -62,6 +62,34 @@ html, body {
   display: none;
 }
 
+@media print {
+  body::after { display: none; }
+  header, .print\\:hidden { display: none !important; }
+  .card { box-shadow: none; border: 1px solid #e5e7eb; break-inside: avoid; }
+  body { background: white; }
+}
+
+/* Dark mode */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: linear-gradient(180deg, #0f1117 0%, #161927 100%);
+    --surface: rgba(30, 33, 48, 0.8);
+    --surface-solid: #1e2130;
+    --text: #e2e8f0;
+    --text-secondary: #94a3b8;
+    --border: rgba(255, 255, 255, 0.08);
+  }
+  html, body { background: #0f1117; color: var(--text); }
+  .stat-card { background: var(--surface-solid); border-color: var(--border); }
+  input, select, textarea { background: var(--surface-solid) !important; color: var(--text) !important; border-color: var(--border) !important; }
+}
+
+/* Mobile optimization */
+@media (max-width: 640px) {
+  .card { border-radius: 10px; }
+  header { position: sticky; }
+}
+
 /* Subtle noise texture */
 body::after {
   content: '';

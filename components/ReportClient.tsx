@@ -97,6 +97,20 @@ export default function ReportClient({ jobs }: { jobs: Job[] }) {
             <span className="text-gray-300">·</span>
             <span className="text-[14px] font-medium text-gray-700">求职报告</span>
           </div>
+          <div className="flex items-center gap-3 print:hidden">
+            <button
+              onClick={() => {
+                const url = window.location.href;
+                navigator.clipboard.writeText(url).then(() => alert("链接已复制"));
+              }}
+              className="text-[13px] text-gray-500 hover:text-brand-600 transition"
+            >
+              分享
+            </button>
+            <button onClick={() => window.print()} className="text-[13px] text-gray-500 hover:text-brand-600 transition">
+              导出 PDF
+            </button>
+          </div>
         </div>
       </header>
 
@@ -262,7 +276,126 @@ export default function ReportClient({ jobs }: { jobs: Job[] }) {
             </div>
           </section>
         )}
+        {/* Resume optimization tips */}
+        <section className="card p-6">
+          <h2 className="text-base font-bold text-gray-900 mb-4 flex items-center gap-2">
+            <span className="w-1.5 h-5 rounded-full bg-brand-500" />
+            简历优化建议
+          </h2>
+          <div className="space-y-3">
+            {skillGaps.length > 0 && (
+              <div className="p-3 rounded-lg bg-amber-50 border border-amber-100">
+                <div className="text-xs font-medium text-amber-800 mb-1">补充热门技能关键词</div>
+                <div className="text-xs text-amber-700">
+                  你的简历中缺少以下市场高需求技能：<strong>{skillGaps.slice(0, 5).map((s) => s.skill).join("、")}</strong>。
+                  如果你有相关经验，建议在简历中明确提及。
+                </div>
+              </div>
+            )}
+            {(prefs.targetRoles ?? []).length > 0 && (
+              <div className="p-3 rounded-lg bg-brand-50/50 border border-brand-100">
+                <div className="text-xs font-medium text-brand-800 mb-1">突出目标岗位关键词</div>
+                <div className="text-xs text-brand-700">
+                  你的目标岗位是 <strong>{(prefs.targetRoles ?? []).join("、")}</strong>，
+                  建议简历标题和经历描述中直接出现这些关键词，提高 ATS 系统和 HR 的匹配识别率。
+                </div>
+              </div>
+            )}
+            {high.length > 0 && (
+              <div className="p-3 rounded-lg bg-gray-50 border border-gray-100">
+                <div className="text-xs font-medium text-gray-800 mb-1">针对性定制</div>
+                <div className="text-xs text-gray-600">
+                  你有 {high.length} 个高匹配岗位，Top 3 是 {high.slice(0, 3).map((m) => m.job.company).join("、")}。
+                  建议针对这些公司分别准备定制版简历，突出与其岗位 JD 匹配的经历。
+                </div>
+              </div>
+            )}
+            <div className="p-3 rounded-lg bg-gray-50 border border-gray-100">
+              <div className="text-xs font-medium text-gray-800 mb-1">STAR 法则</div>
+              <div className="text-xs text-gray-600">
+                每段实习/项目经历用 Situation → Task → Action → Result 结构描述，量化成果（如"提升 XX%"、"覆盖 XX 用户"）。
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Interview prep */}
+        <section className="card p-6">
+          <h2 className="text-base font-bold text-gray-900 mb-4 flex items-center gap-2">
+            <span className="w-1.5 h-5 rounded-full bg-brand-500" />
+            面试题预测
+          </h2>
+          <p className="text-xs text-gray-500 mb-3">基于你的目标岗位和技能，可能会被问到的面试题：</p>
+          <div className="space-y-2">
+            {generateInterviewQuestions(prefs, matches.slice(0, 5).map((m) => m.job)).map((q, i) => (
+              <div key={i} className="p-3 rounded-lg border border-gray-100 hover:border-brand-200 transition">
+                <div className="flex items-start gap-2">
+                  <span className="shrink-0 w-5 h-5 rounded-full bg-brand-50 text-brand-600 text-[10px] font-bold flex items-center justify-center mt-0.5">{i + 1}</span>
+                  <div>
+                    <div className="text-sm text-gray-900">{q.question}</div>
+                    <div className="text-[11px] text-gray-400 mt-1">{q.category} · {q.source}</div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
       </main>
     </div>
   );
+}
+
+function generateInterviewQuestions(prefs: Prefs, topJobs: Job[]): { question: string; category: string; source: string }[] {
+  const questions: { question: string; category: string; source: string }[] = [];
+  const roles = prefs.targetRoles ?? [];
+  const skills = prefs.skills ?? [];
+
+  if (roles.some((r) => /产品/.test(r))) {
+    questions.push(
+      { question: "请设计一个功能来提升某产品的用户留存率", category: "产品设计", source: "产品经理高频题" },
+      { question: "如何从 0 到 1 规划一个新产品？请描述你的方法论", category: "产品思维", source: "产品经理高频题" },
+      { question: "给你一个数据下降的场景，你如何分析原因？", category: "数据分析", source: "产品经理高频题" },
+    );
+  }
+  if (roles.some((r) => /管培/.test(r))) {
+    questions.push(
+      { question: "你为什么选择管培生而不是直接应聘某个岗位？", category: "动机", source: "管培生常见题" },
+      { question: "描述一次你在团队中解决冲突的经历", category: "领导力", source: "管培生常见题" },
+      { question: "如果让你在三个月内熟悉一个全新的业务线，你会怎么做？", category: "学习能力", source: "管培生常见题" },
+    );
+  }
+  if (roles.some((r) => /数据|分析/.test(r))) {
+    questions.push(
+      { question: "SQL 中 LEFT JOIN 和 INNER JOIN 的区别？写一个多表关联查询", category: "技术", source: "数据分析高频题" },
+      { question: "描述一次你用数据驱动决策的经历，结果如何？", category: "业务", source: "数据分析高频题" },
+    );
+  }
+  if (skills.some((s) => /AI|人工智能|大模型|LLM/.test(s))) {
+    questions.push(
+      { question: "你如何理解大模型在实际产品中的应用场景和局限性？", category: "AI 认知", source: "AI 岗位高频题" },
+      { question: "Prompt Engineering 的核心原则有哪些？", category: "技术", source: "AI 岗位高频题" },
+    );
+  }
+  if (roles.some((r) => /金融|投行/.test(r)) || prefs.categories.includes("金融")) {
+    questions.push(
+      { question: "请简单解释 DCF 估值模型的基本步骤", category: "金融基础", source: "金融岗高频题" },
+      { question: "如何看待当前中国资本市场的发展趋势？", category: "行业认知", source: "金融岗高频题" },
+    );
+  }
+
+  // Generic questions
+  questions.push(
+    { question: "请做一分钟自我介绍", category: "基础", source: "通用高频题" },
+    { question: "你的职业规划是什么？3-5 年后你希望在做什么？", category: "规划", source: "通用高频题" },
+  );
+
+  if (topJobs.length > 0) {
+    questions.push({
+      question: `你为什么想加入 ${topJobs[0].company}？对我们的业务有什么了解？`,
+      category: "公司认知",
+      source: `${topJobs[0].company} 针对性`,
+    });
+  }
+
+  return questions.slice(0, 10);
 }

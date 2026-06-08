@@ -58,8 +58,8 @@ export default function HomeClient({
     setLoggedIn(isLoggedIn());
     if (isLoggedIn()) {
       loadTracking().then(setTracking);
-      if (!hasPrefs(p)) {
-        setPrefsOpen(true);
+      if (!hasPrefs(p) && typeof window !== "undefined") {
+        window.location.href = (process.env.NEXT_PUBLIC_BASE_PATH || "") + "/profile/";
       }
     }
   }, []);

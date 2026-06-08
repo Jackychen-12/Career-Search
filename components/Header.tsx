@@ -40,14 +40,14 @@ export default function Header({
         <nav className="flex items-center gap-3 text-sm">
           {loggedIn && user ? (
             <>
-              <button
-                onClick={onOpenPrefs}
+              <a
+                href={(process.env.NEXT_PUBLIC_BASE_PATH || "") + "/profile/"}
                 className={`text-[13px] transition ${
                   hasProfile ? "text-brand-600 font-medium" : "text-gray-500 hover:text-brand-600"
                 }`}
               >
                 {hasProfile ? "画像 ✓" : "建立画像"}
-              </button>
+              </a>
               <a
                 href={(process.env.NEXT_PUBLIC_BASE_PATH || "") + "/report/"}
                 className="text-[13px] text-gray-500 hover:text-brand-600 transition"
