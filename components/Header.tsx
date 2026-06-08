@@ -9,10 +9,12 @@ export default function Header({
   total,
   onOpenTracking,
   onOpenPrefs,
+  onOpenWeekly,
 }: {
   total: number;
   onOpenTracking?: () => void;
   onOpenPrefs?: () => void;
+  onOpenWeekly?: () => void;
 }) {
   const [user, setUser] = useState<GhUser | null>(null);
   const [loggedIn, setLoggedIn] = useState(false);
@@ -60,6 +62,12 @@ export default function Header({
               >
                 宣讲活动
               </a>
+              <button
+                onClick={onOpenWeekly}
+                className="text-[13px] text-gray-500 hover:text-brand-600 transition"
+              >
+                投递清单
+              </button>
               <button
                 onClick={onOpenTracking}
                 className="text-[13px] text-gray-500 hover:text-brand-600 transition"

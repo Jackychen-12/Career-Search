@@ -12,6 +12,7 @@ import PrefsPanel from "./PrefsPanel";
 import Sidebar from "./Sidebar";
 import StatBar from "./StatBar";
 import TrackingPanel from "./TrackingPanel";
+import WeeklyPlan from "./WeeklyPlan";
 import { isLoggedIn } from "@/lib/auth";
 import { queryJobs } from "@/lib/filter";
 import { computeProfileMatchDetailed, type MatchResult } from "@/lib/matchScore";
@@ -55,6 +56,7 @@ export default function HomeClient({
   const [loggedIn, setLoggedIn] = useState(false);
   const [compareIds, setCompareIds] = useState<string[]>([]);
   const [compareOpen, setCompareOpen] = useState(false);
+  const [weeklyOpen, setWeeklyOpen] = useState(false);
 
   useEffect(() => {
     const p = loadPrefs();
@@ -98,7 +100,7 @@ export default function HomeClient({
 
   return (
     <>
-      <Header total={jobs.length} onOpenTracking={() => setTrackingOpen(true)} onOpenPrefs={() => setPrefsOpen(true)} />
+      <Header total={jobs.length} onOpenTracking={() => setTrackingOpen(true)} onOpenPrefs={() => setPrefsOpen(true)} onOpenWeekly={() => setWeeklyOpen(true)} />
 
       <main className="max-w-7xl mx-auto px-4 py-6 space-y-5">
         {/* Stats + Filters (top, full width) */}
@@ -193,6 +195,13 @@ export default function HomeClient({
           }
         }}
         onClose={() => setPrefsOpen(false)}
+      />
+      <WeeklyPlan
+        open={weeklyOpen}
+        onClose={() => setWeeklyOpen(false)}
+        jobs={jobs}
+        prefs={prefs}
+        tracking={tracking}
       />
       <CompareBar
         jobs={compareIds.map((id) => jobs.find((j) => j.id === id)!).filter(Boolean)}
