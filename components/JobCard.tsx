@@ -141,6 +141,41 @@ export default function JobCard({
         )}
       </div>
 
+      {/* AI Match section */}
+      {(matchResult || job.aiTags) && (
+        <div className="px-3 py-2 rounded-lg bg-brand-50/50 border border-brand-100/50">
+          {matchResult && matchResult.score > 0 ? (
+            <div className="flex items-start gap-2">
+              <span className={`shrink-0 text-[11px] font-bold px-2 py-0.5 rounded-full mt-0.5 ${
+                matchResult.score > 0.6 ? "bg-brand-500 text-white" :
+                matchResult.score > 0.3 ? "bg-brand-100 text-brand-700" :
+                "bg-gray-100 text-gray-600"
+              }`}>
+                {Math.round(matchResult.score * 100)}%
+              </span>
+              <div className="min-w-0">
+                <div className="text-[11px] text-brand-700 font-medium">
+                  {matchResult.reasons.slice(0, 3).join(" · ")}
+                </div>
+                {job.aiTags?.summary && (
+                  <div className="text-[10px] text-gray-500 mt-0.5">{job.aiTags.summary}</div>
+                )}
+              </div>
+            </div>
+          ) : job.aiTags ? (
+            <div className="flex items-start gap-2">
+              <span className="shrink-0 text-[11px] font-medium text-brand-500 mt-0.5">AI</span>
+              <div className="min-w-0">
+                <div className="text-[11px] text-gray-600">{job.aiTags.summary}</div>
+                {job.aiTags.skills.length > 0 && (
+                  <div className="text-[10px] text-gray-400 mt-0.5">需要: {job.aiTags.skills.slice(0, 4).join(", ")}</div>
+                )}
+              </div>
+            </div>
+          ) : null}
+        </div>
+      )}
+
       {/* Footer */}
       <div className="flex items-center justify-between pt-2 mt-auto border-t border-black/5">
         <div className="flex-1 min-w-0">
@@ -148,31 +183,13 @@ export default function JobCard({
             <select
               value={trackingStatus}
               onChange={(e) => onTrack?.(job.id, e.target.value as TrackingStatus)}
-              className="text-[11px] px-2 py-1 rounded-lg border border-gray-200 text-gray-600 mb-1"
+              className="text-[11px] px-2 py-1 rounded-lg border border-gray-200 text-gray-600"
             >
               {STATUS_OPTIONS.map((o) => (
                 <option key={o.value} value={o.value}>{o.label}</option>
               ))}
             </select>
           )}
-          {matchResult && matchResult.score > 0 ? (
-            <div className="space-y-0.5">
-              <div className="flex items-center gap-1.5">
-                <span className={`shrink-0 text-[10px] font-semibold px-1.5 py-0.5 rounded-full ${
-                  matchResult.score > 0.6 ? "bg-brand-500 text-white" :
-                  matchResult.score > 0.3 ? "bg-brand-50 text-brand-600" :
-                  "bg-gray-100 text-gray-500"
-                }`}>
-                  {Math.round(matchResult.score * 100)}%
-                </span>
-                <span className="text-[10px] text-gray-500 truncate">
-                  {matchResult.reasons.slice(0, 2).join(" · ")}
-                </span>
-              </div>
-            </div>
-          ) : job.aiTags?.summary ? (
-            <span className="text-[10px] text-gray-400 truncate block">{job.aiTags.summary}</span>
-          ) : null}
         </div>
         <a
           href={job.applyUrl}
