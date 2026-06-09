@@ -4,7 +4,69 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { signInWithGitHub, signOut, getUser, type GhUser } from "@/lib/auth";
 import { hasPrefs } from "@/lib/ranking";
-import { loadPrefs } from "@/lib/prefs";
+import { loadPrefs, savePrefs } from "@/lib/prefs";
+
+function NotifyBell() {
+  const [open, setOpen] = useState(false);
+  const [email, setEmail] = useState("");
+  const [enabled, setEnabled] = useState(false);
+  const [saved, setSaved] = useState(false);
+
+  useEffect(() => {
+    const prefs = loadPrefs();
+    setEmail(prefs.notifyEmail ?? "");
+    setEnabled(prefs.notifyEnabled ?? false);
+  }, []);
+
+  function save() {
+    const prefs = loadPrefs();
+    const updated = { ...prefs, notifyEmail: email, notifyEnabled: enabled };
+    savePrefs(updated);
+    setSaved(true);
+    setTimeout(() => { setSaved(false); setOpen(false); }, 1500);
+  }
+
+  return (
+    <div className="relative">
+      <button
+        onClick={() => setOpen(!open)}
+        className={`w-7 h-7 rounded-lg flex items-center justify-center transition ${enabled ? "text-brand-600 bg-brand-50" : "text-gray-400 hover:text-gray-600 hover:bg-gray-100"}`}
+        title="邮件推送设置"
+      >
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+          <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+        </svg>
+        {enabled && <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-brand-500" />}
+      </button>
+
+      {open && (
+        <div className="absolute right-0 top-9 w-72 card p-4 shadow-lg z-50 space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-semibold text-gray-900">每日岗位推送</span>
+            <label className="flex items-center gap-1.5 cursor-pointer">
+              <input type="checkbox" checked={enabled} onChange={(e) => setEnabled(e.target.checked)} className="accent-brand-500" />
+              <span className="text-xs text-gray-600">{enabled ? "开" : "关"}</span>
+            </label>
+          </div>
+          {enabled && (
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="输入接收邮箱"
+              className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:border-brand-500"
+            />
+          )}
+          <button onClick={save} className="w-full py-2 rounded-lg text-xs font-medium text-white bg-brand-500 hover:bg-brand-600 transition">
+            {saved ? "已保存 ✓" : "保存"}
+          </button>
+          <p className="text-[10px] text-gray-400">每天早上推送与你画像匹配的新增岗位，可随时关闭。</p>
+        </div>
+      )}
+    </div>
+  );
+}
 
 function ThemeToggle() {
   const [dark, setDark] = useState(false);
@@ -102,6 +164,7 @@ export default function Header({
               <button key={item.label} onClick={item.onClick} className="text-[13px] text-gray-500 hover:text-brand-600 transition">{item.label}</button>
             )
           )}
+          {loggedIn && <NotifyBell />}
           <ThemeToggle />
           {loggedIn && user ? (
             <button
