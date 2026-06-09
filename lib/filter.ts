@@ -21,7 +21,7 @@ export function filterJobs(pool: Job[], q: MultiFilterQuery, now: Date = new Dat
     categories = ["all"],
     cities = ["all"],
     jobTypes = ["all"],
-    region = "all",
+    region = ["all"],
     keyword = "",
     urgentOnly = false,
     sort = "composite",
@@ -36,8 +36,8 @@ export function filterJobs(pool: Job[], q: MultiFilterQuery, now: Date = new Dat
   if (!jobTypes.includes("all")) {
     out = out.filter((j) => (jobTypes as string[]).includes(j.jobType));
   }
-  if (region !== "all") {
-    out = out.filter((j) => j.region === region);
+  if (!region.includes("all")) {
+    out = out.filter((j) => (region as string[]).includes(j.region));
   }
   if (!cities.includes("all")) {
     out = out.filter((j) => j.location.some((l) => (cities as string[]).some((c) => l.includes(c))));

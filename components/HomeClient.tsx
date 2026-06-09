@@ -46,7 +46,7 @@ const DEFAULT_FILTER: FilterState = {
   categories: ["互联网", "金融", "快消", "实体", "管培"],
   cities: ["all"],
   jobTypes: ["all"],
-  region: "大陆",
+  region: ["大陆"],
   keyword: "",
   urgentOnly: false,
   sort: "composite",

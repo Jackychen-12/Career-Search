@@ -41,7 +41,7 @@ describe("filterJobs", () => {
   });
 
   test("按地区筛选", () => {
-    const result = filterJobs(mockJobs, { region: "大陆" });
+    const result = filterJobs(mockJobs, { region: ["大陆"] });
     expect(result).toHaveLength(2);
     expect(result.every((j) => j.region === "大陆")).toBe(true);
   });

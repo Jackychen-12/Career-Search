@@ -7,7 +7,7 @@ export interface FilterState {
   categories: (Category | "all")[];
   cities: (string | "all")[];
   jobTypes: (JobType | "all")[];
-  region: Region | "all";
+  region: (Region | "all")[];
   keyword: string;
   urgentOnly: boolean;
   sort: SortKey;
@@ -115,11 +115,12 @@ export default function FilterBar({
 
       <div className="flex items-center justify-between flex-wrap gap-2 pt-2 border-t border-black/5">
         <div className="flex items-center gap-1">
-          <span className="text-xs text-gray-400 mr-1">地区</span>
-          <Pill active={state.region === "all"} onClick={() => onChange({ region: "all" })}>全部</Pill>
-          {REGIONS.map((r) => (
-            <Pill key={r} active={state.region === r} onClick={() => onChange({ region: r })}>{r}</Pill>
-          ))}
+          <MultiRow
+            label="地区"
+            options={REGIONS}
+            selected={state.region}
+            onToggle={(v) => onChange({ region: toggleValue(state.region, v, "all") })}
+          />
           <label className="flex items-center gap-1.5 text-[13px] text-gray-600 ml-3 cursor-pointer select-none">
             <input
               type="checkbox"

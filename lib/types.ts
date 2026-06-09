@@ -89,7 +89,7 @@ export interface JobsQuery {
   category?: Category | "all";
   city?: string | "all";
   jobType?: JobType | "all";
-  region?: Region | "all";
+  region?: (Region | "all")[];
   keyword?: string;
   urgentOnly?: boolean;
   sort?: SortKey;
