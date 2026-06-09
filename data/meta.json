@@ -1,9 +1,22 @@
 {
-  "fetchedAt": "2026-06-09T03:52:20.285Z",
-  "count": 0,
+  "fetchedAt": "2026-06-09T05:47:25.499Z",
+  "count": 1156,
   "sources": {
+    "seed": 103,
+    "greenhouse": 11,
+    "lever": 0,
+    "ashby": 0,
+    "repo": 1099,
+    "official:bytedance": 0,
+    "official:meituan": 0,
+    "official:kuaishou": 0,
+    "official:xiaohongshu": 0,
     "campus-api": 0,
     "nowcoder": 0
   },
-  "errors": {}
+  "errors": {
+    "official:meituan": "empty / unexpected payload",
+    "official:kuaishou": "HTTP 404 <- kuaishou",
+    "official:xiaohongshu": "HTTP 404 <- xiaohongshu"
+  }
 }
