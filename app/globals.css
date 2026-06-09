@@ -4,13 +4,18 @@
 
 :root {
   --bg: linear-gradient(180deg, #f8f9fc 0%, #eef1f8 100%);
-  --surface: rgba(255, 255, 255, 0.75);
+  --surface: rgba(255, 255, 255, 0.78);
   --surface-solid: #ffffff;
   --text: #111827;
   --text-secondary: #374151;
-  --border: rgba(0, 0, 0, 0.07);
+  --border: rgba(0, 0, 0, 0.06);
   --accent: #5b4cff;
   --accent-light: #ededff;
+  --radius: 14px;
+  --radius-sm: 10px;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.03);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.04);
+  --shadow-hover: 0 8px 24px rgba(91, 76, 255, 0.07), 0 2px 8px rgba(0, 0, 0, 0.03);
 }
 
 html, body {
@@ -29,42 +34,61 @@ html, body {
   box-sizing: border-box;
 }
 
+/* Unified card system */
 .card {
   background: var(--surface);
   backdrop-filter: blur(12px);
   border: 1px solid var(--border);
-  border-radius: 14px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02), 0 0 0 1px rgba(255, 255, 255, 0.5) inset;
-  transition: box-shadow 0.2s ease, transform 0.2s ease;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm), 0 0 0 1px rgba(255, 255, 255, 0.5) inset;
+  transition: box-shadow 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
 }
 
 .card:hover {
-  box-shadow: 0 8px 24px rgba(91, 76, 255, 0.06), 0 2px 8px rgba(0, 0, 0, 0.04), 0 0 0 1px rgba(255, 255, 255, 0.6) inset;
-  transform: translateY(-2px);
+  border-color: rgba(91, 76, 255, 0.12);
+  box-shadow: var(--shadow-hover), 0 0 0 1px rgba(255, 255, 255, 0.6) inset;
+  transform: translateY(-1px);
 }
 
 .stat-card {
   background: var(--surface-solid);
   border: 1px solid var(--border);
-  border-radius: 12px;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.2s ease, transform 0.15s ease;
 }
 
-.panel {
-  background: var(--surface);
-  backdrop-filter: blur(12px);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02), 0 0 0 1px rgba(255, 255, 255, 0.5) inset;
+.stat-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
 }
 
+/* Smooth focus states */
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 0 3px rgba(91, 76, 255, 0.1);
+}
+
+/* Button press feedback */
+button:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+/* Smooth link transitions */
+a {
+  transition: color 0.15s ease;
+}
+
+/* Scrollbar */
 .scroll-hide::-webkit-scrollbar {
   display: none;
 }
 
+/* Print */
 @media print {
   body::after { display: none; }
-  header, .print\\:hidden { display: none !important; }
+  header, .print\:hidden { display: none !important; }
   .card { box-shadow: none; border: 1px solid #e5e7eb; break-inside: avoid; }
   body { background: white; }
 }
@@ -77,18 +101,21 @@ html, body {
   --text: #e2e8f0;
   --text-secondary: #94a3b8;
   --border: rgba(255, 255, 255, 0.08);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.3);
+  --shadow-hover: 0 8px 24px rgba(91, 76, 255, 0.15), 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 [data-theme="dark"] body { background: #0f1117; color: var(--text); }
 [data-theme="dark"] .card { background: var(--surface); border-color: var(--border); }
 [data-theme="dark"] .stat-card { background: var(--surface-solid); border-color: var(--border); }
 [data-theme="dark"] input, [data-theme="dark"] select, [data-theme="dark"] textarea { background: var(--surface-solid) !important; color: var(--text) !important; border-color: var(--border) !important; }
-[data-theme="dark"] header { background: rgba(15, 17, 23, 0.8) !important; }
+[data-theme="dark"] header { background: rgba(15, 17, 23, 0.85) !important; }
 [data-theme="dark"] footer { background: transparent; border-color: var(--border); }
 
-/* Mobile optimization */
+/* Mobile */
 @media (max-width: 640px) {
-  .card { border-radius: 10px; }
-  header { position: sticky; }
+  :root { --radius: 10px; --radius-sm: 8px; }
+  .card:hover { transform: none; }
 }
 
 /* Subtle noise texture */
@@ -97,7 +124,13 @@ body::after {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  opacity: 0.015;
+  opacity: 0.012;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   z-index: -1;
+}
+
+/* Selection color */
+::selection {
+  background: rgba(91, 76, 255, 0.15);
+  color: inherit;
 }

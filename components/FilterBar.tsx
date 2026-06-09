@@ -32,10 +32,10 @@ function Pill({
   return (
     <button
       onClick={onClick}
-      className={`shrink-0 px-3 h-8 inline-flex items-center whitespace-nowrap rounded-full text-[13px] transition ${
+      className={`shrink-0 px-3 h-[30px] inline-flex items-center whitespace-nowrap rounded-full text-[13px] font-medium transition-all ${
         active
-          ? "bg-brand-500 text-white shadow-sm"
-          : "text-gray-600 hover:text-brand-600 hover:bg-brand-50"
+          ? "bg-brand-500 text-white shadow-sm shadow-brand-500/20"
+          : "text-gray-500 hover:text-brand-600 hover:bg-brand-50/80"
       }`}
     >
       {children}
