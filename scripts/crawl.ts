@@ -15,6 +15,8 @@ import { DATA_DIR } from "../lib/config";
 import type { RawJob } from "../lib/types";
 import { buildAndWrite } from "./lib/persist";
 import { fetchAllEvents } from "./sources/events";
+import { nowcoder } from "./sources/nowcoder";
+import { campusApis } from "./sources/official/campusApi";
 import { ashby } from "./sources/ashby";
 import { greenhouse } from "./sources/greenhouse";
 import { lever } from "./sources/lever";
@@ -31,7 +33,8 @@ function selectAdapters(only: string[]): SourceAdapter[] {
   if (SOURCES_CONFIG.seed) universe.push(seed);
   if (SOURCES_CONFIG.ats) universe.push(greenhouse, lever, ashby);
   if (SOURCES_CONFIG.openSourceRepos) universe.push(openSourceRepos);
-  if (SOURCES_CONFIG.official) universe.push(bytedance, meituan, kuaishou, xiaohongshu);
+  if (SOURCES_CONFIG.official) universe.push(bytedance, meituan, kuaishou, xiaohongshu, campusApis);
+  universe.push(nowcoder);
 
   if (only.length > 0) {
     return universe.filter((a) => only.some((o) => a.id === o || a.id.startsWith(o)));
