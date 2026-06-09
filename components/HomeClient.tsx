@@ -186,7 +186,7 @@ export default function HomeClient({
                 }}
               />
             </section>
-            <Sidebar jobs={jobs} now={now} />
+            <Sidebar jobs={jobs} now={now} onOpenWeekly={() => setWeeklyOpen(true)} />
           </div>
         )}
       </main>

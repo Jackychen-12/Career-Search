@@ -3,7 +3,7 @@
 import { daysUntil } from "@/lib/scoring";
 import type { Job } from "@/lib/types";
 
-export default function Sidebar({ jobs, now }: { jobs: Job[]; now: number }) {
+export default function Sidebar({ jobs, now, onOpenWeekly }: { jobs: Job[]; now: number; onOpenWeekly?: () => void }) {
   const d = new Date(now);
 
   const urgentJobs = jobs
@@ -83,6 +83,16 @@ export default function Sidebar({ jobs, now }: { jobs: Job[]; now: number }) {
           </ol>
         </div>
       )}
+
+      {/* 投递清单入口 */}
+      <div className="card p-4 cursor-pointer hover:border-brand-300 transition" onClick={onOpenWeekly}>
+        <h3 className="text-sm font-semibold mb-1 flex items-center gap-2">
+          <span className="w-1 h-4 bg-brand-500 rounded-sm" />
+          本周投递清单
+        </h3>
+        <p className="text-xs text-gray-500">基于你的画像，AI 推荐本周最该投递的岗位</p>
+        <div className="mt-2 text-xs text-brand-600 font-medium">查看清单 →</div>
+      </div>
 
       {/* 数据统计 */}
       <div className="card p-4 text-xs text-gray-500 leading-relaxed">
