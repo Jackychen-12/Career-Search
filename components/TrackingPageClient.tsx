@@ -179,37 +179,96 @@ export default function TrackingPageClient({ jobs }: { jobs: Job[] }) {
             )}
 
             {/* Timeline view */}
-            {tab === "timeline" && (
-              <div className="card p-5">
-                <div className="relative">
-                  <div className="absolute left-[15px] top-0 bottom-0 w-px bg-gray-200" />
-                  <div className="space-y-5">
-                    {items.map((t) => {
-                      const cfg = STATUS_CONFIG[t.entry.status];
-                      return (
-                        <div key={t.id} className="flex items-start gap-4 relative">
-                          <div className={`shrink-0 w-[31px] h-[31px] rounded-full ${cfg.bg} flex items-center justify-center z-10 ring-4 ring-white`}>
-                            <span className="text-white text-[9px] font-bold">{cfg.label.slice(0, 1)}</span>
-                          </div>
-                          <div className="flex-1 min-w-0 card p-3">
-                            <div className="flex items-center justify-between">
-                              <a href={`/job/${t.id}`} className="text-sm font-medium text-gray-900 hover:text-brand-600">{t.job.company} · {t.job.title}</a>
-                              <span className={`text-[10px] font-medium ${cfg.color}`}>{cfg.label}</span>
+            {tab === "timeline" && (() => {
+              const STEPS: TrackingStatus[] = ["applied", "written", "interview", "hr", "offer"];
+              const activeItems = items.filter((i) => i.entry.status !== "saved");
+
+              // Group by week
+              const groups: Record<string, typeof items> = {};
+              items.forEach((t) => {
+                const date = t.entry.appliedAt ?? t.entry.updatedAt.slice(0, 10);
+                const d = new Date(date);
+                const weekStart = new Date(d);
+                weekStart.setDate(d.getDate() - d.getDay());
+                const key = weekStart.toISOString().slice(0, 10);
+                if (!groups[key]) groups[key] = [];
+                groups[key].push(t);
+              });
+              const sortedWeeks = Object.keys(groups).sort((a, b) => b.localeCompare(a));
+
+              return (
+                <div className="space-y-5">
+                  {/* Gantt progress bars */}
+                  {activeItems.length > 0 && (
+                    <div className="card p-5">
+                      <h4 className="text-xs font-bold text-gray-700 mb-3">进度甘特图</h4>
+                      <div className="space-y-2.5">
+                        {activeItems.map((t) => {
+                          const cfg = STATUS_CONFIG[t.entry.status];
+                          const stepIdx = STEPS.indexOf(t.entry.status);
+                          const progress = stepIdx >= 0 ? ((stepIdx + 1) / STEPS.length) * 100 : t.entry.status === "rejected" ? 100 : 10;
+                          return (
+                            <div key={t.id} className="flex items-center gap-3">
+                              <a href={`/job/${t.id}`} className="text-[11px] font-medium text-gray-700 w-20 truncate hover:text-brand-600 shrink-0">{t.job.company}</a>
+                              <div className="flex-1 h-7 bg-gray-50 rounded-lg overflow-hidden relative border border-gray-100">
+                                <div className={`h-full rounded-lg ${t.entry.status === "rejected" ? "bg-red-400" : t.entry.status === "withdrawn" ? "bg-gray-300" : cfg.bg} transition-all`} style={{ width: `${progress}%` }} />
+                                <div className="absolute inset-0 flex items-center px-2.5">
+                                  <span className="text-[10px] font-medium text-gray-600">{t.job.title}</span>
+                                  <span className={`ml-auto text-[9px] font-bold ${progress > 50 ? "text-white" : cfg.color}`}>{cfg.label}</span>
+                                </div>
+                              </div>
                             </div>
-                            <div className="text-[11px] text-gray-400 mt-1">
-                              {t.entry.appliedAt && `投递 ${t.entry.appliedAt.slice(0, 10)}`}
-                              {t.entry.interviewAt && ` → 面试 ${t.entry.interviewAt.slice(0, 10)}`}
-                              {!t.entry.appliedAt && `更新于 ${t.entry.updatedAt.slice(0, 10)}`}
-                            </div>
-                            {t.entry.notes && <div className="text-[11px] text-gray-500 mt-1">{t.entry.notes}</div>}
+                          );
+                        })}
+                      </div>
+                      {/* Legend */}
+                      <div className="flex items-center gap-3 mt-3 pt-3 border-t border-gray-100">
+                        {STEPS.map((s) => (
+                          <div key={s} className="flex items-center gap-1">
+                            <span className={`w-2 h-2 rounded-full ${STATUS_CONFIG[s].bg}`} />
+                            <span className="text-[10px] text-gray-500">{STATUS_CONFIG[s].label}</span>
                           </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Timeline grouped by week */}
+                  {sortedWeeks.map((weekKey) => {
+                    const weekItems = groups[weekKey];
+                    const weekDate = new Date(weekKey);
+                    const weekLabel = `${weekDate.getMonth() + 1}月${weekDate.getDate()}日 - ${weekDate.getMonth() + 1}月${weekDate.getDate() + 6}日`;
+                    return (
+                      <div key={weekKey}>
+                        <div className="text-[11px] font-bold text-gray-400 uppercase tracking-wide mb-2 px-1">{weekLabel}</div>
+                        <div className="card overflow-hidden divide-y divide-gray-50">
+                          {weekItems.map((t) => {
+                            const cfg = STATUS_CONFIG[t.entry.status];
+                            return (
+                              <div key={t.id} className="px-4 py-3 flex items-center gap-3">
+                                <div className={`shrink-0 w-8 h-8 rounded-lg ${cfg.bg} flex items-center justify-center`}>
+                                  <span className="text-white text-[10px] font-bold">{cfg.label.slice(0, 1)}</span>
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <a href={`/job/${t.id}`} className="text-[13px] font-medium text-gray-900 hover:text-brand-600 truncate block">{t.job.company} · {t.job.title}</a>
+                                  <div className="text-[11px] text-gray-400 mt-0.5 flex items-center gap-2">
+                                    <span className={cfg.color}>{cfg.label}</span>
+                                    {t.entry.appliedAt && <span>投递 {t.entry.appliedAt.slice(5, 10)}</span>}
+                                    {t.entry.interviewAt && <span>面试 {t.entry.interviewAt.slice(5, 10)}</span>}
+                                    {t.entry.notes && <span className="truncate">· {t.entry.notes.slice(0, 15)}</span>}
+                                  </div>
+                                </div>
+                                <span className="shrink-0 text-[10px] text-gray-300">{(t.entry.appliedAt ?? t.entry.updatedAt).slice(5, 10)}</span>
+                              </div>
+                            );
+                          })}
                         </div>
-                      );
-                    })}
-                  </div>
+                      </div>
+                    );
+                  })}
                 </div>
-              </div>
-            )}
+              );
+            })()}
 
             {/* Kanban view */}
             {tab === "kanban" && (
