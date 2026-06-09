@@ -72,6 +72,7 @@ export default function Header({
     { label: hasProfile ? "画像 ✓" : "建立画像", href: "/profile/", highlight: !hasProfile },
     { label: "投递清单", onClick: onOpenWeekly },
     { label: "求职报告", href: "/report/" },
+    { label: "AI 工具", href: "/skills/" },
     { label: "宣讲活动", href: "/events/" },
     { label: "我的投递", onClick: onOpenTracking },
   ] : [
