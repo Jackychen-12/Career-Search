@@ -47,11 +47,25 @@ export interface CrawlResult {
   path: string;
 }
 
+function loadBossJobs(): RawJob[] {
+  try {
+    const raw = fs.readFileSync(path.join(DATA_DIR, "boss-jobs.json"), "utf8");
+    return JSON.parse(raw) as RawJob[];
+  } catch { return []; }
+}
+
 export async function runCrawl(only: string[] = []): Promise<CrawlResult> {
   const adapters = selectAdapters(only);
   const sources: Record<string, number> = {};
   const errors: Record<string, string> = {};
   const all: RawJob[] = [];
+
+  // Include boss-jobs.json if it exists (manually crawled)
+  const bossJobs = loadBossJobs();
+  if (bossJobs.length > 0) {
+    all.push(...bossJobs);
+    sources["boss"] = bossJobs.length;
+  }
 
   const settled = await Promise.allSettled(
     adapters.map(async (a) => ({ id: a.id, items: await a.fetch() })),
