@@ -79,6 +79,8 @@ export interface Prefs {
   skills?: string[];
   targetRoles?: string[];
   resumeKeywords?: string[];
+  notifyEmail?: string;
+  notifyEnabled?: boolean;
 }
 
 export type SortKey = "composite" | "deadline" | "fresh" | "aiMatch";

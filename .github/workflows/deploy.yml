@@ -31,6 +31,13 @@ jobs:
           DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
         run: npm run crawl || echo "crawl reported issues; keeping last good snapshot"
 
+      - name: Send email notifications
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: https://mijzadmumnlrpvhaxwrm.supabase.co
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+        run: npx tsx scripts/notify.ts || echo "notification skipped"
+
       - name: Commit refreshed data
         run: |
           git config user.name "github-actions[bot]"

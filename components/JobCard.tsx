@@ -103,7 +103,7 @@ export default function JobCard({
       {/* Company + Title */}
       <div>
         <div className="flex items-center gap-2">
-          <span className="text-[15px] font-bold text-gray-900">{job.company}</span>
+          <a href={`/job/${job.id}`} className="text-[15px] font-bold text-gray-900 hover:text-brand-600 transition">{job.company}</a>
           {job.salary && (
             <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-brand-50 text-brand-600">
               {job.salary}

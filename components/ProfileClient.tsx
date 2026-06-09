@@ -272,6 +272,26 @@ export default function ProfileClient({ jobs }: { jobs: Job[] }) {
               </div>
             </div>
 
+            {/* Email notification */}
+            <div className="card p-4 bg-brand-50/30 border-brand-100 space-y-2">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-medium text-gray-700">每日岗位推送</label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" checked={draft.notifyEnabled ?? false} onChange={(e) => setDraft({ ...draft, notifyEnabled: e.target.checked })} className="accent-brand-500" />
+                  <span className="text-xs text-gray-600">{draft.notifyEnabled ? "已开启" : "关闭"}</span>
+                </label>
+              </div>
+              {draft.notifyEnabled && (
+                <input
+                  type="email"
+                  value={draft.notifyEmail ?? ""}
+                  onChange={(e) => setDraft({ ...draft, notifyEmail: e.target.value })}
+                  placeholder="输入接收推送的邮箱"
+                  className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:border-brand-500"
+                />
+              )}
+            </div>
+
             <div className="flex gap-3">
               <button onClick={() => setStep(1)} className="py-2.5 px-4 rounded-lg text-sm border border-gray-200 text-gray-600">返回上一步</button>
               <button onClick={handleSave} className="flex-1 py-2.5 rounded-lg text-sm font-semibold text-white bg-brand-500 hover:bg-brand-600 shadow-sm transition">

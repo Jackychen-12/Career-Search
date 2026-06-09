@@ -52,6 +52,8 @@ export async function loadPrefsFromCloud(): Promise<Prefs | null> {
     categories: data.categories ?? [],
     jobTypes: data.job_types ?? [],
     cities: data.cities ?? [],
+    notifyEmail: data.notify_email ?? undefined,
+    notifyEnabled: data.notify_enabled ?? false,
   };
 
   if (typeof window !== "undefined") {
@@ -76,6 +78,8 @@ async function syncPrefsToCloud(p: Prefs) {
     categories: p.categories ?? [],
     job_types: p.jobTypes ?? [],
     cities: p.cities ?? [],
+    notify_email: p.notifyEmail ?? null,
+    notify_enabled: p.notifyEnabled ?? false,
     updated_at: new Date().toISOString(),
   });
 }
