@@ -69,15 +69,12 @@ export async function runCrawl(only: string[] = []): Promise<CrawlResult> {
 
   const { count, path: outPath } = await buildAndWrite(all, sources, errors);
 
-  // Fetch campus events in parallel (best-effort)
+  // Fetch campus events + wechat articles (best-effort)
   try {
-    const events = await fetchAllEvents();
+    const { events, articles } = await fetchAllEvents();
     fs.mkdirSync(DATA_DIR, { recursive: true });
-    fs.writeFileSync(
-      path.join(DATA_DIR, "events.json"),
-      JSON.stringify(events, null, 2) + "\n",
-      "utf8",
-    );
+    fs.writeFileSync(path.join(DATA_DIR, "events.json"), JSON.stringify(events, null, 2) + "\n", "utf8");
+    fs.writeFileSync(path.join(DATA_DIR, "articles.json"), JSON.stringify(articles, null, 2) + "\n", "utf8");
   } catch (e) {
     console.warn(`[events] Failed: ${(e as Error).message}`);
   }

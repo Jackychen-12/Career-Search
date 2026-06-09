@@ -8,5 +8,14 @@ export interface CampusEvent {
   location?: string;
   school: string;
   url: string;
-  source: "清华" | "北大";
+  source: "清华" | "北大" | "微信";
+}
+
+export interface WechatArticle {
+  id: string;
+  title: string;
+  account: string;
+  date: string;
+  url: string;
+  summary?: string;
 }

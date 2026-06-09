@@ -122,7 +122,7 @@ async function searchSogou(query: string): Promise<CampusEvent[]> {
       date,
       school: detectSchool(title),
       url: href,
-      source: "清华" as const,
+      source: "微信" as const,
     });
   }
 
