@@ -1,7 +1,7 @@
 import { getBuildData } from "@/lib/snapshot";
-import TimelineClient from "@/components/TimelineClient";
+import TrackingPageClient from "@/components/TrackingPageClient";
 
-export default function TimelinePage() {
+export default function TrackingPage() {
   const { jobs } = getBuildData();
-  return <TimelineClient jobs={jobs} />;
+  return <TrackingPageClient jobs={jobs} />;
 }

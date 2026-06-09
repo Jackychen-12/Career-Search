@@ -1,9 +1,26 @@
 "use client";
 
+import { useEffect, useMemo, useState } from "react";
 import { daysUntil } from "@/lib/scoring";
-import type { Job } from "@/lib/types";
+import { loadPrefs } from "@/lib/prefs";
+import { hasPrefs } from "@/lib/ranking";
+import { computeProfileMatchDetailed } from "@/lib/matchScore";
+import type { Job, Prefs } from "@/lib/types";
 
 export default function Sidebar({ jobs, now, onOpenWeekly }: { jobs: Job[]; now: number; onOpenWeekly?: () => void }) {
+  const [prefs, setPrefs] = useState<Prefs | null>(null);
+  useEffect(() => { const p = loadPrefs(); if (hasPrefs(p)) setPrefs(p); }, []);
+
+  const weeklyTop = useMemo(() => {
+    if (!prefs) return [];
+    return jobs
+      .filter((j) => j.region !== "海外" && j.category !== "外企")
+      .map((j) => ({ job: j, score: computeProfileMatchDetailed(j, prefs).score }))
+      .filter((m) => m.score > 0.2)
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 3);
+  }, [jobs, prefs]);
+
   const d = new Date(now);
 
   const urgentJobs = jobs
@@ -84,14 +101,32 @@ export default function Sidebar({ jobs, now, onOpenWeekly }: { jobs: Job[]; now:
         </div>
       )}
 
-      {/* 投递清单入口 */}
-      <div className="card p-4 cursor-pointer hover:border-brand-300 transition" onClick={onOpenWeekly}>
-        <h3 className="text-sm font-semibold mb-1 flex items-center gap-2">
+      {/* 投递清单入口 + 预览 */}
+      <div className="card p-4">
+        <h3 className="text-sm font-semibold mb-2 flex items-center gap-2">
           <span className="w-1 h-4 bg-brand-500 rounded-sm" />
-          本周投递清单
+          本周建议投递
         </h3>
-        <p className="text-xs text-gray-500">基于你的画像，AI 推荐本周最该投递的岗位</p>
-        <div className="mt-2 text-xs text-brand-600 font-medium">查看清单 →</div>
+        {weeklyTop.length > 0 ? (
+          <ol className="space-y-2 mb-3">
+            {weeklyTop.map((m, i) => (
+              <li key={m.job.id} className="flex gap-2 text-sm">
+                <span className={`shrink-0 w-5 text-center text-[11px] font-medium leading-5 rounded ${i === 0 ? "bg-brand-500 text-white" : "bg-gray-100 text-gray-500"}`}>{i + 1}</span>
+                <div className="min-w-0 flex-1">
+                  <a href={`/job/${m.job.id}`} className="text-gray-700 hover:text-brand-600 line-clamp-1 block text-[13px]">
+                    {m.job.company} · {m.job.title}
+                  </a>
+                  <div className="text-[11px] text-gray-400 mt-0.5">匹配 {Math.round(m.score * 100)}%</div>
+                </div>
+              </li>
+            ))}
+          </ol>
+        ) : (
+          <p className="text-xs text-gray-400 mb-3">设置画像后显示推荐</p>
+        )}
+        <button onClick={onOpenWeekly} className="w-full py-2 rounded-lg text-xs font-medium text-brand-600 bg-brand-50 hover:bg-brand-100 transition">
+          查看完整清单 →
+        </button>
       </div>
 
       {/* 数据统计 */}

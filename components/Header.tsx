@@ -136,7 +136,7 @@ export default function Header({
     { label: "AI 工具", href: "/skills/" },
     { label: "时间线", href: "/timeline/" },
     { label: "宣讲活动", href: "/events/" },
-    { label: "我的投递", onClick: onOpenTracking },
+    { label: "我的投递", href: "/timeline/" },
   ] : [
     { label: "宣讲活动", href: "/events/" },
   ];
@@ -156,13 +156,9 @@ export default function Header({
 
         {/* Desktop nav */}
         <nav className="hidden md:flex items-center gap-3 text-sm">
-          {navItems.map((item) =>
-            item.href ? (
-              <a key={item.label} href={item.href} className={`text-[13px] transition ${item.highlight ? "text-brand-600 font-medium" : "text-gray-500 hover:text-brand-600"}`}>{item.label}</a>
-            ) : (
-              <button key={item.label} onClick={item.onClick} className="text-[13px] text-gray-500 hover:text-brand-600 transition">{item.label}</button>
-            )
-          )}
+          {navItems.map((item) => (
+            <a key={item.label} href={item.href} className={`text-[13px] transition ${item.highlight ? "text-brand-600 font-medium" : "text-gray-500 hover:text-brand-600"}`}>{item.label}</a>
+          ))}
           {loggedIn && <NotifyBell />}
           <ThemeToggle />
           {loggedIn && user ? (
@@ -196,11 +192,7 @@ export default function Header({
       {menuOpen && (
         <div className="md:hidden border-t border-gray-100 bg-white/95 backdrop-blur-xl px-4 py-3 space-y-1">
           {navItems.map((item) =>
-            item.href ? (
-              <a key={item.label} href={item.href} className="block py-2 text-sm text-gray-700 hover:text-brand-600" onClick={() => setMenuOpen(false)}>{item.label}</a>
-            ) : (
-              <button key={item.label} onClick={() => { item.onClick?.(); setMenuOpen(false); }} className="block w-full text-left py-2 text-sm text-gray-700 hover:text-brand-600">{item.label}</button>
-            )
+            <a key={item.label} href={item.href} className="block py-2 text-sm text-gray-700 hover:text-brand-600" onClick={() => setMenuOpen(false)}>{item.label}</a>
           )}
           {loggedIn ? (
             <button onClick={() => { signOut(); setMenuOpen(false); }} className="block w-full text-left py-2 text-sm text-red-500">退出登录</button>
