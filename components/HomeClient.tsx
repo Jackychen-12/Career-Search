@@ -195,7 +195,15 @@ export default function HomeClient({
       <footer className="border-t border-black/5 mt-10">
         <div className="max-w-7xl mx-auto px-4 py-6 text-xs text-gray-400 flex flex-wrap items-center justify-between gap-2">
           <span>数据来自公开招聘信息，投递以官方页面为准</span>
-          <span>{meta?.fetchedAt ? new Date(meta.fetchedAt).toLocaleDateString("zh-CN") + " 更新" : ""}</span>
+          <div className="flex items-center gap-3">
+            <span>{meta?.fetchedAt ? new Date(meta.fetchedAt).toLocaleDateString("zh-CN") + " 更新" : ""}</span>
+            <a href="https://github.com/Jackychen-12" target="_blank" rel="noreferrer" className="hover:text-brand-600 transition">
+              Made by Jacky Chen
+            </a>
+            <a href="https://github.com/Jackychen-12/Career-Search" target="_blank" rel="noreferrer" className="hover:text-brand-600 transition">
+              GitHub
+            </a>
+          </div>
         </div>
       </footer>
 
