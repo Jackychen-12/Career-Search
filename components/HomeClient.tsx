@@ -11,7 +11,6 @@ import Pagination from "./Pagination";
 import PrefsPanel from "./PrefsPanel";
 import Sidebar from "./Sidebar";
 import StatBar from "./StatBar";
-import TrackingPanel from "./TrackingPanel";
 import WeeklyPlan from "./WeeklyPlan";
 import { getSession } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
@@ -53,7 +52,6 @@ export default function HomeClient({
   const [prefsOpen, setPrefsOpen] = useState(false);
   const [view, setView] = useState<ViewMode>("list");
   const [tracking, setTracking] = useState<TrackingData>({});
-  const [trackingOpen, setTrackingOpen] = useState(false);
   const [loggedIn, setLoggedIn] = useState(false);
   const [compareIds, setCompareIds] = useState<string[]>([]);
   const [compareOpen, setCompareOpen] = useState(false);
@@ -116,7 +114,7 @@ export default function HomeClient({
 
   return (
     <>
-      <Header total={jobs.length} onOpenTracking={() => setTrackingOpen(true)} onOpenPrefs={() => setPrefsOpen(true)} onOpenWeekly={() => setWeeklyOpen(true)} />
+      <Header total={jobs.length} onOpenPrefs={() => setPrefsOpen(true)} onOpenWeekly={() => setWeeklyOpen(true)} />
 
       <main className="max-w-7xl mx-auto px-4 py-6 space-y-5">
         {/* Stats + Filters (top, full width) */}
@@ -239,13 +237,6 @@ export default function HomeClient({
         jobs={compareIds.map((id) => jobs.find((j) => j.id === id)!).filter(Boolean)}
         prefs={prefs}
         onClose={() => setCompareOpen(false)}
-      />
-      <TrackingPanel
-        open={trackingOpen}
-        onClose={() => setTrackingOpen(false)}
-        tracking={tracking}
-        jobs={jobs}
-        onUpdate={setTracking}
       />
     </>
   );

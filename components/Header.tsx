@@ -95,12 +95,10 @@ function ThemeToggle() {
 
 export default function Header({
   total,
-  onOpenTracking,
   onOpenPrefs,
   onOpenWeekly,
 }: {
   total: number;
-  onOpenTracking?: () => void;
   onOpenPrefs?: () => void;
   onOpenWeekly?: () => void;
 }) {

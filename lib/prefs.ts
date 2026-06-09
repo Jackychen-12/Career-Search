@@ -35,33 +35,6 @@ export function savePrefs(p: Prefs): void {
   syncPrefsToCloud(p);
 }
 
-export async function loadPrefsFromCloud(): Promise<Prefs | null> {
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return null;
-
-  const { data } = await supabase.from("profiles").select("*").eq("id", user.id).single();
-  if (!data) return null;
-
-  const prefs: Prefs = {
-    school: data.school ?? undefined,
-    major: data.major ?? undefined,
-    degree: data.degree ?? undefined,
-    skills: data.skills ?? [],
-    targetRoles: data.target_roles ?? [],
-    resumeKeywords: data.resume_keywords ?? [],
-    categories: data.categories ?? [],
-    jobTypes: data.job_types ?? [],
-    cities: data.cities ?? [],
-    notifyEmail: data.notify_email ?? undefined,
-    notifyEnabled: data.notify_enabled ?? false,
-  };
-
-  if (typeof window !== "undefined") {
-    window.localStorage.setItem(KEY, JSON.stringify(prefs));
-  }
-
-  return prefs;
-}
 
 async function syncPrefsToCloud(p: Prefs) {
   const { data: { user } } = await supabase.auth.getUser();
