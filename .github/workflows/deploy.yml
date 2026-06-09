@@ -1,31 +1,20 @@
-name: Build & Deploy to GitHub Pages
+name: Daily Crawl & Data Refresh
 
-# Crawls fresh job data, builds the static site, and publishes it to GitHub Pages.
-# Runs on every push to main, daily on a schedule, and on manual dispatch — so the
-# public site always serves real data with zero servers to run.
 on:
-  push:
-    branches: [main]
   schedule:
-    - cron: "23 22 * * *" # daily ~22:23 UTC (≈ 06:23 北京, off-peak minute)
+    - cron: "23 22 * * *"  # 每天 UTC 22:23（北京时间 06:23）
   workflow_dispatch: {}
 
 permissions:
-  contents: write # commit the refreshed snapshot back to the repo
-  pages: write # publish to GitHub Pages
-  id-token: write # OIDC token required by deploy-pages
+  contents: write
 
-# Never run two Pages deploys at once; let an in-flight one finish.
 concurrency:
-  group: pages
+  group: crawl
   cancel-in-progress: false
 
 jobs:
-  build-deploy:
+  crawl:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deploy.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
 
@@ -36,87 +25,20 @@ jobs:
 
       - run: npm ci
 
-      - name: Crawl job sources
+      - name: Crawl job sources + AI tags
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # raises GitHub API rate limit
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
-        run: npm run crawl || echo "crawl reported issues; building with the last good snapshot"
+        run: npm run crawl || echo "crawl reported issues; keeping last good snapshot"
 
-      - name: Commit refreshed snapshot (best-effort)
-        id: snapshot
+      - name: Commit refreshed data
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/jobs.json data/meta.json data/diff.json || true
+          git add data/jobs.json data/meta.json data/diff.json data/events.json data/articles.json || true
           if git diff --staged --quiet; then
-            echo "No snapshot changes."
-            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "No data changes."
           else
-            git commit -m "chore(data): refresh crawled snapshot [skip ci]"
-            git push || echo "snapshot push skipped"
-            echo "changed=true" >> "$GITHUB_OUTPUT"
+            git commit -m "chore(data): daily refresh [skip ci]"
+            git push || echo "push skipped"
           fi
-
-      - name: Prepare notification body
-        if: steps.snapshot.outputs.changed == 'true'
-        id: notify
-        run: |
-          NEW_COUNT=$(node -e "const d=require('./data/diff.json'); console.log(d.newJobIds.length)")
-          if [ "$NEW_COUNT" -gt 0 ]; then
-            echo "should_send=true" >> "$GITHUB_OUTPUT"
-            echo "new_count=$NEW_COUNT" >> "$GITHUB_OUTPUT"
-            # Get top 10 new job titles for the email body
-            SUMMARY=$(node -e "
-              const jobs=require('./data/jobs.json');
-              const diff=require('./data/diff.json');
-              const newJobs=jobs.filter(j=>diff.newJobIds.includes(j.id)).slice(0,10);
-              newJobs.forEach(j=>console.log('• '+j.company+' — '+j.title+' ('+j.location[0]+')'));
-              if(diff.newJobIds.length>10) console.log('... 等 '+(diff.newJobIds.length-10)+' 个');
-            ")
-            {
-              echo 'body<<EOF'
-              echo "今日新增 $NEW_COUNT 个岗位："
-              echo ""
-              echo "$SUMMARY"
-              echo ""
-              echo "查看详情: https://keyuchen-del.github.io/Career-Search/"
-              echo "EOF"
-            } >> "$GITHUB_OUTPUT"
-          else
-            echo "should_send=false" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Send email notification
-        if: steps.notify.outputs.should_send == 'true' && vars.NOTIFY_EMAIL != ''
-        uses: dawidd6/action-send-mail@v3
-        with:
-          server_address: smtp.gmail.com
-          server_port: 587
-          username: ${{ secrets.SMTP_USER }}
-          password: ${{ secrets.SMTP_PASS }}
-          subject: "Career-Search: 今日新增 ${{ steps.notify.outputs.new_count }} 个岗位"
-          to: ${{ vars.NOTIFY_EMAIL }}
-          from: Career-Search Bot <${{ secrets.SMTP_USER }}>
-          body: ${{ steps.notify.outputs.body }}
-
-      - name: Configure Pages
-        uses: actions/configure-pages@v5
-        with:
-          enablement: true # auto-enable Pages (source = GitHub Actions) on first run
-
-      - name: Build static export
-        env:
-          NEXT_PUBLIC_BASE_PATH: /Career-Search
-          NEXT_PUBLIC_GITHUB_CLIENT_ID: Ov23liukXeNKV2SszGwS
-          NEXT_PUBLIC_OAUTH_WORKER_URL: https://career-search-oauth.keyu-chen.workers.dev
-          DATA_SOURCE: local
-        run: npm run build
-
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: ./out
-
-      - name: Deploy to GitHub Pages
-        id: deploy
-        uses: actions/deploy-pages@v4
