@@ -10,7 +10,8 @@
     "lint": "next lint",
     "crawl": "tsx scripts/crawl.ts",
     "crawl:boss": "tsx scripts/crawl-boss.ts",
-    "test": "jest"
+    "test": "jest",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.107.0",
@@ -24,6 +25,7 @@
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
+    "@playwright/test": "^1.60.0",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@types/jest": "^30.0.0",

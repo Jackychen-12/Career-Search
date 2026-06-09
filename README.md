@@ -27,6 +27,10 @@
 
 </div>
 
+<p align="center">
+  <img src="docs/images/homepage.png" alt="Career Search 首页" width="100%">
+</p>
+
 ---
 
 ## 能做什么
