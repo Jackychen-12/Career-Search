@@ -1,17 +1,34 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import CalendarView from "./CalendarView";
 import CompareBar from "./CompareBar";
-import ComparePanel from "./ComparePanel";
 import FilterBar, { type FilterState } from "./FilterBar";
 import Header from "./Header";
 import JobCard from "./JobCard";
 import Pagination from "./Pagination";
-import PrefsPanel from "./PrefsPanel";
 import Sidebar from "./Sidebar";
 import StatBar from "./StatBar";
-import WeeklyPlan from "./WeeklyPlan";
+
+const CalendarView = dynamic(() => import("./CalendarView"), { loading: () => <SkeletonGrid /> });
+const ComparePanel = dynamic(() => import("./ComparePanel"));
+const PrefsPanel = dynamic(() => import("./PrefsPanel"));
+const WeeklyPlan = dynamic(() => import("./WeeklyPlan"));
+
+function SkeletonGrid() {
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+      {Array.from({ length: 6 }).map((_, i) => (
+        <div key={i} className="card p-4 space-y-3 animate-pulse">
+          <div className="h-4 bg-gray-200 rounded w-3/4" />
+          <div className="h-3 bg-gray-100 rounded w-1/2" />
+          <div className="h-16 bg-gray-50 rounded" />
+          <div className="h-3 bg-gray-100 rounded w-full" />
+        </div>
+      ))}
+    </div>
+  );
+}
 import { getSession } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
 import { queryJobs } from "@/lib/filter";
