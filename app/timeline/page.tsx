@@ -1,7 +1,7 @@
 import { getBuildData } from "@/lib/snapshot";
-import TrackingPageClient from "@/components/TrackingPageClient";
+import TrackingAndInterviewPage from "@/components/TrackingAndInterviewPage";
 
 export default function TrackingPage() {
   const { jobs } = getBuildData();
-  return <TrackingPageClient jobs={jobs} />;
+  return <TrackingAndInterviewPage jobs={jobs} />;
 }

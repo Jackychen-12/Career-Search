@@ -19,7 +19,7 @@ const STATUS_CONFIG: Record<TrackingStatus, { label: string; color: string; bg: 
 
 type ViewTab = "table" | "timeline" | "kanban";
 
-export default function TrackingPageClient({ jobs }: { jobs: Job[] }) {
+export default function TrackingPageClient({ jobs, hideHeader }: { jobs: Job[]; hideHeader?: boolean }) {
   const [tracking, setTracking] = useState<TrackingData>({});
   const [loggedIn, setLoggedIn] = useState(false);
   const [tab, setTab] = useState<ViewTab>("table");
@@ -76,23 +76,30 @@ export default function TrackingPageClient({ jobs }: { jobs: Job[] }) {
   }
 
   return (
-    <div className="min-h-screen">
-      <header className="sticky top-0 z-40 backdrop-blur-xl bg-white/60 border-b border-black/5">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <a href="/" className="text-[15px] font-bold text-gray-900 hover:text-brand-600 transition">← Career Search</a>
-            <span className="text-gray-300">·</span>
-            <span className="text-[14px] font-medium text-gray-700">投递管理</span>
+    <div className={hideHeader ? "" : "min-h-screen"}>
+      {!hideHeader && (
+        <header className="sticky top-0 z-40 backdrop-blur-xl bg-white/60 border-b border-black/5">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <a href="/" className="text-[15px] font-bold text-gray-900 hover:text-brand-600 transition">← Career Search</a>
+              <span className="text-gray-300">·</span>
+              <span className="text-[14px] font-medium text-gray-700">投递管理</span>
+            </div>
+            <div className="flex items-center gap-3">
+              {items.length > 0 && (
+                <button onClick={exportExcel} className="text-[13px] text-brand-600 hover:text-brand-700">导出 Excel</button>
+              )}
+            </div>
           </div>
-          <div className="flex items-center gap-3">
-            {items.length > 0 && (
-              <button onClick={exportExcel} className="text-[13px] text-brand-600 hover:text-brand-700">导出 Excel</button>
-            )}
-          </div>
-        </div>
-      </header>
+        </header>
+      )}
 
       <main className="max-w-6xl mx-auto px-4 sm:px-6 py-6 space-y-5">
+        {hideHeader && items.length > 0 && (
+          <div className="flex justify-end">
+            <button onClick={exportExcel} className="text-[13px] text-brand-600 hover:text-brand-700">导出 Excel</button>
+          </div>
+        )}
         {/* Status summary */}
         <div className="flex flex-wrap gap-2">
           {(Object.entries(STATUS_CONFIG) as [TrackingStatus, typeof STATUS_CONFIG[TrackingStatus]][]).map(([key, cfg]) => {

@@ -15,7 +15,7 @@ const STATUS_CONFIG: Record<InterviewStatus, { label: string; color: string; bg:
 
 type FilterStatus = InterviewStatus | "all";
 
-export default function InterviewPageClient() {
+export default function InterviewPageClient({ hideHeader }: { hideHeader?: boolean } = {}) {
   const [records, setRecords] = useState<InterviewRecord[]>([]);
   const [loggedIn, setLoggedIn] = useState(false);
   const [loaded, setLoaded] = useState(false);
@@ -70,24 +70,36 @@ export default function InterviewPageClient() {
   }
 
   return (
-    <div className="min-h-screen">
-      <header className="sticky top-0 z-40 backdrop-blur-xl bg-white/60 border-b border-black/5">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <a href="/" className="text-[15px] font-bold text-gray-900 hover:text-brand-600 transition">← Career Search</a>
-            <span className="text-gray-300">·</span>
-            <span className="text-[14px] font-medium text-gray-700">面试记录</span>
+    <div className={hideHeader ? "" : "min-h-screen"}>
+      {!hideHeader && (
+        <header className="sticky top-0 z-40 backdrop-blur-xl bg-white/60 border-b border-black/5">
+          <div className="max-w-5xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <a href="/" className="text-[15px] font-bold text-gray-900 hover:text-brand-600 transition">← Career Search</a>
+              <span className="text-gray-300">·</span>
+              <span className="text-[14px] font-medium text-gray-700">面试记录</span>
+            </div>
+            <button
+              onClick={() => { setEditRecord(undefined); setShowForm(true); }}
+              className="px-3.5 py-1.5 rounded-lg bg-brand-600 text-white text-sm font-medium hover:bg-brand-700 transition"
+            >
+              + 新增记录
+            </button>
           </div>
-          <button
-            onClick={() => { setEditRecord(undefined); setShowForm(true); }}
-            className="px-3.5 py-1.5 rounded-lg bg-brand-600 text-white text-sm font-medium hover:bg-brand-700 transition"
-          >
-            + 新增记录
-          </button>
-        </div>
-      </header>
+        </header>
+      )}
 
       <main className="max-w-5xl mx-auto px-4 sm:px-6 py-6 space-y-5">
+        {hideHeader && (
+          <div className="flex justify-end">
+            <button
+              onClick={() => { setEditRecord(undefined); setShowForm(true); }}
+              className="px-3.5 py-1.5 rounded-lg bg-brand-600 text-white text-sm font-medium hover:bg-brand-700 transition"
+            >
+              + 新增记录
+            </button>
+          </div>
+        )}
         {/* 状态统计 */}
         <div className="flex flex-wrap gap-2">
           {(Object.entries(STATUS_CONFIG) as [InterviewStatus, typeof STATUS_CONFIG[InterviewStatus]][]).map(([key, cfg]) => {

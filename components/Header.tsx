@@ -132,13 +132,11 @@ export default function Header({
     { label: hasProfile ? "画像 ✓" : "建立画像", href: "/profile/", highlight: !hasProfile },
     { label: "求职报告", href: "/report/" },
     { label: "AI 工具", href: "/skills/" },
-    { label: "时间线", href: "/timeline/" },
+    { label: "投递 & 面试", href: "/timeline/" },
     { label: "宣讲活动", href: "/events/" },
-    { label: "我的投递", href: "/timeline/" },
-    { label: "面试记录", href: "/interviews/" },
   ] : [
     { label: "宣讲活动", href: "/events/" },
-    { label: "面试记录", href: "/interviews/" },
+    { label: "投递 & 面试", href: "/timeline/" },
   ];
 
   return (
