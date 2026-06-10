@@ -10,6 +10,7 @@
 [![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?logo=supabase&logoColor=white)](https://supabase.com/)
 [![DeepSeek](https://img.shields.io/badge/DeepSeek_AI-5_endpoints-blue)](https://deepseek.com/)
 [![Vercel](https://img.shields.io/badge/Vercel-Deployed-black?logo=vercel)](https://vercel.com/)
+[![Cloudflare](https://img.shields.io/badge/Cloudflare-Proxied-F38020?logo=cloudflare&logoColor=white)](https://cloudflare.com/)
 
 <br>
 
@@ -19,9 +20,9 @@
 
 上传一份 PDF 简历，DeepSeek 解析出你的技能画像。1161 个岗位各自被 AI 打过标签——技能需求、岗位方向、行业属性。两者一匹配，你立刻知道该投谁、怎么投、怎么准备面试。
 
-投递后不用开 Excel 跟踪——看板/时间线/表格三视图随你切。每天早上邮箱里躺着一封「今日匹配 8 个新岗位」。
+投递后不用开 Excel 跟踪——看板/时间线/表格三视图随你切。面试记录和投递状态自动双向同步，笔试/面试/HR面 精准区分。每天早上邮箱里躺着一封「今日匹配 8 个新岗位」。
 
-**全站零成本运行。** Vercel + Supabase + Cloudflare Workers + GitHub Actions，每月 ¥0。
+**全站零成本运行。国内免梯子可用。** Vercel + Supabase + Cloudflare + CF Workers + GitHub Actions，每月 ¥0。
 
 [立即体验](https://career.chenkeyu12.com/) · [看功能](#能做什么) · [看架构](#技术架构) · [本地开发](#本地开发)
 
@@ -44,7 +45,9 @@
 | **AI 简历润色** | 逐条优化 + 评分 + 关键词建议 | STAR 法则 + ATS 优化 |
 | **AI 求职信** | 400-600 字定制求职信 | 一键复制，不是套话 |
 | **AI Offer 对比** | 多维分析 + 推荐 + 谈薪建议 | 不再纠结选哪个 |
-| **投递追踪** | 表格/时间线/看板三视图 | 8 种状态 · 导出 Excel |
+| **AI 面试记录解析** | 自然语言描述 → 结构化面试记录 | "今天字节二面问了…" → 自动归档 |
+| **投递追踪** | 表格/时间线/看板三视图 | 8 种状态 · 导出 Excel · 点击跳转岗位详情 |
+| **面试记录** | 轮次/问题/感受/结果 全记录 | 与投递状态双向同步，笔试/面试/HR面 精准区分 |
 | **投递清单** | 本周建议投递 Top 20 | 紧急度 × 匹配度排序，国内优先 |
 | **岗位对比** | 2-3 个横向对比表 | 技能匹配高亮 + AI 推荐 |
 | **求职报告** | 匹配分布/Top10/技能缺口/面试题/简历建议 | 可导出 PDF |
@@ -57,7 +60,7 @@
 ## 用户流程
 
 ```
-登录（GitHub OAuth via Supabase）
+登录（邮箱密码 / GitHub OAuth）
   ↓
 上传简历 PDF → DeepSeek 5 秒解析 → 自动填充画像
   ↓
@@ -66,6 +69,8 @@
 点进岗位详情 → 一键生成面试题 / 求职信
   ↓
 收藏 → 投递 → 笔试 → 面试 → HR面 → Offer
+  ↓                              ↕ 双向同步
+记录面试 → AI 解析自然语言 → 自动归档轮次
   ↓
 每天早上邮箱收到新匹配岗位
 ```
@@ -78,9 +83,18 @@
 ┌─────────────────────────────────────────────────────────────┐
 │                       浏览器                                  │
 │                                                             │
-│   8 页面 · 客户端匹配引擎 · 暗色模式 · 骨架屏 · 动态导入    │
-│   首页 JS 161KB · 27 单元测试覆盖核心逻辑                    │
+│   9 页面 · 客户端匹配引擎 · 暗色模式 · 骨架屏 · 动态导入    │
+│   邮箱/密码登录 · 面试记录管理 · 投递×面试双向同步           │
 └───────────────────────────┬─────────────────────────────────┘
+                            │ 所有请求走同域代理
+                            │ (/sb/* → Supabase, /ai/* → Worker)
+                    ┌───────▼───────┐
+                    │  Cloudflare   │
+                    │  DNS + CDN    │
+                    │  career.      │
+                    │  chenkeyu12.  │
+                    │  com          │
+                    └───────┬───────┘
                             │
         ┌───────────────────┼───────────────────┐
         ▼                   ▼                   ▼
@@ -88,11 +102,11 @@
 │   Vercel     │   │   Supabase   │   │  CF Workers    │
 │              │   │              │   │                │
 │  Next.js 14  │   │  Auth        │   │  5 AI 端点     │
-│  SSG/SSR     │   │  PostgreSQL  │   │  简历解析      │
-│  1161 详情页  │   │  RLS 安全    │   │  面试题       │
-│              │   │  profiles    │   │  简历润色      │
-│              │   │  tracking    │   │  求职信       │
-│              │   │  job_stats   │   │  Offer 对比   │
+│  SSG/SSR     │   │  PostgreSQL  │   │  面试解析      │
+│  Rewrites    │◄──│  RLS 安全    │   │  面试题       │
+│  /sb/* 代理  │   │  profiles    │   │  简历润色      │
+│  /ai/* 代理  │   │  tracking    │   │  求职信       │
+│              │   │  interviews  │   │  Offer 对比   │
 └──────────────┘   └──────────────┘   └───────┬───────┘
                                               │
                                       ┌───────▼───────┐
@@ -115,7 +129,21 @@
 | **Supabase** 而非自建后端 | 零运维 + RLS 安全 + Auth 开箱即用 + 免费 |
 | **DeepSeek** 而非 GPT | 中文能力强 + ¥1/百万 token（便宜 10 倍）|
 | **CF Workers** 而非 Vercel API Routes | 全球边缘 + 0ms 冷启动 + 不占 Vercel 限额 |
+| **Next.js Rewrites 代理** | 国内免梯子访问，浏览器不直连被墙域名 |
+| **Cloudflare DNS** | 国内 CDN 加速 + SSL + DDoS 防护 |
+| **邮箱登录** 补充 GitHub OAuth | 国内无需科学上网即可使用全部功能 |
 | **动态导入 + 骨架屏** | 首页 JS 从 260KB → 161KB，体感秒开 |
+
+### 国内免梯子方案
+
+浏览器的所有外部请求通过 Next.js Rewrites 在服务端代理：
+
+| 浏览器请求 | 服务端转发到 | 作用 |
+|-----------|-------------|------|
+| `/sb/*` | Supabase（`*.supabase.co`） | 认证 + 数据库 |
+| `/ai/*` | Cloudflare Workers | AI 功能（DeepSeek） |
+
+用户浏览器只与 `career.chenkeyu12.com` 通信，无需直连任何海外域名。
 
 ---
 
@@ -164,7 +192,8 @@
 | `/profile` | 画像设置（上传 PDF → AI 解析 → 匹配预览） |
 | `/report` | 求职报告（匹配分布/技能缺口/投递策略） |
 | `/skills` | AI 工具（面试题/简历润色/求职信/Offer 对比） |
-| `/timeline` | 投递管理（表格/时间线/看板 三视图） |
+| `/timeline` | 投递 & 面试（表格/时间线/看板 + 面试记录管理） |
+| `/interviews` | 面试记录独立页（轮次/问题/复盘） |
 | `/events` | 宣讲活动 + 公众号推送 |
 | `/callback` | OAuth 回调 |
 
@@ -176,11 +205,24 @@
 git clone https://github.com/Jackychen-12/Career-Search.git
 cd Career-Search
 npm install
+```
+
+创建 `.env.local`：
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+NEXT_PUBLIC_WORKER_URL=your_worker_url    # 可选，默认用公共端点
+```
+
+```bash
 npm run crawl          # 抓取岗位 + AI 标签
 npm run crawl:boss     # Boss 直聘手动爬（打开 Chrome）
 npm run dev            # http://localhost:3000
 npm test               # 27 个单元测试
 ```
+
+Supabase 设置：进入 Authentication → Settings，开启 **Enable Email Signup**，按需关闭 Confirm Email。
 
 ---
 
@@ -192,9 +234,10 @@ npm test               # 27 个单元测试
 | AI 标签覆盖 | 100% |
 | 岗位详情页 | 1,161 |
 | 单元测试 | 27 |
-| AI Skill 端点 | 5 |
+| AI Skill 端点 | 5 + 面试解析 |
 | 数据源 | 8 |
 | 首页 JS | 161KB |
+| 月运行成本 | ¥0 |
 
 ---
 
