@@ -129,6 +129,18 @@ export default function Sidebar({ jobs, now, onOpenWeekly }: { jobs: Job[]; now:
         </button>
       </div>
 
+      {/* 面试记录入口 */}
+      <div className="card p-4">
+        <h3 className="text-sm font-semibold mb-2 flex items-center gap-2">
+          <span className="w-1 h-4 bg-indigo-500 rounded-sm" />
+          面试记录
+        </h3>
+        <p className="text-xs text-gray-400 mb-3">记录每次面试详情，支持 AI 智能填入</p>
+        <a href="/interviews/" className="block w-full py-2 rounded-lg text-xs font-medium text-center text-indigo-600 bg-indigo-50 hover:bg-indigo-100 transition">
+          管理面试记录 →
+        </a>
+      </div>
+
       {/* 数据统计 */}
       <div className="card p-4 text-xs text-gray-500 leading-relaxed">
         <p className="font-medium text-gray-700 mb-1">关于数据</p>

@@ -135,8 +135,10 @@ export default function Header({
     { label: "时间线", href: "/timeline/" },
     { label: "宣讲活动", href: "/events/" },
     { label: "我的投递", href: "/timeline/" },
+    { label: "面试记录", href: "/interviews/" },
   ] : [
     { label: "宣讲活动", href: "/events/" },
+    { label: "面试记录", href: "/interviews/" },
   ];
 
   return (
