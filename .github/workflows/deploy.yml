@@ -33,7 +33,7 @@ jobs:
 
       - name: Send email notifications
         env:
-          NEXT_PUBLIC_SUPABASE_URL: https://mijzadmumnlrpvhaxwrm.supabase.co
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
         run: npx tsx scripts/notify.ts || echo "notification skipped"
@@ -47,5 +47,5 @@ jobs:
             echo "No data changes."
           else
             git commit -m "chore(data): daily refresh [skip ci]"
-            git push || echo "push skipped"
+            git push
           fi

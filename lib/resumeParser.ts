@@ -1,3 +1,5 @@
+import { supabase } from "./supabase";
+
 const WORKER_URL = process.env.NEXT_PUBLIC_WORKER_URL || "https://career-search-oauth.keyu-chen.workers.dev";
 
 export interface ParsedResume {
@@ -14,7 +16,7 @@ export interface ParsedResume {
 
 export async function extractPdfText(file: File): Promise<string> {
   const pdfjsLib = await import("pdfjs-dist");
-  pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.mjs`;
+  pdfjsLib.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.mjs";
 
   const arrayBuffer = await file.arrayBuffer();
   const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
@@ -36,9 +38,13 @@ export async function parseResumeWithAI(text: string): Promise<ParsedResume> {
     throw new Error("Worker URL 未配置");
   }
 
+  const { data } = await supabase.auth.getSession();
+  const token = data.session?.access_token;
+  if (!token) throw new Error("请先登录后使用简历解析");
+
   const res = await fetch(`${WORKER_URL}/api/resume/parse`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
     body: JSON.stringify({ text: text.slice(0, 8000) }),
   });
 

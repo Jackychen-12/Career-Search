@@ -53,16 +53,19 @@ const DEFAULT_FILTER: FilterState = {
 };
 
 export default function HomeClient({
-  jobs,
+  initialJobs,
+  totalCount,
   meta,
   now,
   newJobIds,
 }: {
-  jobs: Job[];
+  initialJobs: Job[];
+  totalCount: number;
   meta: JobsMeta | null;
   now: number;
   newJobIds: string[];
 }) {
+  const [jobs, setJobs] = useState<Job[]>(initialJobs);
   const [filter, setFilter] = useState<FilterState>(DEFAULT_FILTER);
   const [page, setPage] = useState(1);
   const [prefs, setPrefs] = useState<Prefs>(EMPTY_PREFS);
@@ -73,6 +76,15 @@ export default function HomeClient({
   const [compareIds, setCompareIds] = useState<string[]>([]);
   const [compareOpen, setCompareOpen] = useState(false);
   const [weeklyOpen, setWeeklyOpen] = useState(false);
+
+  useEffect(() => {
+    if (totalCount > initialJobs.length) {
+      fetch("/data/jobs.json")
+        .then((r) => r.json())
+        .then((all: Job[]) => setJobs(all))
+        .catch(() => {});
+    }
+  }, [totalCount, initialJobs.length]);
 
   useEffect(() => {
     const p = loadPrefs();

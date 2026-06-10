@@ -109,4 +109,46 @@ describe("computeProfileMatchDetailed", () => {
     const result = computeProfileMatchDetailed(mockJob, prefs);
     expect(result.score).toBeLessThan(0.3);
   });
+
+  test("短 ASCII token 不误匹配（AI 不命中 training/email 等）", () => {
+    const jobWithEmail: Job = {
+      ...mockJob,
+      id: "test-boundary",
+      title: "Marketing Manager",
+      description: "responsible for email marketing and training programs",
+      tags: [],
+      aiTags: undefined,
+    };
+    const prefs: Prefs = {
+      categories: [],
+      jobTypes: [],
+      cities: [],
+      skills: ["AI"],
+    };
+    const result = computeProfileMatchDetailed(jobWithEmail, prefs);
+    expect(result.score).toBe(0);
+  });
+
+  test("短 ASCII token 正确命中独立出现的 AI", () => {
+    const prefs: Prefs = {
+      categories: [],
+      jobTypes: [],
+      cities: [],
+      skills: ["AI"],
+    };
+    const result = computeProfileMatchDetailed(mockJob, prefs);
+    expect(result.score).toBeGreaterThan(0);
+    expect(result.reasons.some((r) => r.includes("技能"))).toBe(true);
+  });
+
+  test("中文 token 仍然使用 includes 匹配", () => {
+    const prefs: Prefs = {
+      categories: [],
+      jobTypes: [],
+      cities: [],
+      skills: ["数据分析"],
+    };
+    const result = computeProfileMatchDetailed(mockJob, prefs);
+    expect(result.score).toBeGreaterThan(0);
+  });
 });

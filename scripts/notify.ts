@@ -2,13 +2,14 @@ import { createClient } from "@supabase/supabase-js";
 import fs from "node:fs";
 import path from "node:path";
 import type { Job, JobsDiff } from "../lib/types";
+import { computeSimpleMatch } from "../lib/matchScore";
 
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://mijzadmumnlrpvhaxwrm.supabase.co";
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
 const SUPABASE_KEY = process.env.SUPABASE_SERVICE_KEY || "";
 const RESEND_KEY = process.env.RESEND_API_KEY || "";
 
-if (!SUPABASE_KEY || !RESEND_KEY) {
-  console.log("[notify] Missing SUPABASE_SERVICE_KEY or RESEND_API_KEY, skipping");
+if (!SUPABASE_URL || !SUPABASE_KEY || !RESEND_KEY) {
+  console.log("[notify] Missing NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_KEY, or RESEND_API_KEY, skipping");
   process.exit(0);
 }
 
@@ -21,26 +22,6 @@ interface Profile {
   target_roles: string[];
   categories: string[];
   cities: string[];
-}
-
-function norm(s: string) { return s.toLowerCase().replace(/[\s_\-]/g, ""); }
-
-function matchJob(job: Job, profile: Profile): number {
-  let score = 0;
-  const text = norm([job.title, job.description ?? "", ...job.tags].join(" "));
-
-  if (profile.skills.length > 0) {
-    let hits = 0;
-    for (const s of profile.skills) { if (text.includes(norm(s))) hits++; }
-    score += 0.4 * Math.min(hits / Math.max(profile.skills.length * 0.2, 1), 1);
-  }
-  if (profile.target_roles.length > 0) {
-    for (const r of profile.target_roles) { if (text.includes(norm(r))) { score += 0.3; break; } }
-  }
-  if (profile.categories.length > 0 && profile.categories.includes(job.category)) score += 0.15;
-  if (profile.cities.length > 0 && job.location.some((l) => profile.cities.some((c) => l.includes(c)))) score += 0.15;
-
-  return Math.min(1, score);
 }
 
 async function sendEmail(to: string, subject: string, html: string) {
@@ -86,7 +67,7 @@ async function main() {
 
   for (const profile of profiles as Profile[]) {
     const matched = newJobs
-      .map((j) => ({ job: j, score: matchJob(j, profile) }))
+      .map((j) => ({ job: j, score: computeSimpleMatch(j, profile) }))
       .filter((m) => m.score > 0.2)
       .sort((a, b) => b.score - a.score)
       .slice(0, 10);

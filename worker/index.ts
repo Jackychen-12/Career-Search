@@ -1,14 +1,49 @@
 interface Env {
   DEEPSEEK_API_KEY: string;
+  ALLOWED_ORIGIN: string;
+  SUPABASE_URL: string;
+  SUPABASE_ANON_KEY: string;
 }
 
-const CORS_HEADERS: HeadersInit = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type",
-};
+function corsHeaders(origin: string): HeadersInit {
+  return {
+    "Access-Control-Allow-Origin": origin,
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization",
+  };
+}
 
-async function callDeepSeek(env: Env, system: string, user: string, maxTokens = 3000): Promise<Response> {
+function isOriginAllowed(request: Request, env: Env): string | null {
+  const origin = request.headers.get("Origin") ?? "";
+  const allowed = (env.ALLOWED_ORIGIN ?? "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+  if (allowed.length === 0) return null;
+  if (allowed.includes(origin)) return origin;
+  return null;
+}
+
+async function verifySupabaseJwt(request: Request, env: Env): Promise<boolean> {
+  const auth = request.headers.get("Authorization");
+  if (!auth?.startsWith("Bearer ")) return false;
+  const token = auth.slice(7);
+  if (!env.SUPABASE_URL || !env.SUPABASE_ANON_KEY) return false;
+
+  try {
+    const res = await fetch(`${env.SUPABASE_URL}/auth/v1/user`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        apikey: env.SUPABASE_ANON_KEY,
+      },
+    });
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
+
+async function callDeepSeek(env: Env, headers: HeadersInit, system: string, user: string, maxTokens = 3000): Promise<Response> {
   const res = await fetch("https://api.deepseek.com/chat/completions", {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${env.DEEPSEEK_API_KEY}` },
@@ -19,16 +54,16 @@ async function callDeepSeek(env: Env, system: string, user: string, maxTokens = 
       max_tokens: maxTokens,
     }),
   });
-  if (!res.ok) return Response.json({ error: "AI 调用失败" }, { status: 502, headers: CORS_HEADERS });
+  if (!res.ok) return Response.json({ error: "AI 调用失败" }, { status: 502, headers });
 
   const data = (await res.json()) as { choices: { message: { content: string } }[] };
   const content = data.choices[0]?.message?.content ?? "";
 
   try {
     const jsonStr = content.replace(/```json\n?/g, "").replace(/```/g, "").trim();
-    return Response.json(JSON.parse(jsonStr), { headers: CORS_HEADERS });
+    return Response.json(JSON.parse(jsonStr), { headers });
   } catch {
-    return Response.json({ content }, { headers: CORS_HEADERS });
+    return Response.json({ content }, { headers });
   }
 }
 
@@ -63,32 +98,49 @@ const OFFER_COMPARE_PROMPT = `你是职业规划专家。帮候选人对比分�
 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
+    const origin = isOriginAllowed(request, env);
+    if (!origin) {
+      return new Response("Forbidden", { status: 403 });
+    }
+
+    const cors = corsHeaders(origin);
+
     if (request.method === "OPTIONS") {
-      return new Response(null, { status: 204, headers: CORS_HEADERS });
+      return new Response(null, { status: 204, headers: cors });
     }
 
     const url = new URL(request.url);
     const path = url.pathname;
 
     if (request.method !== "POST") {
-      return new Response("Not Found", { status: 404 });
+      return new Response("Not Found", { status: 404, headers: cors });
     }
 
-    const body = (await request.json()) as Record<string, unknown>;
+    const authenticated = await verifySupabaseJwt(request, env);
+    if (!authenticated) {
+      return Response.json({ error: "请先登录" }, { status: 401, headers: cors });
+    }
+
+    let body: Record<string, unknown>;
+    try {
+      body = (await request.json()) as Record<string, unknown>;
+    } catch {
+      return Response.json({ error: "请求体格式错误" }, { status: 400, headers: cors });
+    }
 
     // 简历解析
     if (path === "/api/resume/parse") {
       if (!body.text || (body.text as string).length < 20) {
-        return Response.json({ error: "简历文本太短" }, { status: 400, headers: CORS_HEADERS });
+        return Response.json({ error: "简历文本太短" }, { status: 400, headers: cors });
       }
-      return callDeepSeek(env, RESUME_PROMPT, body.text as string, 2000);
+      return callDeepSeek(env, cors, RESUME_PROMPT, body.text as string, 2000);
     }
 
     // 面试题定制
     if (path === "/api/skill/interview") {
       const profile = body.profile as string ?? "";
       const job = body.job as string ?? "";
-      return callDeepSeek(env, INTERVIEW_PROMPT,
+      return callDeepSeek(env, cors, INTERVIEW_PROMPT,
         `候选人背景：\n${profile}\n\n目标岗位：\n${job}`, 3000);
     }
 
@@ -97,7 +149,7 @@ export default {
       const profile = body.profile as string ?? "";
       const job = body.job as string ?? "";
       const experiences = body.experiences as string ?? "";
-      return callDeepSeek(env, RESUME_POLISH_PROMPT,
+      return callDeepSeek(env, cors, RESUME_POLISH_PROMPT,
         `候选人画像：\n${profile}\n\n目标岗位：\n${job}\n\n现有经历描述：\n${experiences}`, 3000);
     }
 
@@ -105,7 +157,7 @@ export default {
     if (path === "/api/skill/cover-letter") {
       const profile = body.profile as string ?? "";
       const job = body.job as string ?? "";
-      return callDeepSeek(env, COVER_LETTER_PROMPT,
+      return callDeepSeek(env, cors, COVER_LETTER_PROMPT,
         `候选人画像：\n${profile}\n\n目标岗位：\n${job}`, 2000);
     }
 
@@ -113,10 +165,10 @@ export default {
     if (path === "/api/skill/offer-compare") {
       const profile = body.profile as string ?? "";
       const offers = body.offers as string ?? "";
-      return callDeepSeek(env, OFFER_COMPARE_PROMPT,
+      return callDeepSeek(env, cors, OFFER_COMPARE_PROMPT,
         `候选人背景：\n${profile}\n\n待对比的 Offer：\n${offers}`, 3000);
     }
 
-    return new Response("Not Found", { status: 404 });
+    return new Response("Not Found", { status: 404, headers: cors });
   },
 };

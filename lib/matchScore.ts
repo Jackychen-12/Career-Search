@@ -1,8 +1,20 @@
 import { RESUME_KEYWORDS } from "../config/resume.config";
-import type { Job, JobAiTags, NormalizedJob, Prefs } from "./types";
+import type { Job, NormalizedJob, Prefs } from "./types";
 
 function norm(s: string): string {
   return s.toLowerCase().replace(/[\s_\-·]/g, "");
+}
+
+function escapeRegex(s: string): string {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function textIncludes(text: string, token: string): boolean {
+  const isShortAscii = /^[a-z0-9+#]{1,4}$/.test(token);
+  if (isShortAscii) {
+    return new RegExp(`(^|[^a-z0-9])${escapeRegex(token)}([^a-z0-9]|$)`).test(text);
+  }
+  return text.includes(token);
 }
 
 export interface MatchResult {
@@ -18,9 +30,9 @@ export function computeAiMatch(job: NormalizedJob): number {
   const categories = (RESUME_KEYWORDS.targetCategories ?? []).map(norm);
 
   let skillHits = 0;
-  for (const s of skills) { if (text.includes(s)) skillHits++; }
+  for (const s of skills) { if (textIncludes(text, s)) skillHits++; }
   let roleHits = 0;
-  for (const r of roles) { if (titleNorm.includes(r) || text.includes(r)) roleHits++; }
+  for (const r of roles) { if (textIncludes(titleNorm, r) || textIncludes(text, r)) roleHits++; }
 
   const tierBonus = RESUME_KEYWORDS.targetCompanyTiers.includes(job.companyTier) ? 0.1 : 0;
   const categoryBonus = categories.includes(norm(job.category)) ? 0.15 : 0;
@@ -56,7 +68,7 @@ export function computeProfileMatchDetailed(job: Job, prefs: Prefs): MatchResult
     const matched: string[] = [];
 
     for (const us of userSkills) {
-      const hit = jobSkills.some((js) => js.includes(us) || us.includes(js)) || text.includes(us);
+      const hit = jobSkills.some((js) => js.includes(us) || us.includes(js)) || textIncludes(text, us);
       if (hit) matched.push(us);
     }
 
@@ -109,4 +121,29 @@ export function computeProfileMatchDetailed(job: Job, prefs: Prefs): MatchResult
   }
 
   return { score: Math.min(1, score), reasons };
+}
+
+export interface SimpleProfile {
+  skills: string[];
+  target_roles: string[];
+  categories: string[];
+  cities: string[];
+}
+
+export function computeSimpleMatch(job: Job, profile: SimpleProfile): number {
+  let score = 0;
+  const text = norm([job.title, job.description ?? "", ...job.tags].join(" "));
+
+  if (profile.skills.length > 0) {
+    let hits = 0;
+    for (const s of profile.skills) { if (textIncludes(text, norm(s))) hits++; }
+    score += 0.4 * Math.min(hits / Math.max(profile.skills.length * 0.2, 1), 1);
+  }
+  if (profile.target_roles.length > 0) {
+    for (const r of profile.target_roles) { if (textIncludes(text, norm(r))) { score += 0.3; break; } }
+  }
+  if (profile.categories.length > 0 && profile.categories.includes(job.category)) score += 0.15;
+  if (profile.cities.length > 0 && job.location.some((l) => profile.cities.some((c) => l.includes(c)))) score += 0.15;
+
+  return Math.min(1, score);
 }

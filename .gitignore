@@ -8,3 +8,5 @@ dist
 .env*.local
 next-env.d.ts
 *.tsbuildinfo
+public/data/
+public/pdf.worker.min.mjs

@@ -17,20 +17,14 @@ test.describe("Career Search E2E", () => {
 
   test("筛选功能正常", async ({ page }) => {
     await page.goto("/");
-    // 点击行业筛选
     await page.click("text=互联网");
-    await page.waitForTimeout(500);
-    // 结果应该变化
-    const resultText = await page.locator("text=条").first().textContent();
-    expect(resultText).toBeTruthy();
+    await expect(page.locator("text=条").first()).toBeVisible();
   });
 
   test("搜索功能正常", async ({ page }) => {
     await page.goto("/");
     await page.fill('input[placeholder*="搜索"]', "字节");
-    await page.waitForTimeout(500);
-    const results = page.locator("text=字节跳动");
-    await expect(results.first()).toBeVisible();
+    await expect(page.locator("text=字节跳动").first()).toBeVisible();
   });
 
   test("日历视图切换", async ({ page }) => {
@@ -42,7 +36,6 @@ test.describe("Career Search E2E", () => {
 
   test("岗位详情页", async ({ page }) => {
     await page.goto("/");
-    // 点击第一个公司名进入详情
     const firstCompany = page.locator("a[href^='/job/']").first();
     await firstCompany.click();
     await page.waitForURL(/\/job\//);
@@ -56,7 +49,6 @@ test.describe("Career Search E2E", () => {
 
   test("求职报告页面", async ({ page }) => {
     await page.goto("/report");
-    // 未设画像时显示引导
     await expect(page.locator("text=画像")).toBeVisible();
   });
 
@@ -81,7 +73,6 @@ test.describe("Career Search E2E", () => {
 
   test("暗色模式切换", async ({ page }) => {
     await page.goto("/");
-    // 找到主题切换按钮
     const themeBtn = page.locator("button[title*='切换']");
     await themeBtn.click();
     const html = page.locator("html");

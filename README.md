@@ -5,7 +5,7 @@
 > *「上传简历，AI 告诉你今天该投哪家。」*
 
 [![在线体验](https://img.shields.io/badge/在线体验-career--search-2ea44f?style=for-the-badge)](https://career-search-ten.vercel.app/)
-[![Tests](https://img.shields.io/badge/Tests-27_passed-brightgreen)](tests/)
+[![Tests](https://github.com/Jackychen-12/Career-Search/actions/workflows/deploy.yml/badge.svg)](https://github.com/Jackychen-12/Career-Search/actions/workflows/deploy.yml)
 [![Next.js](https://img.shields.io/badge/Next.js_14-black?logo=next.js)](https://nextjs.org/)
 [![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?logo=supabase&logoColor=white)](https://supabase.com/)
 [![DeepSeek](https://img.shields.io/badge/DeepSeek_AI-5_endpoints-blue)](https://deepseek.com/)

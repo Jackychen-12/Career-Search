@@ -1,9 +1,19 @@
+import { supabase } from "./supabase";
+
 const WORKER_URL = process.env.NEXT_PUBLIC_WORKER_URL || "https://career-search-oauth.keyu-chen.workers.dev";
 
+async function getAuthHeader(): Promise<Record<string, string>> {
+  const { data } = await supabase.auth.getSession();
+  const token = data.session?.access_token;
+  if (!token) throw new Error("请先登录后使用 AI 功能");
+  return { Authorization: `Bearer ${token}` };
+}
+
 async function callSkill<T>(path: string, body: Record<string, unknown>): Promise<T> {
+  const auth = await getAuthHeader();
   const res = await fetch(`${WORKER_URL}${path}`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...auth },
     body: JSON.stringify(body),
   });
   if (!res.ok) {

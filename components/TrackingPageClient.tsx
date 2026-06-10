@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { loadTracking, saveTracking, removeTracking, type TrackingData, type TrackingEntry, type TrackingStatus } from "@/lib/tracker";
 import { getSession } from "@/lib/auth";
 import type { Job } from "@/lib/types";
-import * as XLSX from "xlsx";
+import type * as XLSXType from "xlsx";
 
 const STATUS_CONFIG: Record<TrackingStatus, { label: string; color: string; bg: string; order: number }> = {
   saved:     { label: "收藏",   color: "text-gray-600",  bg: "bg-gray-300",  order: 0 },
@@ -53,7 +53,8 @@ export default function TrackingPageClient({ jobs }: { jobs: Job[] }) {
     setEditId(null);
   }
 
-  function exportExcel() {
+  async function exportExcel() {
+    const XLSX = await import("xlsx");
     const data = items.map((t) => ({
       公司: t.job.company, 岗位: t.job.title, 状态: STATUS_CONFIG[t.entry.status].label,
       优先级: t.entry.priority ?? "", 投递日期: t.entry.appliedAt ?? "", 面试日期: t.entry.interviewAt ?? "",

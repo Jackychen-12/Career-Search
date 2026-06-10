@@ -50,3 +50,14 @@ export function getBuildData(): { jobs: Job[]; meta: JobsMeta | null; diff: Jobs
   if (jobs.length > 0) return { jobs, meta: readMeta(), diff: readDiff() };
   return { jobs: finalizeJobs(SEED_JOBS, undefined, new Date()), meta: null, diff: null };
 }
+
+let _copied = false;
+export function copyJobsToPublic(jobs: Job[]) {
+  if (_copied) return;
+  _copied = true;
+  try {
+    const dir = path.join(process.cwd(), "public", "data");
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(path.join(dir, "jobs.json"), JSON.stringify(jobs));
+  } catch {}
+}

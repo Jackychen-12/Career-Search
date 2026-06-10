@@ -6,7 +6,7 @@ import { daysUntil } from "@/lib/scoring";
 import { hasPrefs } from "@/lib/ranking";
 import type { Job, Prefs } from "@/lib/types";
 import type { TrackingData } from "@/lib/tracker";
-import * as XLSX from "xlsx";
+import type * as XLSXType from "xlsx";
 
 interface PlanItem {
   job: Job;
@@ -91,7 +91,8 @@ export default function WeeklyPlan({
     later: plan.filter((p) => p.urgency === "later"),
   };
 
-  function exportExcel() {
+  async function exportExcel() {
+    const XLSX = await import("xlsx");
     const data = plan.map((p) => ({
       优先级: URGENCY_LABELS[p.urgency].label,
       公司: p.job.company,

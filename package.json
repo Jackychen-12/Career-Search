@@ -5,6 +5,7 @@
   "description": "Career-Search — 暑期实习 + 秋招信息聚合平台（纯静态 / 零成本 / Fork 即用）",
   "scripts": {
     "dev": "next dev",
+    "prebuild": "cp node_modules/pdfjs-dist/build/pdf.worker.min.mjs public/pdf.worker.min.mjs",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
@@ -18,8 +19,6 @@
     "fast-xml-parser": "4.4.1",
     "next": "14.2.5",
     "pdfjs-dist": "^6.0.227",
-    "playwright": "^1.60.0",
-    "puppeteer-core": "^25.1.0",
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "xlsx": "^0.18.5"
@@ -32,6 +31,8 @@
     "@types/node": "20.14.10",
     "@types/react": "18.3.3",
     "@types/react-dom": "18.3.0",
+    "playwright": "^1.60.0",
+    "puppeteer-core": "^25.1.0",
     "autoprefixer": "10.4.19",
     "jest": "^30.4.2",
     "jest-environment-jsdom": "^30.4.1",
