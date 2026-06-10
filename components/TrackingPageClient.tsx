@@ -2,9 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { loadTracking, saveTracking, removeTracking, type TrackingData, type TrackingEntry, type TrackingStatus } from "@/lib/tracker";
-import { syncTrackingToInterview } from "@/lib/sync";
+import { syncTrackingToInterview, interviewToTrackingStatus } from "@/lib/sync";
 import { getSession } from "@/lib/auth";
 import type { Job } from "@/lib/types";
+import type { InterviewRecord } from "@/lib/interviews";
 import type * as XLSXType from "xlsx";
 
 const STATUS_CONFIG: Record<TrackingStatus, { label: string; color: string; bg: string; order: number }> = {
@@ -18,9 +19,32 @@ const STATUS_CONFIG: Record<TrackingStatus, { label: string; color: string; bg: 
   withdrawn: { label: "放弃",   color: "text-gray-400",  bg: "bg-gray-300",  order: 7 },
 };
 
+interface UnifiedItem {
+  id: string;
+  company: string;
+  title: string;
+  location: string;
+  jobType: string;
+  status: TrackingStatus;
+  entry: TrackingEntry;
+  applyUrl?: string;
+  job?: Job;
+  interview?: InterviewRecord;
+  isInterviewOnly: boolean;
+}
+
 type ViewTab = "table" | "timeline" | "kanban";
 
-export default function TrackingPageClient({ jobs, hideHeader, syncVersion, onSyncChange, onTrackingLoaded }: { jobs: Job[]; hideHeader?: boolean; syncVersion?: number; onSyncChange?: () => void; onTrackingLoaded?: (data: TrackingData) => void }) {
+interface Props {
+  jobs: Job[];
+  hideHeader?: boolean;
+  interviews?: InterviewRecord[];
+  syncVersion?: number;
+  onSyncChange?: () => void;
+  onTrackingLoaded?: (data: TrackingData) => void;
+}
+
+export default function TrackingPageClient({ jobs, hideHeader, interviews, syncVersion, onSyncChange, onTrackingLoaded }: Props) {
   const [tracking, setTracking] = useState<TrackingData>({});
   const [loggedIn, setLoggedIn] = useState(false);
   const [tab, setTab] = useState<ViewTab>("table");
@@ -45,27 +69,92 @@ export default function TrackingPageClient({ jobs, hideHeader, syncVersion, onSy
     }
   }, [syncVersion]);
 
-  const items = Object.entries(tracking)
-    .map(([id, entry]) => ({ id, job: jobs.find((j) => j.id === id), entry }))
-    .filter((x): x is { id: string; job: Job; entry: TrackingEntry } => !!x.job)
-    .sort((a, b) => b.entry.updatedAt.localeCompare(a.entry.updatedAt));
+  // Build unified items from tracking + interviews
+  const items: UnifiedItem[] = (() => {
+    const result: UnifiedItem[] = [];
+    const usedInterviewIds = new Set<string>();
+
+    // 1. Start with tracking entries
+    for (const [id, entry] of Object.entries(tracking)) {
+      const job = jobs.find((j) => j.id === id);
+      if (!job) continue;
+
+      const linked = interviews?.find((iv) => iv.relatedJobId === id);
+      if (linked) usedInterviewIds.add(linked.id);
+
+      const mappedStatus = linked ? interviewToTrackingStatus(linked.status) : entry.status;
+      const effectiveStatus = STATUS_CONFIG[mappedStatus].order > STATUS_CONFIG[entry.status].order ? mappedStatus : entry.status;
+
+      result.push({
+        id,
+        company: job.company,
+        title: job.title,
+        location: job.location[0] ?? "",
+        jobType: job.jobType,
+        status: effectiveStatus,
+        entry,
+        applyUrl: job.applyUrl,
+        job,
+        interview: linked,
+        isInterviewOnly: false,
+      });
+    }
+
+    // 2. Add interview records not linked to any tracking entry
+    if (interviews) {
+      for (const iv of interviews) {
+        if (usedInterviewIds.has(iv.id)) continue;
+        if (iv.relatedJobId && tracking[iv.relatedJobId]) continue;
+
+        const mappedStatus = interviewToTrackingStatus(iv.status);
+
+        // Check if there's a job in the database for this relatedJobId
+        const job = iv.relatedJobId ? jobs.find((j) => j.id === iv.relatedJobId) : undefined;
+
+        result.push({
+          id: `iv-${iv.id}`,
+          company: job?.company ?? iv.company,
+          title: job?.title ?? iv.position,
+          location: job?.location[0] ?? "",
+          jobType: job?.jobType ?? "",
+          status: mappedStatus,
+          entry: {
+            status: mappedStatus,
+            updatedAt: iv.updatedAt,
+            interviewAt: iv.rounds[0]?.date,
+            channel: iv.channel,
+            salary: iv.salaryInfo,
+            notes: iv.notes,
+          },
+          applyUrl: job?.applyUrl,
+          job,
+          interview: iv,
+          isInterviewOnly: true,
+        });
+      }
+    }
+
+    return result.sort((a, b) => b.entry.updatedAt.localeCompare(a.entry.updatedAt));
+  })();
 
   const counts: Record<string, number> = {};
-  items.forEach((i) => { counts[i.entry.status] = (counts[i.entry.status] ?? 0) + 1; });
+  items.forEach((i) => { counts[i.status] = (counts[i.status] ?? 0) + 1; });
 
-  async function updateEntry(jobId: string, patch: Partial<TrackingEntry>) {
-    const current = tracking[jobId];
+  async function updateEntry(itemId: string, patch: Partial<TrackingEntry>) {
+    if (itemId.startsWith("iv-")) return;
+    const current = tracking[itemId];
     if (!current) return;
     const newStatus = patch.status ?? current.status;
-    const updated = await saveTracking(jobId, newStatus, { ...current, ...patch });
+    const updated = await saveTracking(itemId, newStatus, { ...current, ...patch });
     setTracking(updated);
     onTrackingLoaded?.(updated);
-    await syncTrackingToInterview(jobId, newStatus);
+    await syncTrackingToInterview(itemId, newStatus);
     onSyncChange?.();
   }
 
-  async function deleteEntry(jobId: string) {
-    const updated = await removeTracking(jobId);
+  async function deleteEntry(itemId: string) {
+    if (itemId.startsWith("iv-")) return;
+    const updated = await removeTracking(itemId);
     setTracking(updated);
     setEditId(null);
   }
@@ -73,10 +162,11 @@ export default function TrackingPageClient({ jobs, hideHeader, syncVersion, onSy
   async function exportExcel() {
     const XLSX = await import("xlsx");
     const data = items.map((t) => ({
-      公司: t.job.company, 岗位: t.job.title, 状态: STATUS_CONFIG[t.entry.status].label,
+      公司: t.company, 岗位: t.title, 状态: STATUS_CONFIG[t.status].label,
       优先级: t.entry.priority ?? "", 投递日期: t.entry.appliedAt ?? "", 面试日期: t.entry.interviewAt ?? "",
       渠道: t.entry.channel ?? "", 联系人: t.entry.contact ?? "", 薪资: t.entry.salary ?? "",
-      备注: t.entry.notes ?? "", 城市: t.job.location.join("/"), 链接: t.job.applyUrl,
+      备注: t.entry.notes ?? "", 城市: t.location, 链接: t.applyUrl ?? "",
+      面试轮次: t.interview?.rounds.length ?? "",
     }));
     const ws = XLSX.utils.json_to_sheet(data);
     const wb = XLSX.utils.book_new();
@@ -148,7 +238,7 @@ export default function TrackingPageClient({ jobs, hideHeader, syncVersion, onSy
         </div>
 
         {items.length === 0 ? (
-          <div className="card p-12 text-center text-gray-400">还没有追踪任何岗位，去首页点心形收藏</div>
+          <div className="card p-12 text-center text-gray-400">还没有追踪任何岗位，去首页点心形收藏或在面试记录中新增</div>
         ) : (
           <>
             {/* Table view */}
@@ -157,20 +247,24 @@ export default function TrackingPageClient({ jobs, hideHeader, syncVersion, onSy
                 {items.map((t) => (
                   <div key={t.id} className="card overflow-hidden">
                     <div className="px-4 py-3 flex items-center gap-3 cursor-pointer" onClick={() => setEditId(editId === t.id ? null : t.id)}>
-                      <span className={`shrink-0 text-[10px] font-medium px-2 py-0.5 rounded-full ${STATUS_CONFIG[t.entry.status].bg} text-white`}>
-                        {STATUS_CONFIG[t.entry.status].label}
+                      <span className={`shrink-0 text-[10px] font-medium px-2 py-0.5 rounded-full ${STATUS_CONFIG[t.status].bg} text-white`}>
+                        {STATUS_CONFIG[t.status].label}
                       </span>
                       <div className="flex-1 min-w-0">
-                        <div className="text-sm font-medium text-gray-900 truncate">{t.job.company} · {t.job.title}</div>
+                        <div className="text-sm font-medium text-gray-900 truncate">
+                          {t.company} · {t.title}
+                          {t.interview && <span className="text-[10px] text-amber-500 ml-1.5">({t.interview.rounds.length}轮面试)</span>}
+                        </div>
                         <div className="text-[11px] text-gray-400 mt-0.5">
-                          {t.job.location[0]} · {t.job.jobType}
+                          {t.location && <>{t.location} · </>}{t.jobType}
                           {t.entry.appliedAt && ` · 投递于 ${t.entry.appliedAt.slice(0, 10)}`}
+                          {t.interview?.nextInterviewAt && <span className="text-brand-600"> · 下次面试 {t.interview.nextInterviewAt.slice(5)}</span>}
                         </div>
                       </div>
                       {t.entry.priority && <span className={`text-[10px] font-medium ${t.entry.priority === "high" ? "text-red-600" : t.entry.priority === "medium" ? "text-amber-600" : "text-gray-400"}`}>{t.entry.priority === "high" ? "高" : t.entry.priority === "medium" ? "中" : "低"}</span>}
                       <span className="text-gray-300 text-xs">{editId === t.id ? "▲" : "▼"}</span>
                     </div>
-                    {editId === t.id && (
+                    {editId === t.id && !t.isInterviewOnly && (
                       <div className="px-4 pb-4 pt-1 border-t border-gray-50 space-y-3">
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                           <div><label className="text-[10px] text-gray-400 block mb-0.5">状态</label>
@@ -194,8 +288,33 @@ export default function TrackingPageClient({ jobs, hideHeader, syncVersion, onSy
                         <textarea value={t.entry.notes ?? ""} onChange={(e) => updateEntry(t.id, { notes: e.target.value || undefined })} placeholder="备注..." rows={2} className="w-full text-xs px-2 py-1.5 rounded-md border border-gray-200 resize-none" />
                         <div className="flex justify-between">
                           <button onClick={() => deleteEntry(t.id)} className="text-xs text-red-500">删除</button>
-                          <a href={t.job.applyUrl} target="_blank" rel="noreferrer" className="text-xs text-brand-600">投递 →</a>
+                          {t.applyUrl && <a href={t.applyUrl} target="_blank" rel="noreferrer" className="text-xs text-brand-600">投递 →</a>}
                         </div>
+                      </div>
+                    )}
+                    {editId === t.id && t.isInterviewOnly && t.interview && (
+                      <div className="px-4 pb-4 pt-1 border-t border-gray-50 space-y-3">
+                        <div className="text-[11px] text-gray-400">此记录来自面试记录，请切换到「面试记录」tab 编辑详情</div>
+                        {t.interview.rounds.length > 0 && (
+                          <div className="space-y-1.5">
+                            {t.interview.rounds.map((round, rIdx) => (
+                              <div key={round.id} className="bg-gray-50 rounded-lg px-3 py-2 flex items-center gap-2 text-xs">
+                                <span className="font-bold text-gray-600">{round.round || `第${rIdx + 1}轮`}</span>
+                                <span className="text-gray-400">{round.date}</span>
+                                {round.result && (
+                                  <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded ${
+                                    round.result === "通过" ? "bg-green-100 text-green-700" :
+                                    round.result === "挂了" ? "bg-red-100 text-red-700" :
+                                    "bg-yellow-100 text-yellow-700"
+                                  }`}>{round.result}</span>
+                                )}
+                                {round.feeling && <span className="text-gray-400">感受: {round.feeling}</span>}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                        {t.interview.salaryInfo && <div className="text-xs text-gray-500">薪资: {t.interview.salaryInfo}</div>}
+                        {t.interview.notes && <div className="text-xs text-gray-500">备注: {t.interview.notes}</div>}
                       </div>
                     )}
                   </div>
@@ -206,10 +325,9 @@ export default function TrackingPageClient({ jobs, hideHeader, syncVersion, onSy
             {/* Timeline view */}
             {tab === "timeline" && (() => {
               const STEPS: TrackingStatus[] = ["applied", "written", "interview", "hr", "offer"];
-              const activeItems = items.filter((i) => i.entry.status !== "saved");
+              const activeItems = items.filter((i) => i.status !== "saved");
 
-              // Group by week
-              const groups: Record<string, typeof items> = {};
+              const groups: Record<string, UnifiedItem[]> = {};
               items.forEach((t) => {
                 const date = t.entry.appliedAt ?? t.entry.updatedAt.slice(0, 10);
                 const d = new Date(date);
@@ -223,30 +341,31 @@ export default function TrackingPageClient({ jobs, hideHeader, syncVersion, onSy
 
               return (
                 <div className="space-y-5">
-                  {/* Gantt progress bars */}
                   {activeItems.length > 0 && (
                     <div className="card p-5">
                       <h4 className="text-xs font-bold text-gray-700 mb-3">进度甘特图</h4>
                       <div className="space-y-2.5">
                         {activeItems.map((t) => {
-                          const cfg = STATUS_CONFIG[t.entry.status];
-                          const stepIdx = STEPS.indexOf(t.entry.status);
-                          const progress = stepIdx >= 0 ? ((stepIdx + 1) / STEPS.length) * 100 : t.entry.status === "rejected" ? 100 : 10;
+                          const cfg = STATUS_CONFIG[t.status];
+                          const stepIdx = STEPS.indexOf(t.status);
+                          const progress = stepIdx >= 0 ? ((stepIdx + 1) / STEPS.length) * 100 : t.status === "rejected" ? 100 : 10;
                           return (
                             <div key={t.id} className="flex items-center gap-3">
-                              <a href={`/job/${t.id}`} className="text-[11px] font-medium text-gray-700 w-20 truncate hover:text-brand-600 shrink-0">{t.job.company}</a>
+                              <span className="text-[11px] font-medium text-gray-700 w-20 truncate shrink-0">{t.company}</span>
                               <div className="flex-1 h-7 bg-gray-50 rounded-lg overflow-hidden relative border border-gray-100">
-                                <div className={`h-full rounded-lg ${t.entry.status === "rejected" ? "bg-red-400" : t.entry.status === "withdrawn" ? "bg-gray-300" : cfg.bg} transition-all`} style={{ width: `${progress}%` }} />
+                                <div className={`h-full rounded-lg ${t.status === "rejected" ? "bg-red-400" : t.status === "withdrawn" ? "bg-gray-300" : cfg.bg} transition-all`} style={{ width: `${progress}%` }} />
                                 <div className="absolute inset-0 flex items-center px-2.5">
-                                  <span className="text-[10px] font-medium text-gray-600">{t.job.title}</span>
-                                  <span className={`ml-auto text-[9px] font-bold ${progress > 50 ? "text-white" : cfg.color}`}>{cfg.label}</span>
+                                  <span className="text-[10px] font-medium text-gray-600">{t.title}</span>
+                                  <span className={`ml-auto text-[9px] font-bold ${progress > 50 ? "text-white" : cfg.color}`}>
+                                    {cfg.label}
+                                    {t.interview && ` · ${t.interview.rounds.length}轮`}
+                                  </span>
                                 </div>
                               </div>
                             </div>
                           );
                         })}
                       </div>
-                      {/* Legend */}
                       <div className="flex items-center gap-3 mt-3 pt-3 border-t border-gray-100">
                         {STEPS.map((s) => (
                           <div key={s} className="flex items-center gap-1">
@@ -258,7 +377,6 @@ export default function TrackingPageClient({ jobs, hideHeader, syncVersion, onSy
                     </div>
                   )}
 
-                  {/* Timeline grouped by week */}
                   {sortedWeeks.map((weekKey) => {
                     const weekItems = groups[weekKey];
                     const weekDate = new Date(weekKey);
@@ -268,14 +386,17 @@ export default function TrackingPageClient({ jobs, hideHeader, syncVersion, onSy
                         <div className="text-[11px] font-bold text-gray-400 uppercase tracking-wide mb-2 px-1">{weekLabel}</div>
                         <div className="card overflow-hidden divide-y divide-gray-50">
                           {weekItems.map((t) => {
-                            const cfg = STATUS_CONFIG[t.entry.status];
+                            const cfg = STATUS_CONFIG[t.status];
                             return (
                               <div key={t.id} className="px-4 py-3 flex items-center gap-3">
                                 <div className={`shrink-0 w-8 h-8 rounded-lg ${cfg.bg} flex items-center justify-center`}>
                                   <span className="text-white text-[10px] font-bold">{cfg.label.slice(0, 1)}</span>
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                  <a href={`/job/${t.id}`} className="text-[13px] font-medium text-gray-900 hover:text-brand-600 truncate block">{t.job.company} · {t.job.title}</a>
+                                  <span className="text-[13px] font-medium text-gray-900 truncate block">
+                                    {t.company} · {t.title}
+                                    {t.interview && <span className="text-[10px] text-amber-500 ml-1">({t.interview.rounds.length}轮)</span>}
+                                  </span>
                                   <div className="text-[11px] text-gray-400 mt-0.5 flex items-center gap-2">
                                     <span className={cfg.color}>{cfg.label}</span>
                                     {t.entry.appliedAt && <span>投递 {t.entry.appliedAt.slice(5, 10)}</span>}
@@ -300,7 +421,7 @@ export default function TrackingPageClient({ jobs, hideHeader, syncVersion, onSy
               <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-3">
                 {(["applied", "written", "interview", "hr", "offer", "rejected"] as TrackingStatus[]).map((status) => {
                   const cfg = STATUS_CONFIG[status];
-                  const statusItems = items.filter((i) => i.entry.status === status);
+                  const statusItems = items.filter((i) => i.status === status);
                   return (
                     <div key={status} className="space-y-2">
                       <div className="flex items-center gap-1.5 px-1">
@@ -310,10 +431,13 @@ export default function TrackingPageClient({ jobs, hideHeader, syncVersion, onSy
                       </div>
                       <div className="space-y-1.5">
                         {statusItems.map((t) => (
-                          <a key={t.id} href={`/job/${t.id}`} className="card p-2.5 block hover:border-brand-300 transition">
-                            <div className="text-xs font-medium text-gray-900 line-clamp-1">{t.job.company}</div>
-                            <div className="text-[10px] text-gray-500 mt-0.5 line-clamp-1">{t.job.title}</div>
-                          </a>
+                          <div key={t.id} className="card p-2.5 block">
+                            <div className="text-xs font-medium text-gray-900 line-clamp-1">{t.company}</div>
+                            <div className="text-[10px] text-gray-500 mt-0.5 line-clamp-1">{t.title}</div>
+                            {t.interview && (
+                              <div className="text-[9px] text-amber-500 mt-0.5">{t.interview.rounds.length}轮面试</div>
+                            )}
+                          </div>
                         ))}
                         {statusItems.length === 0 && <div className="text-[10px] text-gray-300 text-center py-4">空</div>}
                       </div>

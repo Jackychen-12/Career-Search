@@ -1,8 +1,10 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import type { Job } from "@/lib/types";
 import type { TrackingData } from "@/lib/tracker";
+import type { InterviewRecord } from "@/lib/interviews";
+import { loadInterviews } from "@/lib/interviews";
 import TrackingPageClient from "./TrackingPageClient";
 import InterviewPageClient from "./InterviewPageClient";
 
@@ -12,6 +14,17 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
   const [tab, setTab] = useState<Tab>("tracking");
   const [syncVersion, setSyncVersion] = useState(0);
   const [sharedTracking, setSharedTracking] = useState<TrackingData>({});
+  const [interviews, setInterviews] = useState<InterviewRecord[]>([]);
+
+  useEffect(() => {
+    loadInterviews().then(setInterviews);
+  }, []);
+
+  useEffect(() => {
+    if (syncVersion > 0) {
+      loadInterviews().then(setInterviews);
+    }
+  }, [syncVersion]);
 
   const onSyncChange = useCallback(() => {
     setSyncVersion((v) => v + 1);
@@ -47,7 +60,7 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
       </header>
 
       {tab === "tracking" ? (
-        <TrackingPageClient jobs={jobs} hideHeader syncVersion={syncVersion} onSyncChange={onSyncChange} onTrackingLoaded={onTrackingLoaded} />
+        <TrackingPageClient jobs={jobs} hideHeader interviews={interviews} syncVersion={syncVersion} onSyncChange={onSyncChange} onTrackingLoaded={onTrackingLoaded} />
       ) : (
         <InterviewPageClient hideHeader jobs={jobs} tracking={sharedTracking} syncVersion={syncVersion} onSyncChange={onSyncChange} />
       )}
