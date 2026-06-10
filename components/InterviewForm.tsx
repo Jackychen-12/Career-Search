@@ -5,7 +5,7 @@ import type { InterviewRecord, InterviewRound, InterviewStatus } from "@/lib/int
 import { createEmptyRound } from "@/lib/interviews";
 import { supabase } from "@/lib/supabase";
 
-const WORKER_URL = "https://career-search-oauth.chenkeyu2019.workers.dev";
+const WORKER_URL = process.env.NEXT_PUBLIC_WORKER_URL || "https://career-search-oauth.keyu-chen.workers.dev";
 
 interface Props {
   initial?: InterviewRecord;
