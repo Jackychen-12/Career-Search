@@ -4,11 +4,21 @@ import { useState } from "react";
 import type { InterviewRecord, InterviewRound, InterviewStatus } from "@/lib/interviews";
 import { createEmptyRound } from "@/lib/interviews";
 import { supabase } from "@/lib/supabase";
+import type { Job } from "@/lib/types";
+import type { TrackingData } from "@/lib/tracker";
 
 const WORKER_URL = process.env.NEXT_PUBLIC_WORKER_URL || "https://career-search-oauth.keyu-chen.workers.dev";
 
+export interface TrackedJobOption {
+  jobId: string;
+  company: string;
+  title: string;
+  channel?: string;
+}
+
 interface Props {
   initial?: InterviewRecord;
+  trackedJobs?: TrackedJobOption[];
   onSave: (data: Omit<InterviewRecord, "id" | "createdAt" | "updatedAt">) => void;
   onCancel: () => void;
 }
@@ -42,11 +52,12 @@ const ROUND_OPTIONS = ["一面", "二面", "三面", "四面", "HR面", "终面"
 const FEELING_OPTIONS: InterviewRound["feeling"][] = ["好", "一般", "差"];
 const RESULT_OPTIONS: InterviewRound["result"][] = ["通过", "待定", "挂了"];
 
-export default function InterviewForm({ initial, onSave, onCancel }: Props) {
+export default function InterviewForm({ initial, trackedJobs, onSave, onCancel }: Props) {
   const [company, setCompany] = useState(initial?.company ?? "");
   const [position, setPosition] = useState(initial?.position ?? "");
   const [department, setDepartment] = useState(initial?.department ?? "");
   const [channel, setChannel] = useState(initial?.channel ?? "");
+  const [relatedJobId, setRelatedJobId] = useState(initial?.relatedJobId ?? "");
   const [status, setStatus] = useState<InterviewStatus>(initial?.status ?? "进行中");
   const [rounds, setRounds] = useState<InterviewRound[]>(initial?.rounds ?? []);
   const [salaryInfo, setSalaryInfo] = useState(initial?.salaryInfo ?? "");
@@ -146,6 +157,19 @@ export default function InterviewForm({ initial, onSave, onCancel }: Props) {
     }));
   }
 
+  function handleSelectTrackedJob(jobId: string) {
+    if (!jobId) {
+      setRelatedJobId("");
+      return;
+    }
+    const tj = trackedJobs?.find((j) => j.jobId === jobId);
+    if (!tj) return;
+    setRelatedJobId(jobId);
+    setCompany(tj.company);
+    setPosition(tj.title);
+    if (tj.channel) setChannel(tj.channel);
+  }
+
   function handleSubmit() {
     if (!company.trim() || !position.trim()) return;
     onSave({
@@ -160,6 +184,7 @@ export default function InterviewForm({ initial, onSave, onCancel }: Props) {
       nextInterviewAt: nextInterviewAt || undefined,
       nextPrepare: nextPrepare.trim() || undefined,
       notes: notes.trim() || undefined,
+      relatedJobId: relatedJobId || undefined,
     });
   }
 
@@ -173,6 +198,26 @@ export default function InterviewForm({ initial, onSave, onCancel }: Props) {
         </div>
 
         <div className="px-6 py-5 space-y-6 max-h-[75vh] overflow-y-auto">
+          {/* 关联已追踪岗位 */}
+          {trackedJobs && trackedJobs.length > 0 && !initial && (
+            <div className="rounded-xl bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-100 p-4 space-y-2">
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-semibold text-amber-700">关联已追踪岗位</span>
+                <span className="text-[10px] text-amber-500 bg-amber-100 px-1.5 py-0.5 rounded">自动同步状态</span>
+              </div>
+              <select
+                value={relatedJobId}
+                onChange={(e) => handleSelectTrackedJob(e.target.value)}
+                className="w-full text-sm px-3 py-2 rounded-lg border border-amber-200 bg-white/80 focus:outline-none focus:ring-2 focus:ring-amber-400/30 focus:border-amber-400"
+              >
+                <option value="">手动填写（不关联）</option>
+                {trackedJobs.map((tj) => (
+                  <option key={tj.jobId} value={tj.jobId}>{tj.company} · {tj.title}</option>
+                ))}
+              </select>
+            </div>
+          )}
+
           {/* AI 快填区 */}
           <div className="rounded-xl bg-gradient-to-br from-brand-50 to-indigo-50 border border-brand-100 p-4 space-y-3">
             <div className="flex items-center gap-2">

@@ -4,7 +4,11 @@ import { useEffect, useState } from "react";
 import { loadInterviews, saveInterview, updateInterview, deleteInterview } from "@/lib/interviews";
 import type { InterviewRecord, InterviewStatus } from "@/lib/interviews";
 import { getSession } from "@/lib/auth";
+import { syncInterviewToTracking } from "@/lib/sync";
+import type { Job } from "@/lib/types";
+import type { TrackingData } from "@/lib/tracker";
 import InterviewForm from "./InterviewForm";
+import type { TrackedJobOption } from "./InterviewForm";
 
 const STATUS_CONFIG: Record<InterviewStatus, { label: string; color: string; bg: string }> = {
   "进行中":   { label: "进行中",   color: "text-blue-600",   bg: "bg-blue-500" },
@@ -15,7 +19,7 @@ const STATUS_CONFIG: Record<InterviewStatus, { label: string; color: string; bg:
 
 type FilterStatus = InterviewStatus | "all";
 
-export default function InterviewPageClient({ hideHeader }: { hideHeader?: boolean } = {}) {
+export default function InterviewPageClient({ hideHeader, jobs, tracking, syncVersion, onSyncChange }: { hideHeader?: boolean; jobs?: Job[]; tracking?: TrackingData; syncVersion?: number; onSyncChange?: () => void } = {}) {
   const [records, setRecords] = useState<InterviewRecord[]>([]);
   const [loggedIn, setLoggedIn] = useState(false);
   const [loaded, setLoaded] = useState(false);
@@ -34,6 +38,24 @@ export default function InterviewPageClient({ hideHeader }: { hideHeader?: boole
     });
   }, []);
 
+  useEffect(() => {
+    if (syncVersion && syncVersion > 0) {
+      loadInterviews().then(setRecords);
+    }
+  }, [syncVersion]);
+
+  const trackedJobOptions: TrackedJobOption[] = (() => {
+    if (!jobs || !tracking) return [];
+    const linkedJobIds = new Set(records.map((r) => r.relatedJobId).filter(Boolean));
+    const result: TrackedJobOption[] = [];
+    for (const [jobId, entry] of Object.entries(tracking)) {
+      if (linkedJobIds.has(jobId)) continue;
+      const job = jobs.find((j) => j.id === jobId);
+      if (job) result.push({ jobId, company: job.company, title: job.title, channel: entry.channel });
+    }
+    return result;
+  })();
+
   const filtered = filter === "all" ? records : records.filter((r) => r.status === filter);
   const counts: Record<string, number> = {};
   records.forEach((r) => { counts[r.status] = (counts[r.status] ?? 0) + 1; });
@@ -42,12 +64,15 @@ export default function InterviewPageClient({ hideHeader }: { hideHeader?: boole
     if (editRecord) {
       const updated = await updateInterview(editRecord.id, data);
       setRecords(updated);
+      await syncInterviewToTracking(data.relatedJobId ?? editRecord.relatedJobId, data.status);
     } else {
       const updated = await saveInterview(data);
       setRecords(updated);
+      await syncInterviewToTracking(data.relatedJobId, data.status);
     }
     setShowForm(false);
     setEditRecord(undefined);
+    onSyncChange?.();
   }
 
   async function handleDelete(id: string) {
@@ -229,6 +254,7 @@ export default function InterviewPageClient({ hideHeader }: { hideHeader?: boole
       {showForm && (
         <InterviewForm
           initial={editRecord}
+          trackedJobs={trackedJobOptions}
           onSave={handleSave}
           onCancel={() => { setShowForm(false); setEditRecord(undefined); }}
         />

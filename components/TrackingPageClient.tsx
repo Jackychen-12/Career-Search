@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { loadTracking, saveTracking, removeTracking, type TrackingData, type TrackingEntry, type TrackingStatus } from "@/lib/tracker";
+import { syncTrackingToInterview } from "@/lib/sync";
 import { getSession } from "@/lib/auth";
 import type { Job } from "@/lib/types";
 import type * as XLSXType from "xlsx";
@@ -19,7 +20,7 @@ const STATUS_CONFIG: Record<TrackingStatus, { label: string; color: string; bg: 
 
 type ViewTab = "table" | "timeline" | "kanban";
 
-export default function TrackingPageClient({ jobs, hideHeader }: { jobs: Job[]; hideHeader?: boolean }) {
+export default function TrackingPageClient({ jobs, hideHeader, syncVersion, onSyncChange, onTrackingLoaded }: { jobs: Job[]; hideHeader?: boolean; syncVersion?: number; onSyncChange?: () => void; onTrackingLoaded?: (data: TrackingData) => void }) {
   const [tracking, setTracking] = useState<TrackingData>({});
   const [loggedIn, setLoggedIn] = useState(false);
   const [tab, setTab] = useState<ViewTab>("table");
@@ -28,9 +29,21 @@ export default function TrackingPageClient({ jobs, hideHeader }: { jobs: Job[]; 
   useEffect(() => {
     getSession().then((s) => {
       setLoggedIn(!!s);
-      if (s) loadTracking().then(setTracking);
+      if (s) loadTracking().then((data) => {
+        setTracking(data);
+        onTrackingLoaded?.(data);
+      });
     });
   }, []);
+
+  useEffect(() => {
+    if (syncVersion && syncVersion > 0) {
+      loadTracking().then((data) => {
+        setTracking(data);
+        onTrackingLoaded?.(data);
+      });
+    }
+  }, [syncVersion]);
 
   const items = Object.entries(tracking)
     .map(([id, entry]) => ({ id, job: jobs.find((j) => j.id === id), entry }))
@@ -43,8 +56,12 @@ export default function TrackingPageClient({ jobs, hideHeader }: { jobs: Job[]; 
   async function updateEntry(jobId: string, patch: Partial<TrackingEntry>) {
     const current = tracking[jobId];
     if (!current) return;
-    const updated = await saveTracking(jobId, patch.status ?? current.status, { ...current, ...patch });
+    const newStatus = patch.status ?? current.status;
+    const updated = await saveTracking(jobId, newStatus, { ...current, ...patch });
     setTracking(updated);
+    onTrackingLoaded?.(updated);
+    await syncTrackingToInterview(jobId, newStatus);
+    onSyncChange?.();
   }
 
   async function deleteEntry(jobId: string) {

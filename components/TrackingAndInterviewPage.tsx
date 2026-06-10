@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import type { Job } from "@/lib/types";
+import type { TrackingData } from "@/lib/tracker";
 import TrackingPageClient from "./TrackingPageClient";
 import InterviewPageClient from "./InterviewPageClient";
 
@@ -9,6 +10,16 @@ type Tab = "tracking" | "interview";
 
 export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
   const [tab, setTab] = useState<Tab>("tracking");
+  const [syncVersion, setSyncVersion] = useState(0);
+  const [sharedTracking, setSharedTracking] = useState<TrackingData>({});
+
+  const onSyncChange = useCallback(() => {
+    setSyncVersion((v) => v + 1);
+  }, []);
+
+  const onTrackingLoaded = useCallback((data: TrackingData) => {
+    setSharedTracking(data);
+  }, []);
 
   return (
     <div className="min-h-screen">
@@ -36,9 +47,9 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
       </header>
 
       {tab === "tracking" ? (
-        <TrackingPageClient jobs={jobs} hideHeader />
+        <TrackingPageClient jobs={jobs} hideHeader syncVersion={syncVersion} onSyncChange={onSyncChange} onTrackingLoaded={onTrackingLoaded} />
       ) : (
-        <InterviewPageClient hideHeader />
+        <InterviewPageClient hideHeader jobs={jobs} tracking={sharedTracking} syncVersion={syncVersion} onSyncChange={onSyncChange} />
       )}
     </div>
   );
