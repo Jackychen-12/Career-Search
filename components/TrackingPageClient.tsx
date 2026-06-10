@@ -90,7 +90,7 @@ export default function TrackingPageClient({ jobs, hideHeader, interviews: inter
       const linked = interviews?.find((iv) => iv.relatedJobId === id);
       if (linked) usedInterviewIds.add(linked.id);
 
-      const mappedStatus = linked ? interviewToTrackingStatus(linked.status) : entry.status;
+      const mappedStatus = linked ? interviewToTrackingStatus(linked.status, linked.rounds) : entry.status;
       const effectiveStatus = STATUS_CONFIG[mappedStatus].order > STATUS_CONFIG[entry.status].order ? mappedStatus : entry.status;
 
       result.push({
@@ -114,7 +114,7 @@ export default function TrackingPageClient({ jobs, hideHeader, interviews: inter
         if (usedInterviewIds.has(iv.id)) continue;
         if (iv.relatedJobId && tracking[iv.relatedJobId]) continue;
 
-        const mappedStatus = interviewToTrackingStatus(iv.status);
+        const mappedStatus = interviewToTrackingStatus(iv.status, iv.rounds);
 
         // Check if there's a job in the database for this relatedJobId
         const job = iv.relatedJobId ? jobs.find((j) => j.id === iv.relatedJobId) : undefined;
@@ -296,7 +296,10 @@ export default function TrackingPageClient({ jobs, hideHeader, interviews: inter
                         <textarea value={t.entry.notes ?? ""} onChange={(e) => updateEntry(t.id, { notes: e.target.value || undefined })} placeholder="备注..." rows={2} className="w-full text-xs px-2 py-1.5 rounded-md border border-gray-200 resize-none" />
                         <div className="flex justify-between">
                           <button onClick={() => deleteEntry(t.id)} className="text-xs text-red-500">删除</button>
-                          {t.applyUrl && <a href={t.applyUrl} target="_blank" rel="noreferrer" className="text-xs text-brand-600">投递 →</a>}
+                          <div className="flex items-center gap-3">
+                            {t.job && <a href={`/job/${t.job.id}`} className="text-xs text-gray-600 hover:text-gray-900">详情 →</a>}
+                            {t.applyUrl && <a href={t.applyUrl} target="_blank" rel="noreferrer" className="text-xs text-brand-600">投递 →</a>}
+                          </div>
                         </div>
                       </div>
                     )}
@@ -400,7 +403,7 @@ export default function TrackingPageClient({ jobs, hideHeader, interviews: inter
                                 <div className={`shrink-0 w-8 h-8 rounded-lg ${cfg.bg} flex items-center justify-center`}>
                                   <span className="text-white text-[10px] font-bold">{cfg.label.slice(0, 1)}</span>
                                 </div>
-                                <div className="flex-1 min-w-0">
+                                <a href={t.job ? `/job/${t.job.id}` : undefined} className="flex-1 min-w-0 hover:opacity-80 transition">
                                   <span className="text-[13px] font-medium text-gray-900 truncate block">
                                     {t.company} · {t.title}
                                     {t.interview && <span className="text-[10px] text-amber-500 ml-1">({t.interview.rounds.length}轮)</span>}
@@ -411,7 +414,7 @@ export default function TrackingPageClient({ jobs, hideHeader, interviews: inter
                                     {t.entry.interviewAt && <span>面试 {t.entry.interviewAt.slice(5, 10)}</span>}
                                     {t.entry.notes && <span className="truncate">· {t.entry.notes.slice(0, 15)}</span>}
                                   </div>
-                                </div>
+                                </a>
                                 <span className="shrink-0 text-[10px] text-gray-300">{(t.entry.appliedAt ?? t.entry.updatedAt).slice(5, 10)}</span>
                               </div>
                             );
@@ -439,13 +442,13 @@ export default function TrackingPageClient({ jobs, hideHeader, interviews: inter
                       </div>
                       <div className="space-y-1.5">
                         {statusItems.map((t) => (
-                          <div key={t.id} className="card p-2.5 block">
+                          <a key={t.id} href={t.job ? `/job/${t.job.id}` : undefined} className="card p-2.5 block hover:ring-1 hover:ring-brand-200 transition">
                             <div className="text-xs font-medium text-gray-900 line-clamp-1">{t.company}</div>
                             <div className="text-[10px] text-gray-500 mt-0.5 line-clamp-1">{t.title}</div>
                             {t.interview && (
                               <div className="text-[9px] text-amber-500 mt-0.5">{t.interview.rounds.length}轮面试</div>
                             )}
-                          </div>
+                          </a>
                         ))}
                         {statusItems.length === 0 && <div className="text-[10px] text-gray-300 text-center py-4">空</div>}
                       </div>

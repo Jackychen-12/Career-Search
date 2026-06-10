@@ -64,11 +64,11 @@ export default function InterviewPageClient({ hideHeader, jobs, tracking, syncVe
     if (editRecord) {
       const updated = await updateInterview(editRecord.id, data);
       setRecords(updated);
-      await syncInterviewToTracking(data.relatedJobId ?? editRecord.relatedJobId, data.status);
+      await syncInterviewToTracking(data.relatedJobId ?? editRecord.relatedJobId, data.status, data.rounds);
     } else {
       const updated = await saveInterview(data);
       setRecords(updated);
-      await syncInterviewToTracking(data.relatedJobId, data.status);
+      await syncInterviewToTracking(data.relatedJobId, data.status, data.rounds);
     }
     setShowForm(false);
     setEditRecord(undefined);

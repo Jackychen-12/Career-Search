@@ -1,12 +1,13 @@
 import type { TrackingStatus } from "./tracker";
 import { saveTracking, loadTracking } from "./tracker";
-import type { InterviewStatus } from "./interviews";
+import type { InterviewStatus, InterviewRound } from "./interviews";
 import { loadInterviews, updateInterview } from "./interviews";
 
 export function trackingToInterviewStatus(ts: TrackingStatus): InterviewStatus | null {
   switch (ts) {
     case "interview":
     case "hr":
+    case "written":
       return "进行中";
     case "offer":
       return "已拿offer";
@@ -19,10 +20,16 @@ export function trackingToInterviewStatus(ts: TrackingStatus): InterviewStatus |
   }
 }
 
-export function interviewToTrackingStatus(is: InterviewStatus): TrackingStatus {
+export function interviewToTrackingStatus(is: InterviewStatus, rounds?: InterviewRound[]): TrackingStatus {
   switch (is) {
-    case "进行中":
+    case "进行中": {
+      if (rounds && rounds.length > 0) {
+        const lastRound = rounds[rounds.length - 1].round;
+        if (lastRound === "笔试") return "written";
+        if (lastRound === "HR面") return "hr";
+      }
       return "interview";
+    }
     case "已拿offer":
       return "offer";
     case "已拒":
@@ -43,10 +50,10 @@ export async function syncTrackingToInterview(jobId: string, trackingStatus: Tra
   }
 }
 
-export async function syncInterviewToTracking(relatedJobId: string | undefined, interviewStatus: InterviewStatus) {
+export async function syncInterviewToTracking(relatedJobId: string | undefined, interviewStatus: InterviewStatus, rounds?: InterviewRound[]) {
   if (!relatedJobId) return;
 
-  const trackingStatus = interviewToTrackingStatus(interviewStatus);
+  const trackingStatus = interviewToTrackingStatus(interviewStatus, rounds);
   const tracking = await loadTracking();
   const entry = tracking[relatedJobId];
   if (entry && entry.status !== trackingStatus) {
