@@ -86,7 +86,7 @@ async function main() {
           <tr style="background:#f8f9fc"><th style="padding:8px;text-align:left">岗位</th><th style="padding:8px">匹配</th><th style="padding:8px">操作</th></tr>
           ${jobList}
         </table>
-        <a href="https://career-search-ten.vercel.app" style="display:inline-block;padding:10px 20px;background:#5b4cff;color:white;text-decoration:none;border-radius:8px">查看全部岗位</a>
+        <a href="https://career.chenkeyu12.com" style="display:inline-block;padding:10px 20px;background:#5b4cff;color:white;text-decoration:none;border-radius:8px">查看全部岗位</a>
         <p style="color:#9ca3af;font-size:12px;margin-top:24px">此邮件由 Career Search 自动发送。如需退订，请在画像设置中关闭推送。</p>
       </div>`;
 

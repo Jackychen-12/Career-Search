@@ -4,7 +4,7 @@
 
 > *「上传简历，AI 告诉你今天该投哪家。」*
 
-[![在线体验](https://img.shields.io/badge/在线体验-career--search-2ea44f?style=for-the-badge)](https://career-search-ten.vercel.app/)
+[![在线体验](https://img.shields.io/badge/在线体验-career.chenkeyu12.com-2ea44f?style=for-the-badge)](https://career.chenkeyu12.com/)
 [![Tests](https://github.com/Jackychen-12/Career-Search/actions/workflows/deploy.yml/badge.svg)](https://github.com/Jackychen-12/Career-Search/actions/workflows/deploy.yml)
 [![Next.js](https://img.shields.io/badge/Next.js_14-black?logo=next.js)](https://nextjs.org/)
 [![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?logo=supabase&logoColor=white)](https://supabase.com/)
@@ -23,7 +23,7 @@
 
 **全站零成本运行。** Vercel + Supabase + Cloudflare Workers + GitHub Actions，每月 ¥0。
 
-[立即体验](https://career-search-ten.vercel.app/) · [看功能](#能做什么) · [看架构](#技术架构) · [本地开发](#本地开发)
+[立即体验](https://career.chenkeyu12.com/) · [看功能](#能做什么) · [看架构](#技术架构) · [本地开发](#本地开发)
 
 </div>
 

@@ -55,7 +55,7 @@ GitHub Actions（每天 cron + push + 手动）
   └─ next build（output:'export'，DATA_SOURCE=local，
                  NEXT_PUBLIC_BASE_PATH=/Career-Search）
       └─ 构建时读 data/jobs.json，内嵌进预渲染首页
-          └─ deploy-pages → https://keyuchen-del.github.io/Career-Search/
+          └─ deploy → https://career.chenkeyu12.com/
 
 浏览器（纯静态，无运行时数据请求）
   └─ 对内嵌数据集做 筛选 / 搜索 / 分页 / 个性化匹配重排 / 跳转
