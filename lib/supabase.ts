@@ -10,4 +10,7 @@ if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
   );
 }
 
-export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const resolvedUrl =
+  typeof window !== "undefined" ? window.location.origin + "/sb" : SUPABASE_URL;
+
+export const supabase = createClient(resolvedUrl, SUPABASE_ANON_KEY);

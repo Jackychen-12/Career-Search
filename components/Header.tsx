@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { signInWithGitHub, signOut, getUser, type GhUser } from "@/lib/auth";
+import { signInWithGitHub, signInWithEmail, signUpWithEmail, signOut, getUser, type GhUser } from "@/lib/auth";
 import { hasPrefs } from "@/lib/ranking";
 import { loadPrefs, savePrefs } from "@/lib/prefs";
 
@@ -106,6 +106,12 @@ export default function Header({
   const [loggedIn, setLoggedIn] = useState(false);
   const [hasProfile, setHasProfile] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [showLogin, setShowLogin] = useState(false);
+  const [loginEmail, setLoginEmail] = useState("");
+  const [loginPwd, setLoginPwd] = useState("");
+  const [loginErr, setLoginErr] = useState("");
+  const [loginLoading, setLoginLoading] = useState(false);
+  const [isSignUp, setIsSignUp] = useState(false);
 
   useEffect(() => {
     getUser().then((u) => {
@@ -127,6 +133,36 @@ export default function Header({
 
     return () => subscription.unsubscribe();
   }, []);
+
+  async function handleEmailAuth() {
+    setLoginErr("");
+    setLoginLoading(true);
+    try {
+      if (isSignUp) {
+        await signUpWithEmail(loginEmail, loginPwd);
+      } else {
+        await signInWithEmail(loginEmail, loginPwd);
+      }
+      const u = await getUser();
+      setUser(u);
+      setLoggedIn(!!u);
+      setShowLogin(false);
+      setLoginEmail("");
+      setLoginPwd("");
+    } catch (e) {
+      setLoginErr((e as Error).message);
+    } finally {
+      setLoginLoading(false);
+    }
+  }
+
+  function openLogin() {
+    setLoginErr("");
+    setLoginEmail("");
+    setLoginPwd("");
+    setIsSignUp(false);
+    setShowLogin(true);
+  }
 
   const navItems = loggedIn && user ? [
     { label: hasProfile ? "画像 ✓" : "建立画像", href: "/profile/", highlight: !hasProfile },
@@ -175,7 +211,7 @@ export default function Header({
               )}
             </button>
           ) : (
-            <button onClick={() => signInWithGitHub()} className="text-[13px] font-medium text-white px-3 py-1.5 rounded-full bg-brand-500 hover:bg-brand-600 shadow-sm transition">登录</button>
+            <button onClick={() => openLogin()} className="text-[13px] font-medium text-white px-3 py-1.5 rounded-full bg-brand-500 hover:bg-brand-600 shadow-sm transition">登录</button>
           )}
         </nav>
 
@@ -197,8 +233,63 @@ export default function Header({
           {loggedIn ? (
             <button onClick={() => { signOut(); setMenuOpen(false); }} className="block w-full text-left py-2 text-sm text-red-500">退出登录</button>
           ) : (
-            <button onClick={() => { signInWithGitHub(); setMenuOpen(false); }} className="block w-full text-left py-2 text-sm font-medium text-brand-600">GitHub 登录</button>
+            <button onClick={() => { openLogin(); setMenuOpen(false); }} className="block w-full text-left py-2 text-sm font-medium text-brand-600">登录</button>
           )}
+        </div>
+      )}
+
+      {/* Login modal */}
+      {showLogin && (
+        <div className="fixed inset-0 z-50 bg-black/30 backdrop-blur-sm flex items-center justify-center" onClick={() => setShowLogin(false)}>
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm mx-4 p-6 space-y-4" onClick={(e) => e.stopPropagation()}>
+            <h2 className="text-lg font-bold text-gray-900 text-center">{isSignUp ? "注册账号" : "登录"}</h2>
+
+            <div className="space-y-3">
+              <input
+                type="email"
+                value={loginEmail}
+                onChange={(e) => setLoginEmail(e.target.value)}
+                placeholder="邮箱"
+                className="w-full px-3 py-2.5 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400/30 focus:border-brand-400"
+              />
+              <input
+                type="password"
+                value={loginPwd}
+                onChange={(e) => setLoginPwd(e.target.value)}
+                placeholder="密码"
+                onKeyDown={(e) => e.key === "Enter" && handleEmailAuth()}
+                className="w-full px-3 py-2.5 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400/30 focus:border-brand-400"
+              />
+              {loginErr && <p className="text-xs text-red-500">{loginErr}</p>}
+              <button
+                onClick={handleEmailAuth}
+                disabled={loginLoading || !loginEmail || !loginPwd}
+                className="w-full py-2.5 rounded-lg bg-brand-600 text-white text-sm font-medium hover:bg-brand-700 disabled:opacity-50 transition"
+              >
+                {loginLoading ? "处理中..." : isSignUp ? "注册" : "登录"}
+              </button>
+            </div>
+
+            <p className="text-center text-xs text-gray-400">
+              {isSignUp ? "已有账号？" : "没有账号？"}
+              <button onClick={() => { setIsSignUp(!isSignUp); setLoginErr(""); }} className="text-brand-600 ml-1">{isSignUp ? "去登录" : "注册"}</button>
+            </p>
+
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-gray-200" /></div>
+              <div className="relative flex justify-center text-xs"><span className="bg-white px-2 text-gray-400">或</span></div>
+            </div>
+
+            <button
+              onClick={() => { signInWithGitHub(); setShowLogin(false); }}
+              className="w-full py-2.5 rounded-lg border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-50 transition flex items-center justify-center gap-2"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+              GitHub 登录
+            </button>
+
+            <p className="text-center text-[10px] text-gray-400">GitHub 登录需要科学上网</p>
+          </div>
         </div>
       )}
     </header>

@@ -7,7 +7,10 @@ import { supabase } from "@/lib/supabase";
 import type { Job } from "@/lib/types";
 import type { TrackingData } from "@/lib/tracker";
 
-const WORKER_URL = process.env.NEXT_PUBLIC_WORKER_URL || "https://career-search-oauth.keyu-chen.workers.dev";
+const WORKER_URL =
+  typeof window !== "undefined"
+    ? "/ai"
+    : process.env.NEXT_PUBLIC_WORKER_URL || "https://career-search-oauth.keyu-chen.workers.dev";
 
 export interface TrackedJobOption {
   jobId: string;

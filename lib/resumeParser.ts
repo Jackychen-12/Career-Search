@@ -1,6 +1,9 @@
 import { supabase } from "./supabase";
 
-const WORKER_URL = process.env.NEXT_PUBLIC_WORKER_URL || "https://career-search-oauth.keyu-chen.workers.dev";
+const WORKER_URL =
+  typeof window !== "undefined"
+    ? "/ai"
+    : process.env.NEXT_PUBLIC_WORKER_URL || "https://career-search-oauth.keyu-chen.workers.dev";
 
 export interface ParsedResume {
   school?: string;
