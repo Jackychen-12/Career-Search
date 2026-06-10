@@ -6,6 +6,7 @@ import { syncTrackingToInterview, interviewToTrackingStatus } from "@/lib/sync";
 import { getSession } from "@/lib/auth";
 import type { Job } from "@/lib/types";
 import type { InterviewRecord } from "@/lib/interviews";
+import { loadInterviews } from "@/lib/interviews";
 import type * as XLSXType from "xlsx";
 
 const STATUS_CONFIG: Record<TrackingStatus, { label: string; color: string; bg: string; order: number }> = {
@@ -44,19 +45,25 @@ interface Props {
   onTrackingLoaded?: (data: TrackingData) => void;
 }
 
-export default function TrackingPageClient({ jobs, hideHeader, interviews, syncVersion, onSyncChange, onTrackingLoaded }: Props) {
+export default function TrackingPageClient({ jobs, hideHeader, interviews: interviewsProp, syncVersion, onSyncChange, onTrackingLoaded }: Props) {
   const [tracking, setTracking] = useState<TrackingData>({});
+  const [localInterviews, setLocalInterviews] = useState<InterviewRecord[]>([]);
   const [loggedIn, setLoggedIn] = useState(false);
   const [tab, setTab] = useState<ViewTab>("table");
   const [editId, setEditId] = useState<string | null>(null);
 
+  const interviews = interviewsProp && interviewsProp.length > 0 ? interviewsProp : localInterviews;
+
   useEffect(() => {
     getSession().then((s) => {
       setLoggedIn(!!s);
-      if (s) loadTracking().then((data) => {
-        setTracking(data);
-        onTrackingLoaded?.(data);
-      });
+      if (s) {
+        loadTracking().then((data) => {
+          setTracking(data);
+          onTrackingLoaded?.(data);
+        });
+        loadInterviews().then(setLocalInterviews);
+      }
     });
   }, []);
 
@@ -66,6 +73,7 @@ export default function TrackingPageClient({ jobs, hideHeader, interviews, syncV
         setTracking(data);
         onTrackingLoaded?.(data);
       });
+      loadInterviews().then(setLocalInterviews);
     }
   }, [syncVersion]);
 
