@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
 import { loadInterviews, saveInterview, updateInterview, deleteInterview } from "@/lib/interviews";
 import type { InterviewRecord, InterviewStatus } from "@/lib/interviews";
 import { getSession } from "@/lib/auth";
@@ -9,6 +10,8 @@ import type { Job } from "@/lib/types";
 import type { TrackingData } from "@/lib/tracker";
 import InterviewForm from "./InterviewForm";
 import type { TrackedJobOption } from "./InterviewForm";
+
+const DashboardClient = dynamic(() => import("./DashboardClient").then((m) => ({ default: m.DashboardClient })), { ssr: false });
 
 const STATUS_CONFIG: Record<InterviewStatus, { label: string; color: string; bg: string }> = {
   "进行中":   { label: "进行中",   color: "text-blue-600",   bg: "bg-blue-500" },
@@ -19,7 +22,7 @@ const STATUS_CONFIG: Record<InterviewStatus, { label: string; color: string; bg:
 
 type FilterStatus = InterviewStatus | "all";
 
-export default function InterviewPageClient({ hideHeader, jobs, tracking, syncVersion, onSyncChange }: { hideHeader?: boolean; jobs?: Job[]; tracking?: TrackingData; syncVersion?: number; onSyncChange?: () => void } = {}) {
+export default function InterviewPageClient({ hideHeader, jobs, tracking, syncVersion, onSyncChange, allInterviews }: { hideHeader?: boolean; jobs?: Job[]; tracking?: TrackingData; syncVersion?: number; onSyncChange?: () => void; allInterviews?: InterviewRecord[] } = {}) {
   const [records, setRecords] = useState<InterviewRecord[]>([]);
   const [loggedIn, setLoggedIn] = useState(false);
   const [loaded, setLoaded] = useState(false);
@@ -27,6 +30,8 @@ export default function InterviewPageClient({ hideHeader, jobs, tracking, syncVe
   const [editRecord, setEditRecord] = useState<InterviewRecord | undefined>();
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [filter, setFilter] = useState<FilterStatus>("all");
+  const [subView, setSubView] = useState<"records" | "data">("records");
+  const hasDashboard = !!(tracking && allInterviews);
 
   useEffect(() => {
     getSession().then((s) => {
@@ -116,7 +121,17 @@ export default function InterviewPageClient({ hideHeader, jobs, tracking, syncVe
 
       <main className="max-w-5xl mx-auto px-4 sm:px-6 py-6 space-y-5">
         {hideHeader && (
-          <div className="flex justify-end">
+          <div className="flex items-center justify-between">
+            {hasDashboard ? (
+              <div className="flex gap-0.5 p-0.5 bg-gray-100 rounded-lg">
+                <button onClick={() => setSubView("records")} className={`px-4 py-1.5 rounded-md text-sm font-medium transition ${subView === "records" ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"}`}>
+                  记录
+                </button>
+                <button onClick={() => setSubView("data")} className={`px-4 py-1.5 rounded-md text-sm font-medium transition ${subView === "data" ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"}`}>
+                  数据
+                </button>
+              </div>
+            ) : <div />}
             <button
               onClick={() => { setEditRecord(undefined); setShowForm(true); }}
               className="px-3.5 py-1.5 rounded-lg bg-brand-600 text-white text-sm font-medium hover:bg-brand-700 transition"
@@ -125,6 +140,9 @@ export default function InterviewPageClient({ hideHeader, jobs, tracking, syncVe
             </button>
           </div>
         )}
+
+        {(subView === "records" || !hasDashboard) && (
+          <>
         {/* 状态统计 */}
         <div className="flex flex-wrap gap-2">
           {(Object.entries(STATUS_CONFIG) as [InterviewStatus, typeof STATUS_CONFIG[InterviewStatus]][]).map(([key, cfg]) => {
@@ -247,6 +265,12 @@ export default function InterviewPageClient({ hideHeader, jobs, tracking, syncVe
           <div className="text-center text-[11px] text-gray-400 py-2">
             未登录，数据仅保存在本地浏览器
           </div>
+        )}
+          </>
+        )}
+
+        {subView === "data" && hasDashboard && (
+          <DashboardClient tracking={tracking!} interviews={allInterviews!} />
         )}
       </main>
 

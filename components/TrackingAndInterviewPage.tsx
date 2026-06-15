@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import dynamic from "next/dynamic";
 import type { Job } from "@/lib/types";
 import type { TrackingData } from "@/lib/tracker";
 import type { InterviewRecord } from "@/lib/interviews";
@@ -9,9 +8,7 @@ import { loadInterviews } from "@/lib/interviews";
 import TrackingPageClient from "./TrackingPageClient";
 import InterviewPageClient from "./InterviewPageClient";
 
-const DashboardClient = dynamic(() => import("./DashboardClient").then((m) => ({ default: m.DashboardClient })), { ssr: false });
-
-type Tab = "tracking" | "interview" | "dashboard";
+type Tab = "tracking" | "interview";
 
 export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
   const [tab, setTab] = useState<Tab>("tracking");
@@ -40,7 +37,6 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
   const tabs: { key: Tab; label: string }[] = [
     { key: "tracking", label: "我的投递" },
     { key: "interview", label: "面试记录" },
-    { key: "dashboard", label: "数据看板" },
   ];
 
   return (
@@ -69,12 +65,7 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
         <TrackingPageClient jobs={jobs} hideHeader interviews={interviews} syncVersion={syncVersion} onSyncChange={onSyncChange} onTrackingLoaded={onTrackingLoaded} />
       )}
       {tab === "interview" && (
-        <InterviewPageClient hideHeader jobs={jobs} tracking={sharedTracking} syncVersion={syncVersion} onSyncChange={onSyncChange} />
-      )}
-      {tab === "dashboard" && (
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6">
-          <DashboardClient tracking={sharedTracking} interviews={interviews} />
-        </div>
+        <InterviewPageClient hideHeader jobs={jobs} tracking={sharedTracking} syncVersion={syncVersion} onSyncChange={onSyncChange} allInterviews={interviews} />
       )}
     </div>
   );
