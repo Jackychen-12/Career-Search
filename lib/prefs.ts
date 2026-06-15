@@ -21,6 +21,10 @@ export function loadPrefs(): Prefs {
       skills: Array.isArray(p.skills) ? p.skills : [],
       targetRoles: Array.isArray(p.targetRoles) ? p.targetRoles : [],
       resumeKeywords: Array.isArray(p.resumeKeywords) ? p.resumeKeywords : [],
+      experience: Array.isArray(p.experience) ? p.experience : [],
+      strengths: Array.isArray(p.strengths) ? p.strengths : [],
+      weaknesses: Array.isArray(p.weaknesses) ? p.weaknesses : [],
+      summary: p.summary,
     };
   } catch {
     return EMPTY_PREFS;

@@ -9,6 +9,7 @@ import type { Job, Prefs } from "@/lib/types";
 
 export default function ReportClient({ jobs }: { jobs: Job[] }) {
   const [prefs, setPrefs] = useState<Prefs | null>(null);
+  const [activeBucket, setActiveBucket] = useState<string | null>(null);
 
   useEffect(() => {
     const p = loadPrefs();
@@ -127,9 +128,28 @@ export default function ReportClient({ jobs }: { jobs: Job[] }) {
             {prefs.degree && <div><span className="text-gray-400 text-xs">学历</span><div className="font-medium">{prefs.degree}</div></div>}
             <div><span className="text-gray-400 text-xs">目标方向</span><div className="font-medium">{(prefs.targetRoles ?? []).join("、") || "未设置"}</div></div>
           </div>
+          {prefs.summary && (
+            <div className="mt-3 p-3 rounded-lg bg-brand-50/50 text-xs text-brand-600">{prefs.summary}</div>
+          )}
           {(prefs.skills ?? []).length > 0 && (
             <div className="mt-3 flex flex-wrap gap-1.5">
               {prefs.skills!.map((s) => <span key={s} className="text-[11px] px-2 py-0.5 rounded-full bg-brand-50 text-brand-600">{s}</span>)}
+            </div>
+          )}
+          {((prefs.strengths ?? []).length > 0 || (prefs.weaknesses ?? []).length > 0) && (
+            <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {(prefs.strengths ?? []).length > 0 && (
+                <div>
+                  <span className="text-[11px] font-medium text-green-700">优势：</span>
+                  <span className="text-[11px] text-green-600">{prefs.strengths!.join("、")}</span>
+                </div>
+              )}
+              {(prefs.weaknesses ?? []).length > 0 && (
+                <div>
+                  <span className="text-[11px] font-medium text-amber-700">待提升：</span>
+                  <span className="text-[11px] text-amber-600">{prefs.weaknesses!.join("、")}</span>
+                </div>
+              )}
             </div>
           )}
         </section>
@@ -142,15 +162,19 @@ export default function ReportClient({ jobs }: { jobs: Job[] }) {
           </h2>
           <div className="grid grid-cols-4 gap-3 mb-4">
             {[
-              { label: "高匹配 >60%", count: high.length, color: "bg-brand-500 text-white" },
-              { label: "中匹配 30-60%", count: mid.length, color: "bg-brand-50 text-brand-600" },
-              { label: "低匹配 <30%", count: low.length, color: "bg-gray-100 text-gray-600" },
-              { label: "无关联", count: none.length, color: "bg-gray-50 text-gray-400" },
+              { key: "high", label: "高匹配 >60%", count: high.length, color: "bg-brand-500 text-white", ring: "ring-brand-500" },
+              { key: "mid", label: "中匹配 30-60%", count: mid.length, color: "bg-brand-50 text-brand-600", ring: "ring-brand-300" },
+              { key: "low", label: "低匹配 <30%", count: low.length, color: "bg-gray-100 text-gray-600", ring: "ring-gray-400" },
+              { key: "none", label: "无关联", count: none.length, color: "bg-gray-50 text-gray-400", ring: "ring-gray-300" },
             ].map((b) => (
-              <div key={b.label} className="text-center p-3 rounded-lg bg-gray-50">
+              <button
+                key={b.key}
+                onClick={() => setActiveBucket(activeBucket === b.key ? null : b.key)}
+                className={`text-center p-3 rounded-lg bg-gray-50 transition cursor-pointer hover:bg-gray-100 ${activeBucket === b.key ? `ring-2 ${b.ring}` : ""}`}
+              >
                 <div className={`inline-block text-lg font-bold px-2 py-0.5 rounded-lg ${b.color}`}>{b.count}</div>
                 <div className="text-[11px] text-gray-500 mt-1">{b.label}</div>
-              </div>
+              </button>
             ))}
           </div>
           {/* Bar chart */}
@@ -158,6 +182,83 @@ export default function ReportClient({ jobs }: { jobs: Job[] }) {
             {high.length > 0 && <div className="bg-brand-500 transition-all" style={{ width: `${(high.length / matches.length) * 100}%` }} />}
             {mid.length > 0 && <div className="bg-brand-200 transition-all" style={{ width: `${(mid.length / matches.length) * 100}%` }} />}
             {low.length > 0 && <div className="bg-gray-300 transition-all" style={{ width: `${(low.length / matches.length) * 100}%` }} />}
+          </div>
+          {/* Expanded bucket job list */}
+          {activeBucket && (
+            <div className="mt-4 border-t border-gray-100 pt-4">
+              <div className="text-xs font-medium text-gray-700 mb-3">
+                {activeBucket === "high" && `高匹配岗位（${high.length}个）`}
+                {activeBucket === "mid" && `中匹配岗位（${mid.length}个）`}
+                {activeBucket === "low" && `低匹配岗位（${low.length}个）`}
+                {activeBucket === "none" && `无关联岗位（${none.length}个）`}
+              </div>
+              <div className="space-y-2 max-h-80 overflow-y-auto">
+                {(activeBucket === "high" ? high : activeBucket === "mid" ? mid : activeBucket === "low" ? low : none)
+                  .slice(0, 20)
+                  .map((m) => (
+                    <a key={m.job.id} href={m.job.applyUrl} target="_blank" rel="noreferrer" className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-gray-50 transition">
+                      <span className={`shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                        m.score > 0.6 ? "bg-brand-500 text-white" : m.score > 0.3 ? "bg-brand-50 text-brand-600" : "bg-gray-100 text-gray-500"
+                      }`}>
+                        {Math.round(m.score * 100)}%
+                      </span>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm font-medium text-gray-900 truncate">{m.job.company} · {m.job.title}</div>
+                        <div className="text-[11px] text-gray-500 mt-0.5 truncate">{m.reasons.slice(0, 2).join(" · ")}</div>
+                      </div>
+                      <span className="shrink-0 text-[11px] text-gray-400">{m.job.location[0]}</span>
+                    </a>
+                  ))}
+                {(activeBucket === "high" ? high : activeBucket === "mid" ? mid : activeBucket === "low" ? low : none).length > 20 && (
+                  <div className="text-center text-[11px] text-gray-400 py-2">
+                    仅展示前 20 个，共 {(activeBucket === "high" ? high : activeBucket === "mid" ? mid : activeBucket === "low" ? low : none).length} 个
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </section>
+
+        {/* Resume optimization tips — placed prominently after match distribution */}
+        <section className="card p-6">
+          <h2 className="text-base font-bold text-gray-900 mb-4 flex items-center gap-2">
+            <span className="w-1.5 h-5 rounded-full bg-brand-500" />
+            简历优化建议
+          </h2>
+          <div className="space-y-3">
+            {skillGaps.length > 0 && (
+              <div className="p-3 rounded-lg bg-amber-50 border border-amber-100">
+                <div className="text-xs font-medium text-amber-800 mb-1">补充热门技能关键词</div>
+                <div className="text-xs text-amber-700">
+                  你的简历中缺少以下市场高需求技能：<strong>{skillGaps.slice(0, 5).map((s) => s.skill).join("、")}</strong>。
+                  如果你有相关经验，建议在简历中明确提及。
+                </div>
+              </div>
+            )}
+            {(prefs.targetRoles ?? []).length > 0 && (
+              <div className="p-3 rounded-lg bg-brand-50/50 border border-brand-100">
+                <div className="text-xs font-medium text-brand-800 mb-1">突出目标岗位关键词</div>
+                <div className="text-xs text-brand-700">
+                  你的目标岗位是 <strong>{(prefs.targetRoles ?? []).join("、")}</strong>，
+                  建议简历标题和经历描述中直接出现这些关键词，提高 ATS 系统和 HR 的匹配识别率。
+                </div>
+              </div>
+            )}
+            {high.length > 0 && (
+              <div className="p-3 rounded-lg bg-gray-50 border border-gray-100">
+                <div className="text-xs font-medium text-gray-800 mb-1">针对性定制</div>
+                <div className="text-xs text-gray-600">
+                  你有 {high.length} 个高匹配岗位，Top 3 是 {high.slice(0, 3).map((m) => m.job.company).join("、")}。
+                  建议针对这些公司分别准备定制版简历，突出与其岗位 JD 匹配的经历。
+                </div>
+              </div>
+            )}
+            <div className="p-3 rounded-lg bg-gray-50 border border-gray-100">
+              <div className="text-xs font-medium text-gray-800 mb-1">STAR 法则</div>
+              <div className="text-xs text-gray-600">
+                每段实习/项目经历用 Situation → Task → Action → Result 结构描述，量化成果（如"提升 XX%"、"覆盖 XX 用户"）。
+              </div>
+            </div>
           </div>
         </section>
 
@@ -276,48 +377,7 @@ export default function ReportClient({ jobs }: { jobs: Job[] }) {
             </div>
           </section>
         )}
-        {/* Resume optimization tips */}
-        <section className="card p-6">
-          <h2 className="text-base font-bold text-gray-900 mb-4 flex items-center gap-2">
-            <span className="w-1.5 h-5 rounded-full bg-brand-500" />
-            简历优化建议
-          </h2>
-          <div className="space-y-3">
-            {skillGaps.length > 0 && (
-              <div className="p-3 rounded-lg bg-amber-50 border border-amber-100">
-                <div className="text-xs font-medium text-amber-800 mb-1">补充热门技能关键词</div>
-                <div className="text-xs text-amber-700">
-                  你的简历中缺少以下市场高需求技能：<strong>{skillGaps.slice(0, 5).map((s) => s.skill).join("、")}</strong>。
-                  如果你有相关经验，建议在简历中明确提及。
-                </div>
-              </div>
-            )}
-            {(prefs.targetRoles ?? []).length > 0 && (
-              <div className="p-3 rounded-lg bg-brand-50/50 border border-brand-100">
-                <div className="text-xs font-medium text-brand-800 mb-1">突出目标岗位关键词</div>
-                <div className="text-xs text-brand-700">
-                  你的目标岗位是 <strong>{(prefs.targetRoles ?? []).join("、")}</strong>，
-                  建议简历标题和经历描述中直接出现这些关键词，提高 ATS 系统和 HR 的匹配识别率。
-                </div>
-              </div>
-            )}
-            {high.length > 0 && (
-              <div className="p-3 rounded-lg bg-gray-50 border border-gray-100">
-                <div className="text-xs font-medium text-gray-800 mb-1">针对性定制</div>
-                <div className="text-xs text-gray-600">
-                  你有 {high.length} 个高匹配岗位，Top 3 是 {high.slice(0, 3).map((m) => m.job.company).join("、")}。
-                  建议针对这些公司分别准备定制版简历，突出与其岗位 JD 匹配的经历。
-                </div>
-              </div>
-            )}
-            <div className="p-3 rounded-lg bg-gray-50 border border-gray-100">
-              <div className="text-xs font-medium text-gray-800 mb-1">STAR 法则</div>
-              <div className="text-xs text-gray-600">
-                每段实习/项目经历用 Situation → Task → Action → Result 结构描述，量化成果（如"提升 XX%"、"覆盖 XX 用户"）。
-              </div>
-            </div>
-          </div>
-        </section>
+        {/* Resume optimization tips moved up — see above match distribution */}
 
         {/* Interview prep */}
         <section className="card p-6">

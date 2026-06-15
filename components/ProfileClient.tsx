@@ -59,6 +59,10 @@ export default function ProfileClient({ jobs }: { jobs: Job[] }) {
         skills: result.skills,
         targetRoles: result.targetRoles,
         resumeKeywords: result.skills,
+        experience: result.experience ?? [],
+        strengths: result.strengths ?? [],
+        weaknesses: result.weaknesses ?? [],
+        summary: result.summary ?? "",
         categories: draft.categories.length > 0 ? draft.categories : [],
         cities: draft.cities.length > 0 ? draft.cities : [],
         jobTypes: draft.jobTypes.length > 0 ? draft.jobTypes : [],
@@ -79,7 +83,7 @@ export default function ProfileClient({ jobs }: { jobs: Job[] }) {
     try {
       const result = await parseResumeWithAI(resumeText);
       setAiResult(result);
-      setDraft({ ...draft, school: result.school ?? "", major: result.major ?? "", degree: (result.degree as Prefs["degree"]) ?? "", skills: result.skills, targetRoles: result.targetRoles, resumeKeywords: result.skills });
+      setDraft({ ...draft, school: result.school ?? "", major: result.major ?? "", degree: (result.degree as Prefs["degree"]) ?? "", skills: result.skills, targetRoles: result.targetRoles, resumeKeywords: result.skills, experience: result.experience ?? [], strengths: result.strengths ?? [], weaknesses: result.weaknesses ?? [], summary: result.summary ?? "" });
       setStep(2);
     } catch {
       const keywords = extractKeywordsLocal(resumeText);
@@ -311,6 +315,48 @@ export default function ProfileClient({ jobs }: { jobs: Job[] }) {
               </div>
               <button onClick={() => setStep(2)} className="text-sm text-brand-600 hover:text-brand-700">修改画像</button>
             </div>
+
+            {draft.summary && (
+              <div className="card p-4 bg-brand-50/50 border-brand-100">
+                <div className="text-xs font-medium text-brand-700 mb-1">AI 画像摘要</div>
+                <div className="text-sm text-brand-600">{draft.summary}</div>
+              </div>
+            )}
+
+            {((draft.strengths ?? []).length > 0 || (draft.weaknesses ?? []).length > 0) && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {(draft.strengths ?? []).length > 0 && (
+                  <div className="card p-4">
+                    <div className="text-xs font-medium text-green-700 mb-2">核心优势</div>
+                    <div className="flex flex-wrap gap-1.5">
+                      {draft.strengths!.map((s) => <span key={s} className="text-[11px] px-2 py-0.5 rounded-full bg-green-50 text-green-700">{s}</span>)}
+                    </div>
+                  </div>
+                )}
+                {(draft.weaknesses ?? []).length > 0 && (
+                  <div className="card p-4">
+                    <div className="text-xs font-medium text-amber-700 mb-2">待提升</div>
+                    <div className="flex flex-wrap gap-1.5">
+                      {draft.weaknesses!.map((s) => <span key={s} className="text-[11px] px-2 py-0.5 rounded-full bg-amber-50 text-amber-700">{s}</span>)}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {(draft.experience ?? []).length > 0 && (
+              <div className="card p-4">
+                <div className="text-xs font-medium text-gray-700 mb-2">经历概要</div>
+                <div className="space-y-1.5">
+                  {draft.experience!.map((e, i) => (
+                    <div key={i} className="text-xs text-gray-600 flex items-start gap-2">
+                      <span className="shrink-0 w-1.5 h-1.5 rounded-full bg-brand-400 mt-1.5" />
+                      <span>{e}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Quick match preview */}
             {topMatches.length > 0 && (

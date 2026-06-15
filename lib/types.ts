@@ -79,6 +79,10 @@ export interface Prefs {
   skills?: string[];
   targetRoles?: string[];
   resumeKeywords?: string[];
+  experience?: string[];
+  strengths?: string[];
+  weaknesses?: string[];
+  summary?: string;
   notifyEmail?: string;
   notifyEnabled?: boolean;
 }
