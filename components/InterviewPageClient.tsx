@@ -30,7 +30,6 @@ export default function InterviewPageClient({ hideHeader, jobs, tracking, syncVe
   const [editRecord, setEditRecord] = useState<InterviewRecord | undefined>();
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [filter, setFilter] = useState<FilterStatus>("all");
-  const [subView, setSubView] = useState<"records" | "data">("records");
   const hasDashboard = !!(tracking && allInterviews);
 
   useEffect(() => {
@@ -121,17 +120,7 @@ export default function InterviewPageClient({ hideHeader, jobs, tracking, syncVe
 
       <main className="max-w-5xl mx-auto px-4 sm:px-6 py-6 space-y-5">
         {hideHeader && (
-          <div className="flex items-center justify-between">
-            {hasDashboard ? (
-              <div className="flex gap-0.5 p-0.5 bg-gray-100 rounded-lg">
-                <button onClick={() => setSubView("records")} className={`px-4 py-1.5 rounded-md text-sm font-medium transition ${subView === "records" ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"}`}>
-                  记录
-                </button>
-                <button onClick={() => setSubView("data")} className={`px-4 py-1.5 rounded-md text-sm font-medium transition ${subView === "data" ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"}`}>
-                  数据
-                </button>
-              </div>
-            ) : <div />}
+          <div className="flex justify-end">
             <button
               onClick={() => { setEditRecord(undefined); setShowForm(true); }}
               className="px-3.5 py-1.5 rounded-lg bg-brand-600 text-white text-sm font-medium hover:bg-brand-700 transition"
@@ -141,8 +130,6 @@ export default function InterviewPageClient({ hideHeader, jobs, tracking, syncVe
           </div>
         )}
 
-        {(subView === "records" || !hasDashboard) && (
-          <>
         {/* 状态统计 */}
         <div className="flex flex-wrap gap-2">
           {(Object.entries(STATUS_CONFIG) as [InterviewStatus, typeof STATUS_CONFIG[InterviewStatus]][]).map(([key, cfg]) => {
@@ -266,10 +253,8 @@ export default function InterviewPageClient({ hideHeader, jobs, tracking, syncVe
             未登录，数据仅保存在本地浏览器
           </div>
         )}
-          </>
-        )}
 
-        {subView === "data" && hasDashboard && (
+        {hasDashboard && (
           <DashboardClient tracking={tracking!} interviews={allInterviews!} />
         )}
       </main>
