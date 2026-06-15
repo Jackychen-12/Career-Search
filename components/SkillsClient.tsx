@@ -4,19 +4,18 @@ import { useEffect, useState } from "react";
 import { loadPrefs } from "@/lib/prefs";
 import { hasPrefs } from "@/lib/ranking";
 import { getSession } from "@/lib/auth";
-import { generateInterview, polishResume, generateCoverLetter, compareOffers, analyzeJdMatch, generateCustomResume, compareJds, getDirectionTemplate } from "@/lib/skills";
-import type { InterviewQuestion, ResumePolishResult, CoverLetterResult, OfferCompareResult, JdMatchResult, CustomResumeResult, JdCompareResult, DirectionTemplateResult } from "@/lib/skills";
+import { generateInterview, polishResume, generateCoverLetter, compareOffers, analyzeJdMatch, generateCustomResume, compareJds, getDirectionTemplate, optimizeResume } from "@/lib/skills";
+import type { InterviewQuestion, ResumePolishResult, CoverLetterResult, OfferCompareResult, JdMatchResult, CustomResumeResult, JdCompareResult, DirectionTemplateResult, ResumeOptimizeResult } from "@/lib/skills";
 import type { Job, Prefs } from "@/lib/types";
 
-type Skill = "interview" | "resume" | "cover-letter" | "offer" | "jd-match" | "custom-resume" | "jd-compare" | "direction";
+type Skill = "interview" | "resume-optimize" | "cover-letter" | "offer" | "jd-match" | "jd-compare" | "direction";
 
 const SKILLS: { key: Skill; label: string; desc: string; icon: string }[] = [
   { key: "interview", label: "面试题定制", desc: "根据你的背景和目标岗位，AI 生成针对性面试题+参考答案", icon: "🎯" },
-  { key: "resume", label: "简历润色", desc: "逐条分析你的经历，给出具体优化建议和评分", icon: "📝" },
+  { key: "resume-optimize", label: "简历优化", desc: "AI 分析简历与 JD 差距，优先级改写建议 + 一键生成定制简历", icon: "📝" },
   { key: "cover-letter", label: "求职信生成", desc: "根据目标岗位 JD，生成定制化求职信", icon: "✉️" },
   { key: "offer", label: "Offer 对比", desc: "多个 Offer 横向对比，综合分析给出推荐", icon: "⚖️" },
   { key: "jd-match", label: "JD 匹配分析", desc: "深度分析简历与 JD 匹配度，关键词高亮+差距分析", icon: "🔍" },
-  { key: "custom-resume", label: "一键定制简历", desc: "基于目标 JD 自动生成针对性简历，关键词全覆盖", icon: "🪄" },
   { key: "jd-compare", label: "多 JD 对比", desc: "批量对比多个岗位匹配度，智能排序投递优先级", icon: "📊" },
   { key: "direction", label: "方向模版", desc: "按求职方向生成简历模版、技能清单和策略建议", icon: "🧭" },
 ];
@@ -58,6 +57,8 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
   const [customResumeResult, setCustomResumeResult] = useState<CustomResumeResult | null>(null);
   const [jdCompareResult, setJdCompareResult] = useState<JdCompareResult | null>(null);
   const [directionResult, setDirectionResult] = useState<DirectionTemplateResult | null>(null);
+  const [optimizeResult, setOptimizeResult] = useState<ResumeOptimizeResult | null>(null);
+  const [appliedIds, setAppliedIds] = useState<Set<number>>(new Set());
 
   useEffect(() => {
     const p = loadPrefs();
@@ -74,9 +75,10 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
       if (active === "interview") {
         const r = await generateInterview(profile, jobInput);
         setInterviewResult(r.questions);
-      } else if (active === "resume") {
-        const r = await polishResume(profile, jobInput, expInput);
-        setResumeResult(r);
+      } else if (active === "resume-optimize") {
+        const r = await optimizeResume(profile, jobInput, expInput);
+        setOptimizeResult(r);
+        setAppliedIds(new Set());
       } else if (active === "cover-letter") {
         const r = await generateCoverLetter(profile, jobInput);
         setLetterResult(r);
@@ -86,9 +88,6 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
       } else if (active === "jd-match") {
         const r = await analyzeJdMatch(profile, jobInput);
         setJdMatchResult(r);
-      } else if (active === "custom-resume") {
-        const r = await generateCustomResume(profile, jobInput, expInput);
-        setCustomResumeResult(r);
       } else if (active === "jd-compare") {
         const r = await compareJds(profile, jdsInput);
         setJdCompareResult(r);
@@ -133,14 +132,14 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
                   key={s.key}
                   onClick={() => {
                     setActive(s.key);
-                    setInterviewResult(null); setResumeResult(null); setLetterResult(null); setOfferResult(null); setJdMatchResult(null); setCustomResumeResult(null); setJdCompareResult(null); setDirectionResult(null); setError("");
-                    if ((s.key === "resume" || s.key === "custom-resume") && !expInput && prefs?.experience?.length) {
+                    setInterviewResult(null); setResumeResult(null); setLetterResult(null); setOfferResult(null); setJdMatchResult(null); setCustomResumeResult(null); setJdCompareResult(null); setDirectionResult(null); setOptimizeResult(null); setAppliedIds(new Set()); setError("");
+                    if (s.key === "resume-optimize" && !expInput && prefs?.experience?.length) {
                       setExpInput(prefs.experience.join("\n"));
                     }
                     if (s.key === "direction" && !directionInput && prefs?.targetRoles?.length) {
                       setDirectionInput(prefs.targetRoles[0]);
                     }
-                    if (["interview", "resume", "cover-letter", "jd-match", "custom-resume"].includes(s.key) && !jobInput && prefs?.targetRoles?.length) {
+                    if (["interview", "resume-optimize", "cover-letter", "jd-match"].includes(s.key) && !jobInput && prefs?.targetRoles?.length) {
                       setJobInput(prefs.targetRoles.join("、"));
                     }
                   }}
@@ -174,7 +173,7 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
                   <a href="/profile/" className="shrink-0 text-[11px] text-brand-600 hover:text-brand-700 underline">修改</a>
                 </div>
 
-                {(active === "interview" || active === "resume" || active === "cover-letter" || active === "jd-match" || active === "custom-resume") && (
+                {(active === "interview" || active === "resume-optimize" || active === "cover-letter" || active === "jd-match") && (
                   <div>
                     <label className="text-xs text-gray-500 mb-1 block">目标岗位（粘贴 JD 或输入公司+岗位名）</label>
                     <textarea
@@ -196,7 +195,7 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
                   </div>
                 )}
 
-                {(active === "resume" || active === "custom-resume") && (
+                {active === "resume-optimize" && (
                   <div>
                     <label className="text-xs text-gray-500 mb-1 block">你的经历描述（每段经历用换行分隔）</label>
                     <textarea
@@ -300,26 +299,110 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
               </div>
             )}
 
-            {resumeResult && (
+            {/* ── 简历优化结果（双栏） ── */}
+            {optimizeResult && active === "resume-optimize" && (
               <div className="card p-5 space-y-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-bold text-gray-900">简历评估</h3>
-                  <span className={`text-lg font-bold ${resumeResult.score >= 80 ? "text-brand-600" : resumeResult.score >= 60 ? "text-amber-600" : "text-red-600"}`}>
-                    {resumeResult.score}分
-                  </span>
-                </div>
-                <p className="text-xs text-gray-500">{resumeResult.scoreReason}</p>
-                <div className="flex flex-wrap gap-1.5">
-                  {resumeResult.keywords.map((k) => <span key={k} className="text-[10px] px-2 py-0.5 rounded-full bg-brand-50 text-brand-600">{k}</span>)}
-                </div>
-                {resumeResult.suggestions.map((s, i) => (
-                  <div key={i} className="p-3 rounded-lg bg-gray-50 space-y-1">
-                    <div className="text-xs text-gray-400 line-through">{s.original}</div>
-                    <div className="text-xs text-gray-900 font-medium">{s.improved}</div>
-                    <div className="text-[11px] text-brand-600">{s.reason}</div>
+                {/* Score comparison bar */}
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-gray-500">原简历</span>
+                    <span className={`text-xl font-bold ${optimizeResult.originalScore >= 60 ? "text-amber-600" : "text-red-500"}`}>{optimizeResult.originalScore}分</span>
                   </div>
-                ))}
-                <p className="text-xs text-gray-600"><strong>整体建议：</strong>{resumeResult.overall}</p>
+                  <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden relative">
+                    <div className="absolute h-full bg-gray-300 rounded-full" style={{ width: `${optimizeResult.originalScore}%` }} />
+                    <div className="absolute h-full bg-brand-500 rounded-full transition-all" style={{ width: `${optimizeResult.optimizedScore}%`, opacity: 0.3 }} />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-gray-500">定制版</span>
+                    <span className="text-xl font-bold text-brand-600">{optimizeResult.optimizedScore}分</span>
+                  </div>
+                </div>
+
+                {/* Apply all button */}
+                <div className="flex items-center justify-between">
+                  <h3 className="text-sm font-bold text-gray-900">
+                    按优先级排序的改写建议
+                    <span className="ml-2 text-xs font-normal text-gray-400">{optimizeResult.suggestions.length} 条</span>
+                  </h3>
+                  <button
+                    onClick={() => setAppliedIds(new Set(optimizeResult.suggestions.map((s) => s.id)))}
+                    className="px-3 py-1.5 rounded-lg text-xs font-semibold text-white bg-red-500 hover:bg-red-600 transition"
+                  >
+                    一键全部应用
+                  </button>
+                </div>
+
+                {/* Two-column layout */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                  {/* Left: Suggestions */}
+                  <div className="space-y-3 lg:max-h-[600px] lg:overflow-y-auto lg:pr-2">
+                    {optimizeResult.suggestions.map((s) => {
+                      const applied = appliedIds.has(s.id);
+                      return (
+                        <div key={s.id} className={`p-3 rounded-lg border transition ${applied ? "border-green-200 bg-green-50/50" : "border-gray-100 bg-white"}`}>
+                          <div className="flex items-start justify-between gap-2 mb-2">
+                            <div className="flex items-center gap-2">
+                              <span className="shrink-0 w-6 h-6 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center">
+                                {applied ? "✓" : String(s.id).padStart(2, "0")}
+                              </span>
+                              <span className="text-xs font-bold text-gray-900">{s.title}</span>
+                            </div>
+                            <span className="shrink-0 text-[10px] font-bold text-red-500 bg-red-50 px-1.5 py-0.5 rounded">{s.impact}</span>
+                          </div>
+                          <div className="flex flex-wrap gap-1 mb-2">
+                            {s.tags.map((t) => <span key={t} className="text-[10px] px-1.5 py-0.5 rounded bg-gray-100 text-gray-600">{t}</span>)}
+                          </div>
+                          <div className="text-[11px] text-gray-400 mb-1">BEFORE</div>
+                          <div className="text-xs text-gray-500 line-through mb-2">{s.original}</div>
+                          <div className="text-[11px] text-brand-600 mb-1">AFTER</div>
+                          <div className="text-xs text-gray-900 font-medium mb-2">{s.improved}</div>
+                          <div className="text-[11px] text-gray-400 mb-2">{s.reason}</div>
+                          {!applied && (
+                            <button
+                              onClick={() => setAppliedIds((prev) => new Set([...prev, s.id]))}
+                              className="text-[11px] px-3 py-1 rounded-md bg-brand-500 text-white hover:bg-brand-600 transition"
+                            >
+                              应用
+                            </button>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Right: Resume preview */}
+                  <div className="lg:max-h-[600px] lg:overflow-y-auto">
+                    <div className="border border-gray-200 rounded-lg overflow-hidden bg-white">
+                      <div className="px-5 py-3 bg-gray-50 border-b border-gray-200 flex items-center justify-between">
+                        <span className="text-xs font-bold text-gray-700">定制版简历 · 预览</span>
+                        <button
+                          onClick={() => {
+                            const text = optimizeResult.resume.sections.map((s) => `【${s.title}】\n${s.content}`).join("\n\n");
+                            navigator.clipboard.writeText(text).then(() => alert("已复制到剪贴板"));
+                          }}
+                          className="text-[11px] text-brand-600 hover:text-brand-700 font-medium"
+                        >
+                          复制全文
+                        </button>
+                      </div>
+                      {optimizeResult.resume.sections.map((s, i) => (
+                        <div key={i} className={`px-5 py-3 ${i > 0 ? "border-t border-gray-100" : ""}`}>
+                          <div className="text-xs font-bold text-gray-800 mb-1.5">{s.title}</div>
+                          <div className="text-xs text-gray-600 whitespace-pre-line leading-relaxed">{s.content}</div>
+                        </div>
+                      ))}
+                      <div className="px-5 py-3 border-t border-gray-100 bg-gray-50">
+                        <div className="text-[10px] text-gray-400">AI 改写自动 · {appliedIds.size}/{optimizeResult.suggestions.length} 处已应用</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Keywords + tips */}
+                <div className="flex flex-wrap gap-1.5">
+                  {optimizeResult.keywords.map((k) => <span key={k} className="text-[10px] px-2 py-0.5 rounded-full bg-brand-50 text-brand-600">{k}</span>)}
+                </div>
+                {optimizeResult.tips && <p className="text-xs text-gray-500"><strong>投递建议：</strong>{optimizeResult.tips}</p>}
               </div>
             )}
 
@@ -420,49 +503,6 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
                     ))}
                   </div>
                 </div>
-              </div>
-            )}
-
-            {/* ── 一键定制简历结果 ── */}
-            {customResumeResult && (
-              <div className="card p-5 space-y-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-bold text-gray-900">定制简历</h3>
-                  <div className="flex items-center gap-3">
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-[10px] text-gray-400">关键词覆盖</span>
-                      <div className="w-16 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                        <div className="h-full bg-brand-500 rounded-full" style={{ width: `${customResumeResult.keywordCoverage}%` }} />
-                      </div>
-                      <span className="text-[11px] font-bold text-brand-600">{customResumeResult.keywordCoverage}%</span>
-                    </div>
-                    <button
-                      onClick={() => {
-                        const text = customResumeResult.sections.map((s) => `【${s.title}】\n${s.content}`).join("\n\n");
-                        navigator.clipboard.writeText(text).then(() => alert("已复制到剪贴板"));
-                      }}
-                      className="text-xs text-brand-600 font-medium hover:text-brand-700"
-                    >
-                      一键复制
-                    </button>
-                  </div>
-                </div>
-
-                <div className="flex flex-wrap gap-1.5">
-                  {customResumeResult.highlights.map((h) => <span key={h} className="text-[10px] px-2 py-0.5 rounded-full bg-brand-50 text-brand-600">{h}</span>)}
-                </div>
-
-                {/* 简历预览 */}
-                <div className="border border-gray-200 rounded-lg overflow-hidden">
-                  {customResumeResult.sections.map((s, i) => (
-                    <div key={i} className={`px-5 py-3 ${i > 0 ? "border-t border-gray-100" : ""}`}>
-                      <div className="text-xs font-bold text-gray-800 mb-1.5">{s.title}</div>
-                      <div className="text-xs text-gray-600 whitespace-pre-line leading-relaxed">{s.content}</div>
-                    </div>
-                  ))}
-                </div>
-
-                <p className="text-xs text-gray-500"><strong>投递建议：</strong>{customResumeResult.tips}</p>
               </div>
             )}
 

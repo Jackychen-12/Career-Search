@@ -42,6 +42,25 @@ export interface ResumePolishResult {
   scoreReason: string;
 }
 
+export interface ResumeOptimizeSuggestion {
+  id: number;
+  title: string;
+  impact: string;
+  tags: string[];
+  original: string;
+  improved: string;
+  reason: string;
+}
+
+export interface ResumeOptimizeResult {
+  originalScore: number;
+  optimizedScore: number;
+  suggestions: ResumeOptimizeSuggestion[];
+  resume: { sections: { title: string; content: string }[] };
+  keywords: string[];
+  tips: string;
+}
+
 export interface CoverLetterResult {
   letter: string;
   highlights: string[];
@@ -100,6 +119,10 @@ export function generateInterview(profile: string, job: string) {
 
 export function polishResume(profile: string, job: string, experiences: string) {
   return callSkill<ResumePolishResult>("/api/skill/resume-polish", { profile, job, experiences });
+}
+
+export function optimizeResume(profile: string, job: string, experiences: string) {
+  return callSkill<ResumeOptimizeResult>("/api/skill/resume-optimize", { profile, job, experiences });
 }
 
 export function generateCoverLetter(profile: string, job: string) {
