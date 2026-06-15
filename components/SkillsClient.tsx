@@ -30,6 +30,10 @@ function profileToText(p: Prefs): string {
   if (p.targetRoles?.length) parts.push(`目标岗位: ${p.targetRoles.join(", ")}`);
   if (p.categories?.length) parts.push(`意向行业: ${p.categories.join(", ")}`);
   if (p.cities?.length) parts.push(`意向城市: ${p.cities.join(", ")}`);
+  if (p.summary) parts.push(`概述: ${p.summary}`);
+  if (p.strengths?.length) parts.push(`优势: ${p.strengths.join(", ")}`);
+  if (p.weaknesses?.length) parts.push(`待提升: ${p.weaknesses.join(", ")}`);
+  if (p.experience?.length) parts.push(`经历:\n${p.experience.join("\n")}`);
   return parts.join("\n");
 }
 
@@ -127,7 +131,19 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
               {SKILLS.map((s) => (
                 <button
                   key={s.key}
-                  onClick={() => { setActive(s.key); setInterviewResult(null); setResumeResult(null); setLetterResult(null); setOfferResult(null); setJdMatchResult(null); setCustomResumeResult(null); setJdCompareResult(null); setDirectionResult(null); setError(""); }}
+                  onClick={() => {
+                    setActive(s.key);
+                    setInterviewResult(null); setResumeResult(null); setLetterResult(null); setOfferResult(null); setJdMatchResult(null); setCustomResumeResult(null); setJdCompareResult(null); setDirectionResult(null); setError("");
+                    if ((s.key === "resume" || s.key === "custom-resume") && !expInput && prefs?.experience?.length) {
+                      setExpInput(prefs.experience.join("\n"));
+                    }
+                    if (s.key === "direction" && !directionInput && prefs?.targetRoles?.length) {
+                      setDirectionInput(prefs.targetRoles[0]);
+                    }
+                    if (["interview", "resume", "cover-letter", "jd-match", "custom-resume"].includes(s.key) && !jobInput && prefs?.targetRoles?.length) {
+                      setJobInput(prefs.targetRoles.join("、"));
+                    }
+                  }}
                   className={`card p-4 text-left transition ${active === s.key ? "border-brand-500 shadow-md" : "hover:border-gray-300"}`}
                 >
                   <div className="text-2xl mb-2">{s.icon}</div>
@@ -141,6 +157,22 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
             {active && (
               <div className="card p-5 space-y-4">
                 <h3 className="text-sm font-bold text-gray-900">{SKILLS.find((s) => s.key === active)?.label}</h3>
+
+                {/* Auto-detected profile banner */}
+                <div className="p-3 rounded-lg bg-brand-50/60 border border-brand-100 flex items-start gap-3">
+                  <div className="shrink-0 w-8 h-8 rounded-full bg-brand-500 text-white flex items-center justify-center text-sm font-bold">AI</div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-xs font-medium text-brand-700 mb-1">已自动加载你的画像</div>
+                    <div className="text-[11px] text-brand-600 truncate">
+                      {[prefs?.school, prefs?.major, prefs?.degree].filter(Boolean).join(" · ")}
+                      {(prefs?.skills?.length ?? 0) > 0 && ` · ${prefs!.skills!.slice(0, 3).join(", ")}${prefs!.skills!.length > 3 ? "..." : ""}`}
+                    </div>
+                    {(prefs?.experience?.length ?? 0) > 0 && (
+                      <div className="text-[11px] text-brand-500 mt-0.5">{prefs!.experience!.length} 段经历已就绪</div>
+                    )}
+                  </div>
+                  <a href="/profile/" className="shrink-0 text-[11px] text-brand-600 hover:text-brand-700 underline">修改</a>
+                </div>
 
                 {(active === "interview" || active === "resume" || active === "cover-letter" || active === "jd-match" || active === "custom-resume") && (
                   <div>
