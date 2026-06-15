@@ -4,17 +4,20 @@ import { useEffect, useState } from "react";
 import { loadPrefs } from "@/lib/prefs";
 import { hasPrefs } from "@/lib/ranking";
 import { getSession } from "@/lib/auth";
-import { generateInterview, polishResume, generateCoverLetter, compareOffers } from "@/lib/skills";
-import type { InterviewQuestion, ResumePolishResult, CoverLetterResult, OfferCompareResult } from "@/lib/skills";
+import { generateInterview, polishResume, generateCoverLetter, compareOffers, analyzeJdMatch, generateCustomResume, compareJds } from "@/lib/skills";
+import type { InterviewQuestion, ResumePolishResult, CoverLetterResult, OfferCompareResult, JdMatchResult, CustomResumeResult, JdCompareResult } from "@/lib/skills";
 import type { Job, Prefs } from "@/lib/types";
 
-type Skill = "interview" | "resume" | "cover-letter" | "offer";
+type Skill = "interview" | "resume" | "cover-letter" | "offer" | "jd-match" | "custom-resume" | "jd-compare";
 
 const SKILLS: { key: Skill; label: string; desc: string; icon: string }[] = [
   { key: "interview", label: "面试题定制", desc: "根据你的背景和目标岗位，AI 生成针对性面试题+参考答案", icon: "🎯" },
   { key: "resume", label: "简历润色", desc: "逐条分析你的经历，给出具体优化建议和评分", icon: "📝" },
   { key: "cover-letter", label: "求职信生成", desc: "根据目标岗位 JD，生成定制化求职信", icon: "✉️" },
   { key: "offer", label: "Offer 对比", desc: "多个 Offer 横向对比，综合分析给出推荐", icon: "⚖️" },
+  { key: "jd-match", label: "JD 匹配分析", desc: "深度分析简历与 JD 匹配度，关键词高亮+差距分析", icon: "🔍" },
+  { key: "custom-resume", label: "一键定制简历", desc: "基于目标 JD 自动生成针对性简历，关键词全覆盖", icon: "🪄" },
+  { key: "jd-compare", label: "多 JD 对比", desc: "批量对比多个岗位匹配度，智能排序投递优先级", icon: "📊" },
 ];
 
 function profileToText(p: Prefs): string {
@@ -40,10 +43,14 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
   const [jobInput, setJobInput] = useState("");
   const [expInput, setExpInput] = useState("");
   const [offersInput, setOffersInput] = useState("");
+  const [jdsInput, setJdsInput] = useState("");
   const [interviewResult, setInterviewResult] = useState<InterviewQuestion[] | null>(null);
   const [resumeResult, setResumeResult] = useState<ResumePolishResult | null>(null);
   const [letterResult, setLetterResult] = useState<CoverLetterResult | null>(null);
   const [offerResult, setOfferResult] = useState<OfferCompareResult | null>(null);
+  const [jdMatchResult, setJdMatchResult] = useState<JdMatchResult | null>(null);
+  const [customResumeResult, setCustomResumeResult] = useState<CustomResumeResult | null>(null);
+  const [jdCompareResult, setJdCompareResult] = useState<JdCompareResult | null>(null);
 
   useEffect(() => {
     const p = loadPrefs();
@@ -69,6 +76,15 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
       } else if (active === "offer") {
         const r = await compareOffers(profile, offersInput);
         setOfferResult(r);
+      } else if (active === "jd-match") {
+        const r = await analyzeJdMatch(profile, jobInput);
+        setJdMatchResult(r);
+      } else if (active === "custom-resume") {
+        const r = await generateCustomResume(profile, jobInput, expInput);
+        setCustomResumeResult(r);
+      } else if (active === "jd-compare") {
+        const r = await compareJds(profile, jdsInput);
+        setJdCompareResult(r);
       }
     } catch (e) {
       setError((e as Error).message);
@@ -105,7 +121,7 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
               {SKILLS.map((s) => (
                 <button
                   key={s.key}
-                  onClick={() => { setActive(s.key); setInterviewResult(null); setResumeResult(null); setLetterResult(null); setOfferResult(null); setError(""); }}
+                  onClick={() => { setActive(s.key); setInterviewResult(null); setResumeResult(null); setLetterResult(null); setOfferResult(null); setJdMatchResult(null); setCustomResumeResult(null); setJdCompareResult(null); setError(""); }}
                   className={`card p-4 text-left transition ${active === s.key ? "border-brand-500 shadow-md" : "hover:border-gray-300"}`}
                 >
                   <div className="text-2xl mb-2">{s.icon}</div>
@@ -120,7 +136,7 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
               <div className="card p-5 space-y-4">
                 <h3 className="text-sm font-bold text-gray-900">{SKILLS.find((s) => s.key === active)?.label}</h3>
 
-                {(active === "interview" || active === "resume" || active === "cover-letter") && (
+                {(active === "interview" || active === "resume" || active === "cover-letter" || active === "jd-match" || active === "custom-resume") && (
                   <div>
                     <label className="text-xs text-gray-500 mb-1 block">目标岗位（粘贴 JD 或输入公司+岗位名）</label>
                     <textarea
@@ -142,7 +158,7 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
                   </div>
                 )}
 
-                {active === "resume" && (
+                {(active === "resume" || active === "custom-resume") && (
                   <div>
                     <label className="text-xs text-gray-500 mb-1 block">你的经历描述（每段经历用换行分隔）</label>
                     <textarea
@@ -165,6 +181,28 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
                       rows={6}
                       className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm resize-none focus:outline-none focus:border-brand-500"
                     />
+                  </div>
+                )}
+
+                {active === "jd-compare" && (
+                  <div>
+                    <label className="text-xs text-gray-500 mb-1 block">待对比的岗位 JD（每个 JD 用 --- 分隔）</label>
+                    <textarea
+                      value={jdsInput}
+                      onChange={(e) => setJdsInput(e.target.value)}
+                      placeholder="字节跳动 AI产品经理\n岗位职责：...\n任职要求：...\n---\n腾讯 数据产品经理\n岗位职责：...\n任职要求：..."
+                      rows={8}
+                      className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm resize-none focus:outline-none focus:border-brand-500"
+                    />
+                    <div className="flex flex-wrap gap-1.5 mt-2">
+                      <span className="text-[10px] text-gray-400">快速添加：</span>
+                      {topJobs.slice(0, 8).map((j) => (
+                        <button key={j.id} onClick={() => setJdsInput((prev) => (prev ? prev + "\n---\n" : "") + `${j.company} - ${j.title}\n${j.description ?? ""}\n技能要求: ${j.aiTags?.skills.join(", ") ?? ""}`)}
+                          className="text-[10px] px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 hover:bg-brand-50 hover:text-brand-600 transition">
+                          + {j.company}
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 )}
 
@@ -255,6 +293,163 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
                 </div>
                 <div className="text-xs text-gray-500"><strong>风险提示：</strong>{offerResult.risks}</div>
                 <div className="text-xs text-gray-500"><strong>谈薪建议：</strong>{offerResult.negotiation}</div>
+              </div>
+            )}
+
+            {/* ── JD 匹配分析结果 ── */}
+            {jdMatchResult && (
+              <div className="card p-5 space-y-5">
+                <div className="flex items-start gap-5">
+                  {/* 圆环分数 */}
+                  <div className="flex-none">
+                    <svg width="100" height="100" viewBox="0 0 100 100">
+                      <circle cx="50" cy="50" r="42" fill="none" stroke="#e2e8f0" strokeWidth="8" />
+                      <circle cx="50" cy="50" r="42" fill="none"
+                        stroke={jdMatchResult.matchScore >= 80 ? "#22c55e" : jdMatchResult.matchScore >= 60 ? "#f59e0b" : "#ef4444"}
+                        strokeWidth="8" strokeLinecap="round"
+                        strokeDasharray={`${jdMatchResult.matchScore * 2.64} 264`}
+                        transform="rotate(-90 50 50)"
+                      />
+                      <text x="50" y="46" textAnchor="middle" className="text-2xl font-bold" fill="currentColor" fontSize="22">{jdMatchResult.matchScore}</text>
+                      <text x="50" y="62" textAnchor="middle" fill="#94a3b8" fontSize="10">匹配度</text>
+                    </svg>
+                  </div>
+                  <div className="flex-1 space-y-2.5">
+                    <h3 className="text-sm font-bold text-gray-900">模块分析</h3>
+                    {jdMatchResult.modules.map((m) => (
+                      <div key={m.name} className="space-y-1">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs text-gray-700 font-medium">{m.name}</span>
+                          <span className={`text-xs font-bold ${m.score >= 80 ? "text-green-600" : m.score >= 60 ? "text-amber-600" : "text-red-500"}`}>{m.score}</span>
+                        </div>
+                        <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                          <div className={`h-full rounded-full transition-all ${m.score >= 80 ? "bg-green-500" : m.score >= 60 ? "bg-amber-500" : "bg-red-400"}`} style={{ width: `${m.score}%` }} />
+                        </div>
+                        <div className="flex flex-wrap gap-1">
+                          {m.matched.map((k) => <span key={k} className="text-[10px] px-1.5 py-0.5 rounded bg-green-50 text-green-700">{k}</span>)}
+                          {m.missing.map((k) => <span key={k} className="text-[10px] px-1.5 py-0.5 rounded bg-red-50 text-red-600">{k}</span>)}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* JD 关键词 */}
+                <div>
+                  <h4 className="text-xs font-bold text-gray-700 mb-2">JD 关键词匹配</h4>
+                  <div className="flex flex-wrap gap-1.5">
+                    {jdMatchResult.jdKeywords.map((k) => {
+                      const isMatched = jdMatchResult.matchedKeywords.includes(k);
+                      return (
+                        <span key={k} className={`text-[11px] px-2 py-0.5 rounded-full font-medium ${isMatched ? "bg-green-100 text-green-700 ring-1 ring-green-300" : "bg-red-50 text-red-500 ring-1 ring-red-200"}`}>
+                          {isMatched ? "✓ " : "✗ "}{k}
+                        </span>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* 建议 */}
+                <div>
+                  <h4 className="text-xs font-bold text-gray-700 mb-2">优化建议</h4>
+                  <div className="space-y-1.5">
+                    {jdMatchResult.suggestions.map((s, i) => (
+                      <div key={i} className="flex gap-2 text-xs text-gray-600">
+                        <span className="shrink-0 w-5 h-5 rounded-full bg-brand-50 text-brand-600 text-[10px] font-bold flex items-center justify-center">{i + 1}</span>
+                        <span>{s}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* ── 一键定制简历结果 ── */}
+            {customResumeResult && (
+              <div className="card p-5 space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-sm font-bold text-gray-900">定制简历</h3>
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-[10px] text-gray-400">关键词覆盖</span>
+                      <div className="w-16 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                        <div className="h-full bg-brand-500 rounded-full" style={{ width: `${customResumeResult.keywordCoverage}%` }} />
+                      </div>
+                      <span className="text-[11px] font-bold text-brand-600">{customResumeResult.keywordCoverage}%</span>
+                    </div>
+                    <button
+                      onClick={() => {
+                        const text = customResumeResult.sections.map((s) => `【${s.title}】\n${s.content}`).join("\n\n");
+                        navigator.clipboard.writeText(text).then(() => alert("已复制到剪贴板"));
+                      }}
+                      className="text-xs text-brand-600 font-medium hover:text-brand-700"
+                    >
+                      一键复制
+                    </button>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap gap-1.5">
+                  {customResumeResult.highlights.map((h) => <span key={h} className="text-[10px] px-2 py-0.5 rounded-full bg-brand-50 text-brand-600">{h}</span>)}
+                </div>
+
+                {/* 简历预览 */}
+                <div className="border border-gray-200 rounded-lg overflow-hidden">
+                  {customResumeResult.sections.map((s, i) => (
+                    <div key={i} className={`px-5 py-3 ${i > 0 ? "border-t border-gray-100" : ""}`}>
+                      <div className="text-xs font-bold text-gray-800 mb-1.5">{s.title}</div>
+                      <div className="text-xs text-gray-600 whitespace-pre-line leading-relaxed">{s.content}</div>
+                    </div>
+                  ))}
+                </div>
+
+                <p className="text-xs text-gray-500"><strong>投递建议：</strong>{customResumeResult.tips}</p>
+              </div>
+            )}
+
+            {/* ── 多 JD 对比结果 ── */}
+            {jdCompareResult && (
+              <div className="card p-5 space-y-4">
+                <h3 className="text-sm font-bold text-gray-900">岗位匹配排名</h3>
+                <div className="space-y-3">
+                  {jdCompareResult.rankings.map((r) => (
+                    <div key={r.rank} className="p-4 rounded-lg border border-gray-100 flex items-start gap-4">
+                      <div className="flex-none">
+                        <svg width="56" height="56" viewBox="0 0 56 56">
+                          <circle cx="28" cy="28" r="23" fill="none" stroke="#e2e8f0" strokeWidth="5" />
+                          <circle cx="28" cy="28" r="23" fill="none"
+                            stroke={r.score >= 80 ? "#22c55e" : r.score >= 60 ? "#f59e0b" : "#ef4444"}
+                            strokeWidth="5" strokeLinecap="round"
+                            strokeDasharray={`${r.score * 1.445} 144.5`}
+                            transform="rotate(-90 28 28)"
+                          />
+                          <text x="28" y="32" textAnchor="middle" fill="currentColor" fontSize="14" fontWeight="bold">{r.score}</text>
+                        </svg>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="text-xs font-bold text-brand-600 bg-brand-50 px-1.5 py-0.5 rounded">#{r.rank}</span>
+                          <span className="text-sm font-bold text-gray-900 truncate">{r.company}</span>
+                          <span className="text-xs text-gray-500 truncate">{r.position}</span>
+                          <span className={`ml-auto text-[10px] px-2 py-0.5 rounded-full font-medium ${
+                            r.priority === "高" ? "bg-green-100 text-green-700" :
+                            r.priority === "中" ? "bg-amber-100 text-amber-700" :
+                            "bg-gray-100 text-gray-600"
+                          }`}>{r.priority}优先级</span>
+                        </div>
+                        <div className="flex flex-wrap gap-1 mt-1.5">
+                          {r.strengths.map((s) => <span key={s} className="text-[10px] px-1.5 py-0.5 rounded bg-green-50 text-green-700">{s}</span>)}
+                          {r.weaknesses.map((w) => <span key={w} className="text-[10px] px-1.5 py-0.5 rounded bg-red-50 text-red-500">{w}</span>)}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div className="p-4 rounded-lg bg-brand-50">
+                  <div className="text-xs font-bold text-brand-700 mb-1">投递策略</div>
+                  <div className="text-xs text-brand-600">{jdCompareResult.strategy}</div>
+                </div>
+                <div className="text-xs text-gray-500"><strong>时间规划：</strong>{jdCompareResult.timeline}</div>
               </div>
             )}
           </>

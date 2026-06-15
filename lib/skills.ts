@@ -56,6 +56,27 @@ export interface OfferCompareResult {
   negotiation: string;
 }
 
+export interface JdMatchResult {
+  matchScore: number;
+  modules: { name: string; score: number; matched: string[]; missing: string[] }[];
+  jdKeywords: string[];
+  matchedKeywords: string[];
+  suggestions: string[];
+}
+
+export interface CustomResumeResult {
+  sections: { title: string; content: string }[];
+  highlights: string[];
+  keywordCoverage: number;
+  tips: string;
+}
+
+export interface JdCompareResult {
+  rankings: { rank: number; company: string; position: string; score: number; strengths: string[]; weaknesses: string[]; priority: string }[];
+  strategy: string;
+  timeline: string;
+}
+
 export function generateInterview(profile: string, job: string) {
   return callSkill<{ questions: InterviewQuestion[] }>("/api/skill/interview", { profile, job });
 }
@@ -70,4 +91,16 @@ export function generateCoverLetter(profile: string, job: string) {
 
 export function compareOffers(profile: string, offers: string) {
   return callSkill<OfferCompareResult>("/api/skill/offer-compare", { profile, offers });
+}
+
+export function analyzeJdMatch(profile: string, job: string) {
+  return callSkill<JdMatchResult>("/api/skill/jd-match", { profile, job });
+}
+
+export function generateCustomResume(profile: string, job: string, experiences: string) {
+  return callSkill<CustomResumeResult>("/api/skill/custom-resume", { profile, job, experiences });
+}
+
+export function compareJds(profile: string, jobs: string) {
+  return callSkill<JdCompareResult>("/api/skill/jd-compare", { profile, jobs });
 }
