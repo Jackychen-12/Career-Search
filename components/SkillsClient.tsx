@@ -4,11 +4,11 @@ import { useEffect, useState } from "react";
 import { loadPrefs } from "@/lib/prefs";
 import { hasPrefs } from "@/lib/ranking";
 import { getSession } from "@/lib/auth";
-import { generateInterview, polishResume, generateCoverLetter, compareOffers, analyzeJdMatch, generateCustomResume, compareJds } from "@/lib/skills";
-import type { InterviewQuestion, ResumePolishResult, CoverLetterResult, OfferCompareResult, JdMatchResult, CustomResumeResult, JdCompareResult } from "@/lib/skills";
+import { generateInterview, polishResume, generateCoverLetter, compareOffers, analyzeJdMatch, generateCustomResume, compareJds, getDirectionTemplate } from "@/lib/skills";
+import type { InterviewQuestion, ResumePolishResult, CoverLetterResult, OfferCompareResult, JdMatchResult, CustomResumeResult, JdCompareResult, DirectionTemplateResult } from "@/lib/skills";
 import type { Job, Prefs } from "@/lib/types";
 
-type Skill = "interview" | "resume" | "cover-letter" | "offer" | "jd-match" | "custom-resume" | "jd-compare";
+type Skill = "interview" | "resume" | "cover-letter" | "offer" | "jd-match" | "custom-resume" | "jd-compare" | "direction";
 
 const SKILLS: { key: Skill; label: string; desc: string; icon: string }[] = [
   { key: "interview", label: "面试题定制", desc: "根据你的背景和目标岗位，AI 生成针对性面试题+参考答案", icon: "🎯" },
@@ -18,6 +18,7 @@ const SKILLS: { key: Skill; label: string; desc: string; icon: string }[] = [
   { key: "jd-match", label: "JD 匹配分析", desc: "深度分析简历与 JD 匹配度，关键词高亮+差距分析", icon: "🔍" },
   { key: "custom-resume", label: "一键定制简历", desc: "基于目标 JD 自动生成针对性简历，关键词全覆盖", icon: "🪄" },
   { key: "jd-compare", label: "多 JD 对比", desc: "批量对比多个岗位匹配度，智能排序投递优先级", icon: "📊" },
+  { key: "direction", label: "方向模版", desc: "按求职方向生成简历模版、技能清单和策略建议", icon: "🧭" },
 ];
 
 function profileToText(p: Prefs): string {
@@ -44,6 +45,7 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
   const [expInput, setExpInput] = useState("");
   const [offersInput, setOffersInput] = useState("");
   const [jdsInput, setJdsInput] = useState("");
+  const [directionInput, setDirectionInput] = useState("");
   const [interviewResult, setInterviewResult] = useState<InterviewQuestion[] | null>(null);
   const [resumeResult, setResumeResult] = useState<ResumePolishResult | null>(null);
   const [letterResult, setLetterResult] = useState<CoverLetterResult | null>(null);
@@ -51,6 +53,7 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
   const [jdMatchResult, setJdMatchResult] = useState<JdMatchResult | null>(null);
   const [customResumeResult, setCustomResumeResult] = useState<CustomResumeResult | null>(null);
   const [jdCompareResult, setJdCompareResult] = useState<JdCompareResult | null>(null);
+  const [directionResult, setDirectionResult] = useState<DirectionTemplateResult | null>(null);
 
   useEffect(() => {
     const p = loadPrefs();
@@ -85,6 +88,9 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
       } else if (active === "jd-compare") {
         const r = await compareJds(profile, jdsInput);
         setJdCompareResult(r);
+      } else if (active === "direction") {
+        const r = await getDirectionTemplate(profile, directionInput);
+        setDirectionResult(r);
       }
     } catch (e) {
       setError((e as Error).message);
@@ -121,7 +127,7 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
               {SKILLS.map((s) => (
                 <button
                   key={s.key}
-                  onClick={() => { setActive(s.key); setInterviewResult(null); setResumeResult(null); setLetterResult(null); setOfferResult(null); setJdMatchResult(null); setCustomResumeResult(null); setJdCompareResult(null); setError(""); }}
+                  onClick={() => { setActive(s.key); setInterviewResult(null); setResumeResult(null); setLetterResult(null); setOfferResult(null); setJdMatchResult(null); setCustomResumeResult(null); setJdCompareResult(null); setDirectionResult(null); setError(""); }}
                   className={`card p-4 text-left transition ${active === s.key ? "border-brand-500 shadow-md" : "hover:border-gray-300"}`}
                 >
                   <div className="text-2xl mb-2">{s.icon}</div>
@@ -200,6 +206,27 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
                         <button key={j.id} onClick={() => setJdsInput((prev) => (prev ? prev + "\n---\n" : "") + `${j.company} - ${j.title}\n${j.description ?? ""}\n技能要求: ${j.aiTags?.skills.join(", ") ?? ""}`)}
                           className="text-[10px] px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 hover:bg-brand-50 hover:text-brand-600 transition">
                           + {j.company}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {active === "direction" && (
+                  <div>
+                    <label className="text-xs text-gray-500 mb-1 block">目标求职方向</label>
+                    <input
+                      value={directionInput}
+                      onChange={(e) => setDirectionInput(e.target.value)}
+                      placeholder="如：AI产品经理、数据分析师、量化交易..."
+                      className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:border-brand-500"
+                    />
+                    <div className="flex flex-wrap gap-1.5 mt-2">
+                      <span className="text-[10px] text-gray-400">热门方向：</span>
+                      {["产品经理", "数据分析", "后端开发", "前端开发", "AI/算法", "运营", "咨询", "投行/金融"].map((d) => (
+                        <button key={d} onClick={() => setDirectionInput(d)}
+                          className="text-[10px] px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 hover:bg-brand-50 hover:text-brand-600 transition">
+                          {d}
                         </button>
                       ))}
                     </div>
@@ -450,6 +477,105 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
                   <div className="text-xs text-brand-600">{jdCompareResult.strategy}</div>
                 </div>
                 <div className="text-xs text-gray-500"><strong>时间规划：</strong>{jdCompareResult.timeline}</div>
+              </div>
+            )}
+
+            {/* Direction Template Result */}
+            {directionResult && active === "direction" && (
+              <div className="card p-5 space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-base font-bold text-gray-900">{directionResult.direction}</h3>
+                    <p className="text-xs text-gray-500 mt-0.5">{directionResult.overview}</p>
+                  </div>
+                </div>
+
+                <div className="p-4 rounded-lg bg-gray-50 space-y-3">
+                  <div className="text-xs font-bold text-gray-700">求职意向模版</div>
+                  <div className="text-sm text-gray-800">{directionResult.template.objective}</div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="p-3 rounded-lg bg-green-50">
+                    <div className="text-xs font-bold text-green-700 mb-2">必备技能</div>
+                    <div className="flex flex-wrap gap-1.5">
+                      {directionResult.template.skillsRequired.map((s) => (
+                        <span key={s} className="text-[11px] px-2 py-0.5 rounded-full bg-green-100 text-green-700">{s}</span>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="p-3 rounded-lg bg-blue-50">
+                    <div className="text-xs font-bold text-blue-700 mb-2">加分技能</div>
+                    <div className="flex flex-wrap gap-1.5">
+                      {directionResult.template.skillsBonus.map((s) => (
+                        <span key={s} className="text-[11px] px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">{s}</span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <div className="text-xs font-bold text-gray-700">经历模版（STAR 法则）</div>
+                  {directionResult.template.experienceTemplate.map((exp) => (
+                    <div key={exp.type} className="p-3 rounded-lg border border-gray-100">
+                      <div className="text-[11px] font-semibold text-brand-600 mb-1">{exp.type}</div>
+                      <div className="text-xs text-gray-600 whitespace-pre-wrap">{exp.example}</div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="p-3 rounded-lg bg-gray-50">
+                  <div className="text-xs font-bold text-gray-700 mb-1">学历 / 证书重点</div>
+                  <div className="text-xs text-gray-600">{directionResult.template.educationFocus}</div>
+                </div>
+
+                <div className="p-3 rounded-lg bg-brand-50">
+                  <div className="text-xs font-bold text-brand-700 mb-1">自我评价模版</div>
+                  <div className="text-xs text-brand-600">{directionResult.template.selfIntro}</div>
+                </div>
+
+                <div>
+                  <div className="text-xs font-bold text-gray-700 mb-2">关键量化指标</div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {directionResult.keyMetrics.map((m) => (
+                      <span key={m} className="text-[11px] px-2 py-0.5 rounded-full bg-purple-100 text-purple-700">{m}</span>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <div className="text-xs font-bold text-red-600 mb-2">常见错误</div>
+                  <ul className="space-y-1">
+                    {directionResult.commonMistakes.map((m) => (
+                      <li key={m} className="text-xs text-red-500 flex items-start gap-1.5">
+                        <span className="mt-0.5 shrink-0">⚠</span><span>{m}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                <div>
+                  <div className="text-xs font-bold text-gray-700 mb-2">面试重点考察</div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {directionResult.interviewFocus.map((f) => (
+                      <span key={f} className="text-[11px] px-2 py-0.5 rounded-full bg-amber-100 text-amber-700">{f}</span>
+                    ))}
+                  </div>
+                </div>
+
+                {directionResult.relatedDirections.length > 0 && (
+                  <div>
+                    <div className="text-xs font-bold text-gray-700 mb-2">相近方向</div>
+                    <div className="flex flex-wrap gap-1.5">
+                      {directionResult.relatedDirections.map((d) => (
+                        <button key={d} onClick={() => setDirectionInput(d)}
+                          className="text-[11px] px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 hover:bg-brand-50 hover:text-brand-600 transition cursor-pointer">
+                          {d}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </>

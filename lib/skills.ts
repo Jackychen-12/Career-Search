@@ -77,6 +77,23 @@ export interface JdCompareResult {
   timeline: string;
 }
 
+export interface DirectionTemplateResult {
+  direction: string;
+  overview: string;
+  template: {
+    objective: string;
+    skillsRequired: string[];
+    skillsBonus: string[];
+    experienceTemplate: { type: string; example: string }[];
+    educationFocus: string;
+    selfIntro: string;
+  };
+  keyMetrics: string[];
+  commonMistakes: string[];
+  interviewFocus: string[];
+  relatedDirections: string[];
+}
+
 export function generateInterview(profile: string, job: string) {
   return callSkill<{ questions: InterviewQuestion[] }>("/api/skill/interview", { profile, job });
 }
@@ -103,4 +120,8 @@ export function generateCustomResume(profile: string, job: string, experiences: 
 
 export function compareJds(profile: string, jobs: string) {
   return callSkill<JdCompareResult>("/api/skill/jd-compare", { profile, jobs });
+}
+
+export function getDirectionTemplate(profile: string, direction: string) {
+  return callSkill<DirectionTemplateResult>("/api/skill/direction-template", { profile, direction });
 }

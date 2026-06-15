@@ -58,6 +58,14 @@ export function copyJobsToPublic(jobs: Job[]) {
   try {
     const dir = path.join(process.cwd(), "public", "data");
     if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-    fs.writeFileSync(path.join(dir, "jobs.json"), JSON.stringify(jobs));
+    const trimmed = jobs.map((j) => ({
+      ...j,
+      description: j.description ? j.description.slice(0, 300) : null,
+      requirements: j.requirements ? j.requirements.slice(0, 100) : null,
+      detailUrl: undefined,
+      lastSeen: undefined,
+      origin: undefined,
+    }));
+    fs.writeFileSync(path.join(dir, "jobs.json"), JSON.stringify(trimmed));
   } catch {}
 }
