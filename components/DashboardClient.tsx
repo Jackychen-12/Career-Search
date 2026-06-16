@@ -1,13 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { loadTracking, type TrackingData } from "@/lib/tracker";
-import { loadInterviews, type InterviewRecord } from "@/lib/interviews";
+import { type TrackingData } from "@/lib/tracker";
+import { type InterviewRecord } from "@/lib/interviews";
 import { computeDashboardStats, type DashboardStats } from "@/lib/dashboardStats";
 import { FunnelChart } from "./charts/FunnelChart";
 import { TrendChart } from "./charts/TrendChart";
 import { StatusPie } from "./charts/StatusPie";
-import { InterviewCalendar } from "./charts/InterviewCalendar";
 
 interface Props {
   tracking: TrackingData;
@@ -42,11 +41,10 @@ export function DashboardClient({ tracking, interviews }: Props) {
 
   if (!stats) return null;
 
-  const { total, byStatus, conversionFunnel, dailyTrend, weeklyActivity, offerRate, avgRoundsToOffer, interviewHeatmap } = stats;
+  const { total, byStatus, conversionFunnel, dailyTrend, weeklyActivity, offerRate, avgRoundsToOffer } = stats;
 
   return (
     <div className="space-y-5">
-      {/* ── Summary Cards ── */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
         <StatCard label="总投递" value={total} color="text-slate-900 dark:text-white" />
         <StatCard
@@ -65,7 +63,6 @@ export function DashboardClient({ tracking, interviews }: Props) {
         <StatCard label="本周活跃" value={weeklyActivity} color="text-cyan-600 dark:text-cyan-400" />
       </div>
 
-      {/* ── Charts Row 1 ── */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div className="card p-5">
           <SectionTitle icon="📊">投递转化漏斗</SectionTitle>
@@ -77,16 +74,9 @@ export function DashboardClient({ tracking, interviews }: Props) {
         </div>
       </div>
 
-      {/* ── Charts Row 2 ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <div className="card p-5">
-          <SectionTitle icon="🎯">状态分布</SectionTitle>
-          <StatusPie byStatus={byStatus} />
-        </div>
-        <div className="card p-5">
-          <SectionTitle icon="🗓️">面试热力图</SectionTitle>
-          <InterviewCalendar heatmap={interviewHeatmap} />
-        </div>
+      <div className="card p-5">
+        <SectionTitle icon="🎯">状态分布</SectionTitle>
+        <StatusPie byStatus={byStatus} />
       </div>
     </div>
   );

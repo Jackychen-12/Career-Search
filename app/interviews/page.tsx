@@ -1,5 +1,5 @@
-import InterviewPageClient from "@/components/InterviewPageClient";
+import { redirect } from "next/navigation";
 
 export default function InterviewsPage() {
-  return <InterviewPageClient />;
+  redirect("/timeline");
 }
