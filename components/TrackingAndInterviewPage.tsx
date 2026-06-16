@@ -52,7 +52,7 @@ interface TimelineEvent {
   itemId: string;
 }
 
-type MainTab = "all" | "saved" | "dashboard";
+type MainTab = "all" | "saved";
 type SubView = "kanban" | "timeline" | "table";
 
 function getKanbanColumn(item: UnifiedItem): TrackingStatus {
@@ -270,7 +270,6 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
   const mainTabs: { key: MainTab; label: string; count?: number }[] = [
     { key: "all", label: "全部记录", count: activeItems.length },
     { key: "saved", label: "收藏", count: savedItems.length },
-    { key: "dashboard", label: "数据概览" },
   ];
 
   return (
@@ -313,7 +312,18 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
         {/* ═══ Tab: 全部记录 ═══ */}
         {mainTab === "all" && (
           <>
-            {/* Status summary bar */}
+            {/* Stat cards */}
+            {activeItems.length > 0 && (
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+                <StatCard label="总投递" value={stats.total} color="text-slate-900" />
+                <StatCard label="面试中" value={stats.byStatus.interview + stats.byStatus.hr} sub={`笔试 ${stats.byStatus.written}`} color="text-amber-600" />
+                <StatCard label="已拿 Offer" value={stats.byStatus.offer} color="text-green-600" />
+                <StatCard label="Offer 率" value={`${stats.offerRate}%`} sub={stats.avgRoundsToOffer > 0 ? `平均 ${stats.avgRoundsToOffer} 轮` : undefined} color="text-brand-600" />
+                <StatCard label="本周活跃" value={stats.weeklyActivity} color="text-cyan-600" />
+              </div>
+            )}
+
+            {/* Status filter bar */}
             <div className="flex flex-wrap gap-2">
               {(["applied", "written", "interview", "hr", "offer", "rejected"] as TrackingStatus[]).map((key) => {
                 const cfg = STATUS_CONFIG[key];
@@ -603,6 +613,26 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
                 )}
               </>
             )}
+
+            {/* Charts section */}
+            {activeItems.length > 0 && (
+              <div className="space-y-4 pt-2">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                  <div className="card p-5">
+                    <h3 className="text-sm font-semibold text-gray-700 mb-3">状态分布</h3>
+                    <StatusPie byStatus={stats.byStatus} />
+                  </div>
+                  <div className="card p-5">
+                    <h3 className="text-sm font-semibold text-gray-700 mb-3">投递转化漏斗</h3>
+                    <FunnelChart data={stats.conversionFunnel} />
+                  </div>
+                  <div className="card p-5">
+                    <h3 className="text-sm font-semibold text-gray-700 mb-3">近 30 天趋势</h3>
+                    <TrendChart data={stats.dailyTrend} />
+                  </div>
+                </div>
+              </div>
+            )}
           </>
         )}
 
@@ -642,33 +672,6 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
               </div>
             )}
           </>
-        )}
-
-        {/* ═══ Tab: 数据概览 ═══ */}
-        {mainTab === "dashboard" && (
-          <div className="space-y-5">
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-              <StatCard label="总投递" value={stats.total} color="text-slate-900" />
-              <StatCard label="面试中" value={stats.byStatus.interview + stats.byStatus.hr} sub={`笔试 ${stats.byStatus.written}`} color="text-amber-600" />
-              <StatCard label="已拿 Offer" value={stats.byStatus.offer} color="text-green-600" />
-              <StatCard label="Offer 率" value={`${stats.offerRate}%`} sub={stats.avgRoundsToOffer > 0 ? `平均 ${stats.avgRoundsToOffer} 轮` : undefined} color="text-brand-600" />
-              <StatCard label="本周活跃" value={stats.weeklyActivity} color="text-cyan-600" />
-            </div>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-              <div className="card p-5">
-                <h3 className="text-sm font-semibold text-gray-700 mb-3">状态分布</h3>
-                <StatusPie byStatus={stats.byStatus} />
-              </div>
-              <div className="card p-5">
-                <h3 className="text-sm font-semibold text-gray-700 mb-3">投递转化漏斗</h3>
-                <FunnelChart data={stats.conversionFunnel} />
-              </div>
-            </div>
-            <div className="card p-5">
-              <h3 className="text-sm font-semibold text-gray-700 mb-3">近 30 天趋势</h3>
-              <TrendChart data={stats.dailyTrend} />
-            </div>
-          </div>
         )}
       </main>
 
