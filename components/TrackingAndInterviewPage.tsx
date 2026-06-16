@@ -16,15 +16,15 @@ const FunnelChart = dynamic(() => import("./charts/FunnelChart").then((m) => ({ 
 const TrendChart = dynamic(() => import("./charts/TrendChart").then((m) => ({ default: m.TrendChart })), { ssr: false });
 const StatusPie = dynamic(() => import("./charts/StatusPie").then((m) => ({ default: m.StatusPie })), { ssr: false });
 
-const STATUS_CONFIG: Record<TrackingStatus, { label: string; color: string; bg: string; order: number }> = {
-  saved:     { label: "收藏",   color: "text-gray-600",   bg: "bg-gray-300",   order: 0 },
-  applied:   { label: "已投递", color: "text-blue-600",   bg: "bg-blue-500",   order: 1 },
-  written:   { label: "笔试",   color: "text-indigo-600", bg: "bg-indigo-500", order: 2 },
-  interview: { label: "面试",   color: "text-amber-600",  bg: "bg-amber-500",  order: 3 },
-  hr:        { label: "HR面",   color: "text-orange-600", bg: "bg-orange-500", order: 4 },
-  offer:     { label: "Offer",  color: "text-brand-600",  bg: "bg-brand-500",  order: 5 },
-  rejected:  { label: "已拒",   color: "text-red-500",    bg: "bg-red-400",    order: 6 },
-  withdrawn: { label: "放弃",   color: "text-gray-400",   bg: "bg-gray-300",   order: 7 },
+const STATUS_CONFIG: Record<TrackingStatus, { label: string; color: string; bg: string; order: number; light: string; border: string }> = {
+  saved:     { label: "收藏",   color: "text-gray-600",   bg: "bg-gray-400",   order: 0, light: "bg-gray-50",    border: "border-l-gray-400" },
+  applied:   { label: "已投递", color: "text-blue-600",   bg: "bg-blue-500",   order: 1, light: "bg-blue-50",    border: "border-l-blue-400" },
+  written:   { label: "笔试",   color: "text-indigo-600", bg: "bg-indigo-500", order: 2, light: "bg-indigo-50",  border: "border-l-indigo-400" },
+  interview: { label: "面试",   color: "text-amber-600",  bg: "bg-amber-500",  order: 3, light: "bg-amber-50",   border: "border-l-amber-400" },
+  hr:        { label: "HR面",   color: "text-orange-600", bg: "bg-orange-500", order: 4, light: "bg-orange-50",  border: "border-l-orange-400" },
+  offer:     { label: "Offer",  color: "text-brand-600",  bg: "bg-brand-500",  order: 5, light: "bg-green-50",   border: "border-l-green-500" },
+  rejected:  { label: "已拒",   color: "text-red-500",    bg: "bg-red-400",    order: 6, light: "bg-red-50",     border: "border-l-red-400" },
+  withdrawn: { label: "放弃",   color: "text-gray-400",   bg: "bg-gray-300",   order: 7, light: "bg-gray-50",    border: "border-l-gray-300" },
 };
 
 const KANBAN_COLS: TrackingStatus[] = ["applied", "written", "interview", "hr", "offer"];
@@ -287,7 +287,7 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
                   className={`px-3.5 py-1 rounded-md text-sm font-medium transition flex items-center gap-1.5 ${mainTab === t.key ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"}`}
                 >
                   {t.label}
-                  {t.count !== undefined && t.count > 0 && <span className="text-[10px] text-gray-400">{t.count}</span>}
+                  {t.count !== undefined && t.count > 0 && <span className="text-xs text-gray-400">{t.count}</span>}
                 </button>
               ))}
             </div>
@@ -308,18 +308,18 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto px-4 sm:px-6 py-6 space-y-5">
+      <main className="max-w-6xl mx-auto px-4 sm:px-6 py-6 space-y-6">
         {/* ═══ Tab: 全部记录 ═══ */}
         {mainTab === "all" && (
           <>
             {/* Stat cards */}
             {activeItems.length > 0 && (
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-                <StatCard label="总投递" value={stats.total} color="text-slate-900" />
-                <StatCard label="面试中" value={stats.byStatus.interview + stats.byStatus.hr} sub={`笔试 ${stats.byStatus.written}`} color="text-amber-600" />
-                <StatCard label="已拿 Offer" value={stats.byStatus.offer} color="text-green-600" />
-                <StatCard label="Offer 率" value={`${stats.offerRate}%`} sub={stats.avgRoundsToOffer > 0 ? `平均 ${stats.avgRoundsToOffer} 轮` : undefined} color="text-brand-600" />
-                <StatCard label="本周活跃" value={stats.weeklyActivity} color="text-cyan-600" />
+                <StatCard label="总投递" value={stats.total} color="text-slate-900" cardClass="bg-gradient-to-br from-slate-50 to-slate-100/50 border-l-4 border-l-slate-400" />
+                <StatCard label="面试中" value={stats.byStatus.interview + stats.byStatus.hr} sub={`笔试 ${stats.byStatus.written}`} color="text-amber-600" cardClass="bg-gradient-to-br from-amber-50 to-orange-50/50 border-l-4 border-l-amber-400" />
+                <StatCard label="已拿 Offer" value={stats.byStatus.offer} color="text-green-600" cardClass="bg-gradient-to-br from-emerald-50 to-green-50/50 border-l-4 border-l-emerald-500" />
+                <StatCard label="Offer 率" value={`${stats.offerRate}%`} sub={stats.avgRoundsToOffer > 0 ? `平均 ${stats.avgRoundsToOffer} 轮` : undefined} color="text-brand-600" cardClass="bg-gradient-to-br from-violet-50 to-indigo-50/50 border-l-4 border-l-brand-400" />
+                <StatCard label="本周活跃" value={stats.weeklyActivity} color="text-cyan-600" cardClass="bg-gradient-to-br from-cyan-50 to-sky-50/50 border-l-4 border-l-cyan-400" />
               </div>
             )}
 
@@ -333,18 +333,18 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
                   <button
                     key={key}
                     onClick={() => setStatusFilter(statusFilter === key ? null : key)}
-                    className={`card px-3 py-2 flex items-center gap-2 transition ${statusFilter === key ? "ring-2 ring-brand-400" : ""}`}
+                    className={`px-3.5 py-2.5 rounded-xl flex items-center gap-2 transition border ${cfg.light} ${statusFilter === key ? "ring-2 ring-brand-400 border-transparent shadow-sm" : "border-gray-200/60 hover:border-gray-300"}`}
                   >
                     <span className={`w-2.5 h-2.5 rounded-full ${cfg.bg}`} />
-                    <span className="text-sm font-bold text-gray-900">{count}</span>
-                    <span className="text-xs text-gray-500">{cfg.label}</span>
+                    <span className="text-lg font-bold text-gray-900">{count}</span>
+                    <span className="text-sm text-gray-600">{cfg.label}</span>
                   </button>
                 );
               })}
               {activeItems.length > 0 && (
-                <div className="card px-3 py-2 flex items-center gap-2">
-                  <span className="text-sm font-bold text-gray-900">{activeItems.length}</span>
-                  <span className="text-xs text-gray-500">总计</span>
+                <div className="px-3.5 py-2.5 rounded-xl flex items-center gap-2 border border-gray-200/60 bg-white">
+                  <span className="text-lg font-bold text-gray-900">{activeItems.length}</span>
+                  <span className="text-sm text-gray-600">总计</span>
                 </div>
               )}
             </div>
@@ -377,38 +377,38 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
                         });
                         return (
                           <div key={colStatus} className="space-y-2">
-                            <div className="flex items-center gap-1.5 px-1">
+                            <div className={`flex items-center gap-2 px-3 py-2 rounded-lg ${cfg.light}`}>
                               <span className={`w-2.5 h-2.5 rounded-full ${cfg.bg}`} />
-                              <span className="text-xs font-semibold text-gray-700">{cfg.label}</span>
-                              <span className="text-[10px] text-gray-400">{colItems.length}</span>
+                              <span className={`text-sm font-semibold ${cfg.color}`}>{cfg.label}</span>
+                              <span className="text-xs text-gray-500 ml-auto">{colItems.length}</span>
                             </div>
-                            <div className="space-y-1.5 min-h-[60px]">
+                            <div className="space-y-1.5 min-h-[80px]">
                               {colItems.map((t) => {
                                 const isEnded = t.status === "rejected" || t.status === "withdrawn";
                                 return (
                                   <div
                                     key={t.id}
                                     onClick={() => setEditId(editId === t.id ? null : t.id)}
-                                    className={`card p-3 cursor-pointer hover:ring-1 hover:ring-brand-200 transition ${isEnded ? "opacity-50" : ""} ${editId === t.id ? "ring-2 ring-brand-400" : ""}`}
+                                    className={`card p-4 cursor-pointer hover:ring-1 hover:ring-brand-200 transition border-l-[3px] ${STATUS_CONFIG[t.status].border} ${isEnded ? "opacity-50" : ""} ${editId === t.id ? "ring-2 ring-brand-400" : ""}`}
                                   >
-                                    <div className={`text-xs font-medium text-gray-900 line-clamp-1 ${isEnded ? "line-through" : ""}`}>{t.company}</div>
-                                    <div className="text-[10px] text-gray-500 mt-0.5 line-clamp-1">{t.title}</div>
-                                    {isEnded && <div className="text-[9px] text-red-400 mt-0.5">{STATUS_CONFIG[t.status].label}</div>}
+                                    <div className={`text-sm font-semibold text-gray-900 line-clamp-1 ${isEnded ? "line-through" : ""}`}>{t.company}</div>
+                                    <div className="text-xs text-gray-500 mt-0.5 line-clamp-1">{t.title}</div>
+                                    {isEnded && <div className="text-[11px] text-red-400 mt-1">{STATUS_CONFIG[t.status].label}</div>}
                                     {t.interview && !isEnded && (
-                                      <div className="text-[9px] text-amber-500 mt-1">{t.interview.rounds.length}轮面试</div>
+                                      <div className="text-[11px] text-amber-500 mt-1.5">{t.interview.rounds.length}轮面试</div>
                                     )}
                                     {t.interview?.nextInterviewAt && !isEnded && (
-                                      <div className="text-[9px] text-brand-600 mt-0.5">下次 {t.interview.nextInterviewAt.slice(5)}</div>
+                                      <div className="text-[11px] text-brand-600 mt-0.5">下次 {t.interview.nextInterviewAt.slice(5)}</div>
                                     )}
                                     {t.entry.priority && !isEnded && (
-                                      <div className={`text-[9px] mt-0.5 ${t.entry.priority === "high" ? "text-red-500" : t.entry.priority === "medium" ? "text-amber-500" : "text-gray-400"}`}>
+                                      <div className={`text-[11px] mt-0.5 ${t.entry.priority === "high" ? "text-red-500" : t.entry.priority === "medium" ? "text-amber-500" : "text-gray-400"}`}>
                                         {t.entry.priority === "high" ? "高优" : t.entry.priority === "medium" ? "中优" : "低优"}
                                       </div>
                                     )}
                                   </div>
                                 );
                               })}
-                              {colItems.length === 0 && <div className="text-[10px] text-gray-300 text-center py-6">空</div>}
+                              {colItems.length === 0 && <div className="text-xs text-gray-400 text-center py-6">空</div>}
                             </div>
                           </div>
                         );
@@ -424,10 +424,10 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
                           <div className="flex items-center justify-between">
                             <div>
                               <div className="flex items-center gap-2">
-                                <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${STATUS_CONFIG[item.status].bg} text-white`}>{STATUS_CONFIG[item.status].label}</span>
+                                <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${STATUS_CONFIG[item.status].bg} text-white`}>{STATUS_CONFIG[item.status].label}</span>
                                 <span className="text-sm font-bold text-gray-900">{item.company} · {item.title}</span>
                               </div>
-                              <div className="text-[11px] text-gray-400 mt-1">
+                              <div className="text-xs text-gray-500 mt-1">
                                 {item.location && <>{item.location} · </>}{item.jobType}
                                 {item.entry.appliedAt && ` · 投递于 ${item.entry.appliedAt.slice(0, 10)}`}
                               </div>
@@ -437,13 +437,13 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
 
                           {item.interview && item.interview.rounds.length > 0 && (
                             <div className="space-y-1.5">
-                              <div className="text-[11px] font-semibold text-gray-500">面试轮次</div>
+                              <div className="text-xs font-semibold text-gray-600">面试轮次</div>
                               {item.interview.rounds.map((round, rIdx) => (
                                 <div key={round.id} className="bg-gray-50 rounded-lg px-3 py-2 flex items-center gap-2 text-xs flex-wrap">
                                   <span className="font-bold text-gray-600">{round.round || `第${rIdx + 1}轮`}</span>
                                   <span className="text-gray-400">{round.date}</span>
                                   {round.result && (
-                                    <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded ${round.result === "通过" ? "bg-green-100 text-green-700" : round.result === "挂了" ? "bg-red-100 text-red-700" : "bg-yellow-100 text-yellow-700"}`}>{round.result}</span>
+                                    <span className={`text-xs font-medium px-1.5 py-0.5 rounded ${round.result === "通过" ? "bg-green-100 text-green-700" : round.result === "挂了" ? "bg-red-100 text-red-700" : "bg-yellow-100 text-yellow-700"}`}>{round.result}</span>
                                   )}
                                   {round.feeling && <span className="text-gray-400">感受: {round.feeling}</span>}
                                   {round.interviewer && <span className="text-gray-400">· {round.interviewer}</span>}
@@ -462,7 +462,7 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
                           <div className="flex items-center gap-3 pt-2 border-t border-gray-100 flex-wrap">
                             {!item.isInterviewOnly && (
                               <>
-                                <select value={item.status} onChange={(e) => updateEntry(item.id, { status: e.target.value as TrackingStatus })} className="text-xs px-2 py-1.5 rounded-md border border-gray-200">
+                                <select value={item.status} onChange={(e) => updateEntry(item.id, { status: e.target.value as TrackingStatus })} className="text-sm px-2 py-1.5 rounded-md border border-gray-200">
                                   {Object.entries(STATUS_CONFIG).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
                                 </select>
                                 <button onClick={() => deleteEntry(item.id)} className="text-xs text-red-400 hover:text-red-600">删除追踪</button>
@@ -503,19 +503,19 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
                                 <div className={`w-2.5 h-2.5 rounded-full ${gIdx === 0 ? "bg-brand-500" : "bg-gray-300"}`} />
                               </div>
                               <div className="mb-2">
-                                <span className="text-xs font-bold text-gray-700">{dateLabel}</span>
-                                <span className="text-[10px] text-gray-400 ml-1.5">周{weekday}</span>
-                                <span className="text-[10px] text-gray-300 ml-2">{group.date}</span>
+                                <span className="text-sm font-bold text-gray-700">{dateLabel}</span>
+                                <span className="text-xs text-gray-400 ml-1.5">周{weekday}</span>
+                                <span className="text-xs text-gray-300 ml-2">{group.date}</span>
                               </div>
                               <div className="space-y-1.5">
                                 {group.events.map((event, idx) => {
                                   const evtStatus = STATUS_CONFIG[event.status] ?? STATUS_CONFIG.applied;
                                   return (
-                                    <div key={`${event.itemId}-${idx}`} className="flex items-center gap-2.5 bg-white rounded-lg px-3.5 py-2.5 border border-gray-100 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
-                                      <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${evtStatus.bg} text-white shrink-0`}>{event.type}</span>
-                                      <span className="text-[13px] text-gray-900 font-medium truncate">{event.company}</span>
-                                      <span className="text-[11px] text-gray-300">·</span>
-                                      <span className="text-[11px] text-gray-500 truncate flex-1">{event.title}</span>
+                                    <div key={`${event.itemId}-${idx}`} className={`flex items-center gap-2.5 ${evtStatus.light} rounded-lg px-3.5 py-2.5 border border-gray-100/80 shadow-[0_1px_2px_rgba(0,0,0,0.04)]`}>
+                                      <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${evtStatus.bg} text-white shrink-0`}>{event.type}</span>
+                                      <span className="text-sm text-gray-900 font-medium truncate">{event.company}</span>
+                                      <span className="text-xs text-gray-400">·</span>
+                                      <span className="text-xs text-gray-500 truncate flex-1">{event.title}</span>
                                     </div>
                                   );
                                 })}
@@ -534,45 +534,45 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
                     {filteredItems.map((t) => (
                       <div key={t.id} className="card overflow-hidden">
                         <div className="px-4 py-3 flex items-center gap-3 cursor-pointer" onClick={() => setEditId(editId === t.id ? null : t.id)}>
-                          <span className={`shrink-0 text-[10px] font-medium px-2 py-0.5 rounded-full ${STATUS_CONFIG[t.status].bg} text-white`}>
+                          <span className={`shrink-0 text-xs font-medium px-2 py-0.5 rounded-full ${STATUS_CONFIG[t.status].bg} text-white`}>
                             {STATUS_CONFIG[t.status].label}
                           </span>
                           <div className="flex-1 min-w-0">
                             <div className="text-sm font-medium text-gray-900 truncate">
                               {t.company} · {t.title}
-                              {t.interview && <span className="text-[10px] text-amber-500 ml-1.5">({t.interview.rounds.length}轮面试)</span>}
+                              {t.interview && <span className="text-xs text-amber-500 ml-1.5">({t.interview.rounds.length}轮面试)</span>}
                             </div>
-                            <div className="text-[11px] text-gray-400 mt-0.5">
+                            <div className="text-xs text-gray-500 mt-0.5">
                               {t.location && <>{t.location} · </>}{t.jobType}
                               {t.entry.appliedAt && ` · 投递于 ${t.entry.appliedAt.slice(0, 10)}`}
                               {t.interview?.nextInterviewAt && <span className="text-brand-600"> · 下次面试 {t.interview.nextInterviewAt.slice(5)}</span>}
                             </div>
                           </div>
-                          {t.entry.priority && <span className={`text-[10px] font-medium ${t.entry.priority === "high" ? "text-red-600" : t.entry.priority === "medium" ? "text-amber-600" : "text-gray-400"}`}>{t.entry.priority === "high" ? "高" : t.entry.priority === "medium" ? "中" : "低"}</span>}
+                          {t.entry.priority && <span className={`text-xs font-medium ${t.entry.priority === "high" ? "text-red-600" : t.entry.priority === "medium" ? "text-amber-600" : "text-gray-400"}`}>{t.entry.priority === "high" ? "高" : t.entry.priority === "medium" ? "中" : "低"}</span>}
                           <span className="text-gray-300 text-xs">{editId === t.id ? "▲" : "▼"}</span>
                         </div>
                         {editId === t.id && !t.isInterviewOnly && (
                           <div className="px-4 pb-4 pt-1 border-t border-gray-50 space-y-3">
                             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                              <div><label className="text-[10px] text-gray-400 block mb-0.5">状态</label>
-                                <select value={t.entry.status} onChange={(e) => updateEntry(t.id, { status: e.target.value as TrackingStatus })} className="w-full text-xs px-2 py-1.5 rounded-md border border-gray-200">
+                              <div><label className="text-xs text-gray-500 block mb-0.5">状态</label>
+                                <select value={t.entry.status} onChange={(e) => updateEntry(t.id, { status: e.target.value as TrackingStatus })} className="w-full text-sm px-2 py-1.5 rounded-md border border-gray-200">
                                   {Object.entries(STATUS_CONFIG).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
                                 </select></div>
-                              <div><label className="text-[10px] text-gray-400 block mb-0.5">优先级</label>
-                                <select value={t.entry.priority ?? ""} onChange={(e) => updateEntry(t.id, { priority: (e.target.value || undefined) as TrackingEntry["priority"] })} className="w-full text-xs px-2 py-1.5 rounded-md border border-gray-200">
+                              <div><label className="text-xs text-gray-500 block mb-0.5">优先级</label>
+                                <select value={t.entry.priority ?? ""} onChange={(e) => updateEntry(t.id, { priority: (e.target.value || undefined) as TrackingEntry["priority"] })} className="w-full text-sm px-2 py-1.5 rounded-md border border-gray-200">
                                   <option value="">-</option><option value="high">高</option><option value="medium">中</option><option value="low">低</option>
                                 </select></div>
-                              <div><label className="text-[10px] text-gray-400 block mb-0.5">投递日期</label>
-                                <input type="date" value={t.entry.appliedAt ?? ""} onChange={(e) => updateEntry(t.id, { appliedAt: e.target.value || undefined })} className="w-full text-xs px-2 py-1.5 rounded-md border border-gray-200" /></div>
-                              <div><label className="text-[10px] text-gray-400 block mb-0.5">面试日期</label>
-                                <input type="date" value={t.entry.interviewAt ?? ""} onChange={(e) => updateEntry(t.id, { interviewAt: e.target.value || undefined })} className="w-full text-xs px-2 py-1.5 rounded-md border border-gray-200" /></div>
+                              <div><label className="text-xs text-gray-500 block mb-0.5">投递日期</label>
+                                <input type="date" value={t.entry.appliedAt ?? ""} onChange={(e) => updateEntry(t.id, { appliedAt: e.target.value || undefined })} className="w-full text-sm px-2 py-1.5 rounded-md border border-gray-200" /></div>
+                              <div><label className="text-xs text-gray-500 block mb-0.5">面试日期</label>
+                                <input type="date" value={t.entry.interviewAt ?? ""} onChange={(e) => updateEntry(t.id, { interviewAt: e.target.value || undefined })} className="w-full text-sm px-2 py-1.5 rounded-md border border-gray-200" /></div>
                             </div>
                             <div className="grid grid-cols-3 gap-2">
-                              <input value={t.entry.channel ?? ""} onChange={(e) => updateEntry(t.id, { channel: e.target.value || undefined })} placeholder="渠道" className="text-xs px-2 py-1.5 rounded-md border border-gray-200" />
-                              <input value={t.entry.contact ?? ""} onChange={(e) => updateEntry(t.id, { contact: e.target.value || undefined })} placeholder="联系人" className="text-xs px-2 py-1.5 rounded-md border border-gray-200" />
-                              <input value={t.entry.salary ?? ""} onChange={(e) => updateEntry(t.id, { salary: e.target.value || undefined })} placeholder="薪资" className="text-xs px-2 py-1.5 rounded-md border border-gray-200" />
+                              <input value={t.entry.channel ?? ""} onChange={(e) => updateEntry(t.id, { channel: e.target.value || undefined })} placeholder="渠道" className="text-sm px-2 py-1.5 rounded-md border border-gray-200" />
+                              <input value={t.entry.contact ?? ""} onChange={(e) => updateEntry(t.id, { contact: e.target.value || undefined })} placeholder="联系人" className="text-sm px-2 py-1.5 rounded-md border border-gray-200" />
+                              <input value={t.entry.salary ?? ""} onChange={(e) => updateEntry(t.id, { salary: e.target.value || undefined })} placeholder="薪资" className="text-sm px-2 py-1.5 rounded-md border border-gray-200" />
                             </div>
-                            <textarea value={t.entry.notes ?? ""} onChange={(e) => updateEntry(t.id, { notes: e.target.value || undefined })} placeholder="备注..." rows={2} className="w-full text-xs px-2 py-1.5 rounded-md border border-gray-200 resize-none" />
+                            <textarea value={t.entry.notes ?? ""} onChange={(e) => updateEntry(t.id, { notes: e.target.value || undefined })} placeholder="备注..." rows={2} className="w-full text-sm px-2 py-1.5 rounded-md border border-gray-200 resize-none" />
                             <div className="flex justify-between">
                               <button onClick={() => deleteEntry(t.id)} className="text-xs text-red-500">删除</button>
                               <div className="flex items-center gap-3">
@@ -592,7 +592,7 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
                                     <span className="font-bold text-gray-600">{round.round || `第${rIdx + 1}轮`}</span>
                                     <span className="text-gray-400">{round.date}</span>
                                     {round.result && (
-                                      <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded ${round.result === "通过" ? "bg-green-100 text-green-700" : round.result === "挂了" ? "bg-red-100 text-red-700" : "bg-yellow-100 text-yellow-700"}`}>{round.result}</span>
+                                      <span className={`text-xs font-medium px-1.5 py-0.5 rounded ${round.result === "通过" ? "bg-green-100 text-green-700" : round.result === "挂了" ? "bg-red-100 text-red-700" : "bg-yellow-100 text-yellow-700"}`}>{round.result}</span>
                                     )}
                                     {round.feeling && <span className="text-gray-400">感受: {round.feeling}</span>}
                                   </div>
@@ -616,18 +616,19 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
 
             {/* Charts section */}
             {activeItems.length > 0 && (
-              <div className="space-y-4 pt-2">
+              <div className="border-t border-gray-200/60 pt-6 space-y-4">
+                <h2 className="text-base font-semibold text-gray-800">数据概览</h2>
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
                   <div className="card p-5">
-                    <h3 className="text-sm font-semibold text-gray-700 mb-3">状态分布</h3>
+                    <h3 className="text-base font-semibold text-gray-700 mb-3">状态分布</h3>
                     <StatusPie byStatus={stats.byStatus} />
                   </div>
                   <div className="card p-5">
-                    <h3 className="text-sm font-semibold text-gray-700 mb-3">投递转化漏斗</h3>
+                    <h3 className="text-base font-semibold text-gray-700 mb-3">投递转化漏斗</h3>
                     <FunnelChart data={stats.conversionFunnel} />
                   </div>
                   <div className="card p-5">
-                    <h3 className="text-sm font-semibold text-gray-700 mb-3">近 30 天趋势</h3>
+                    <h3 className="text-base font-semibold text-gray-700 mb-3">近 30 天趋势</h3>
                     <TrendChart data={stats.dailyTrend} />
                   </div>
                 </div>
@@ -647,8 +648,8 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
                   <div key={item.id} className="card p-4 space-y-3 hover:shadow-md transition">
                     <div>
                       <div className="text-sm font-bold text-gray-900">{item.company}</div>
-                      <div className="text-xs text-gray-600 mt-0.5">{item.title}</div>
-                      <div className="text-[11px] text-gray-400 mt-0.5 flex items-center gap-1.5">
+                      <div className="text-sm text-gray-600 mt-0.5">{item.title}</div>
+                      <div className="text-xs text-gray-500 mt-1 flex items-center gap-1.5">
                         {item.location && <span>{item.location}</span>}
                         {item.jobType && <><span>·</span><span>{item.jobType}</span></>}
                       </div>
@@ -656,7 +657,7 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
                     {item.job?.tags && item.job.tags.length > 0 && (
                       <div className="flex flex-wrap gap-1">
                         {item.job.tags.slice(0, 5).map((tag) => (
-                          <span key={tag} className="text-[10px] px-1.5 py-0.5 bg-gray-100 text-gray-500 rounded">{tag}</span>
+                          <span key={tag} className="text-xs px-1.5 py-0.5 bg-gray-100 text-gray-500 rounded">{tag}</span>
                         ))}
                       </div>
                     )}
@@ -687,12 +688,12 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
   );
 }
 
-function StatCard({ label, value, sub, color }: { label: string; value: string | number; sub?: string; color: string }) {
+function StatCard({ label, value, sub, color, cardClass }: { label: string; value: string | number; sub?: string; color: string; cardClass?: string }) {
   return (
-    <div className="card p-4 flex flex-col gap-1">
-      <div className="text-[11px] font-medium text-gray-500 uppercase tracking-wide">{label}</div>
-      <div className={`text-2xl font-bold tabular-nums ${color}`}>{value}</div>
-      {sub && <div className="text-[11px] text-gray-400">{sub}</div>}
+    <div className={`card p-5 flex flex-col gap-1.5 ${cardClass ?? ""}`}>
+      <div className="text-xs font-medium text-gray-600 uppercase tracking-wide">{label}</div>
+      <div className={`text-3xl font-bold tabular-nums ${color}`}>{value}</div>
+      {sub && <div className="text-xs text-gray-500">{sub}</div>}
     </div>
   );
 }
