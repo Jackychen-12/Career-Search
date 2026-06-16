@@ -93,7 +93,7 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
   const [jobInput, setJobInput] = useState("");
   const [expInput, setExpInput] = useState("");
   const [offersInput, setOffersInput] = useState("");
-  const [jdsInput, setJdsInput] = useState("");
+  const [selectedJds, setSelectedJds] = useState<Job[]>([]);
   const [interviewResult, setInterviewResult] = useState<InterviewQuestion[] | null>(null);
   const [letterResult, setLetterResult] = useState<CoverLetterResult | null>(null);
   const [offerResult, setOfferResult] = useState<OfferCompareResult | null>(null);
@@ -162,7 +162,9 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
         const r = await analyzeJdMatch(profile, jobInput);
         setJdMatchResult(r);
       } else if (active === "jd-compare") {
-        const r = await compareJds(profile, jdsInput);
+        const jdsText = selectedJds.map((j) => `${j.company} - ${j.title}\n${j.description ?? ""}\n技能要求: ${j.aiTags?.skills.join(", ") ?? ""}`).join("\n---\n");
+        if (!jdsText) { setError("请至少添加 2 个岗位"); setLoading(false); return; }
+        const r = await compareJds(profile, jdsText);
         setJdCompareResult(r);
       }
     } catch (e) {
@@ -279,7 +281,7 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
                   key={s.key}
                   onClick={() => {
                     setActive(s.key);
-                    setInterviewResult(null); setLetterResult(null); setOfferResult(null); setJdMatchResult(null); setJdCompareResult(null); setOptimizeResult(null); setAppliedIds(new Set()); setExpandedQuestions(new Set()); setInterviewFollowupInput(""); setError(""); setDisplaySections([]); setLetterText(""); setLetterRefineInput(""); setLetterRefineLoading(false); setLetterChanges(""); setJobSearchQuery("");
+                    setInterviewResult(null); setLetterResult(null); setOfferResult(null); setJdMatchResult(null); setJdCompareResult(null); setOptimizeResult(null); setAppliedIds(new Set()); setExpandedQuestions(new Set()); setInterviewFollowupInput(""); setError(""); setDisplaySections([]); setLetterText(""); setLetterRefineInput(""); setLetterRefineLoading(false); setLetterChanges(""); setJobSearchQuery(""); setSelectedJds([]);
                     if (s.key === "resume-optimize" && !expInput && prefs) {
                       if (prefs.experiences?.length) {
                         setExpInput(prefs.experiences.map((e) => `${e.duration ?? ""} ${e.company} ${e.role}\n${e.description ?? ""}\n成果: ${e.highlights.join("; ")}`).join("\n\n"));
@@ -397,8 +399,8 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
                 )}
 
                 {active === "jd-compare" && (
-                  <div className="space-y-2">
-                    <label className="text-xs text-gray-500 mb-1 block">待对比的岗位 JD（搜索导入或手动输入，用 --- 分隔）</label>
+                  <div className="space-y-3">
+                    <label className="text-xs text-gray-500 block">搜索并添加要对比的岗位（至少 2 个）</label>
                     <div className="relative">
                       <input
                         value={jobSearchQuery}
@@ -410,11 +412,11 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
                     </div>
                     {searchedJobs.length > 0 && (
                       <div className="max-h-[200px] overflow-y-auto rounded-lg border border-gray-200 divide-y divide-gray-50">
-                        {searchedJobs.map((j) => (
+                        {searchedJobs.filter((j) => !selectedJds.some((s) => s.id === j.id)).map((j) => (
                           <button
                             key={j.id}
                             onClick={() => {
-                              setJdsInput((prev) => (prev ? prev + "\n---\n" : "") + `${j.company} - ${j.title}\n${j.description ?? ""}\n技能要求: ${j.aiTags?.skills.join(", ") ?? ""}`);
+                              setSelectedJds((prev) => [...prev, j]);
                               setJobSearchQuery("");
                             }}
                             className="w-full px-3 py-2 text-left hover:bg-brand-50/50 transition flex items-center justify-between gap-2"
@@ -433,13 +435,33 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
                         ))}
                       </div>
                     )}
-                    <textarea
-                      value={jdsInput}
-                      onChange={(e) => setJdsInput(e.target.value)}
-                      placeholder="字节跳动 AI产品经理\n岗位职责：...\n任职要求：...\n---\n腾讯 数据产品经理\n岗位职责：...\n任职要求：..."
-                      rows={8}
-                      className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm resize-none focus:outline-none focus:border-brand-500"
-                    />
+
+                    {selectedJds.length > 0 && (
+                      <div className="space-y-2">
+                        <div className="text-xs text-gray-500">已选 {selectedJds.length} 个岗位</div>
+                        {selectedJds.map((j, i) => (
+                          <div key={j.id} className="flex items-center gap-2 p-2.5 rounded-lg border border-gray-200 bg-white">
+                            <span className="shrink-0 w-5 h-5 rounded-full bg-brand-50 text-brand-600 text-[10px] font-bold flex items-center justify-center">{i + 1}</span>
+                            <div className="flex-1 min-w-0">
+                              <div className="text-xs font-medium text-gray-900 truncate">{j.company} · {j.title}</div>
+                              <div className="text-[10px] text-gray-400 truncate">{j.location.join(", ")}{j.aiTags?.skills.length ? ` · ${j.aiTags.skills.slice(0, 4).join(", ")}` : ""}</div>
+                            </div>
+                            <button
+                              onClick={() => setSelectedJds((prev) => prev.filter((s) => s.id !== j.id))}
+                              className="shrink-0 w-5 h-5 rounded-full hover:bg-red-50 text-gray-400 hover:text-red-500 flex items-center justify-center transition text-xs"
+                            >
+                              x
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {selectedJds.length === 0 && !jobSearchQuery && (
+                      <div className="py-6 text-center text-xs text-gray-400 border border-dashed border-gray-200 rounded-lg">
+                        在上方搜索框中输入关键词，添加要对比的岗位
+                      </div>
+                    )}
                   </div>
                 )}
 
