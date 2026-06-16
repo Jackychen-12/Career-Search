@@ -73,6 +73,7 @@ export interface CoverLetterResult {
   letter: string;
   highlights: string[];
   tips: string;
+  changes?: string;
 }
 
 export interface OfferCompareResult {
@@ -139,6 +140,10 @@ export function optimizeResume(profile: string, job: string, experiences: string
 
 export function generateCoverLetter(profile: string, job: string) {
   return callSkill<CoverLetterResult>("/api/skill/cover-letter", { profile, job });
+}
+
+export function refineCoverLetter(profile: string, job: string, letter: string, instruction: string) {
+  return callSkill<CoverLetterResult>("/api/skill/cover-letter-refine", { profile, job, letter, instruction });
 }
 
 export function compareOffers(profile: string, offers: string) {

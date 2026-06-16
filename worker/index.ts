@@ -191,6 +191,17 @@ const COVER_LETTER_PROMPT = `你是求职信写作专家。根据候选人画像
 {"letter":"完整的求职信正文（400-600字）","highlights":["信中突出的3个核心卖点"],"tips":"投递注意事项"}
 求职信要自然真诚，不要套话。开头要有亮点抓注意力。中间匹配岗位要求。结尾表达诚意。`;
 
+// ─── Skill: 求职信修改 ───
+const COVER_LETTER_REFINE_PROMPT = `你是求职信写作专家。你将收到一封已有的求职信、候选人画像、目标岗位信息，以及用户的修改指令。
+请根据修改指令对求职信进行针对性修改，保留原信中好的部分，只改用户要求改的地方。
+返回 JSON：
+{"letter":"修改后的完整求职信正文（400-600字）","highlights":["修改后信中突出的3个核心卖点"],"tips":"投递注意事项","changes":"本次修改了哪些内容（一句话概括）"}
+规则：
+- 必须返回完整的修改后求职信，不是 diff
+- 保持自然真诚的语气
+- changes 字段简要说明这次修改了什么
+只返回 JSON。`;
+
 // ─── Skill: Offer 对比分析 ───
 const OFFER_COMPARE_PROMPT = `你是职业规划专家。帮候选人对比分析多个 Offer，给出最终建议。
 返回 JSON：
@@ -405,6 +416,22 @@ export default {
       const job = body.job as string ?? "";
       return callDeepSeek(env, cors, COVER_LETTER_PROMPT,
         `候选人画像：\n${profile}\n\n目标岗位：\n${job}`, 2000);
+    }
+
+    // 求职信修改
+    if (path === "/api/skill/cover-letter-refine") {
+      const profile = body.profile as string ?? "";
+      const job = body.job as string ?? "";
+      const letter = body.letter as string ?? "";
+      const instruction = body.instruction as string ?? "";
+      if (!letter || letter.length < 20) {
+        return Response.json({ error: "求职信内容太短" }, { status: 400, headers: cors });
+      }
+      if (!instruction || instruction.length < 2) {
+        return Response.json({ error: "请输入修改指令" }, { status: 400, headers: cors });
+      }
+      return callDeepSeek(env, cors, COVER_LETTER_REFINE_PROMPT,
+        `候选人画像：\n${profile}\n\n目标岗位：\n${job}\n\n当前求职信：\n${letter}\n\n修改指令：\n${instruction}`, 2000);
     }
 
     // Offer 对比

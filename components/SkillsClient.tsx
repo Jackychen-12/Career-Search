@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { loadPrefs } from "@/lib/prefs";
 import { hasPrefs } from "@/lib/ranking";
 import { getSession } from "@/lib/auth";
-import { generateInterview, followupInterview, generateCoverLetter, compareOffers, analyzeJdMatch, compareJds, optimizeResume } from "@/lib/skills";
+import { generateInterview, followupInterview, generateCoverLetter, refineCoverLetter, compareOffers, analyzeJdMatch, compareJds, optimizeResume } from "@/lib/skills";
 import type { InterviewQuestion, CoverLetterResult, OfferCompareResult, JdMatchResult, JdCompareResult, ResumeOptimizeResult } from "@/lib/skills";
 import type { Job, Prefs } from "@/lib/types";
 
@@ -105,6 +105,10 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
   const [interviewFollowupInput, setInterviewFollowupInput] = useState("");
   const [interviewFollowupLoading, setInterviewFollowupLoading] = useState(false);
   const [expandedQuestions, setExpandedQuestions] = useState<Set<number>>(new Set());
+  const [letterText, setLetterText] = useState("");
+  const [letterRefineInput, setLetterRefineInput] = useState("");
+  const [letterRefineLoading, setLetterRefineLoading] = useState(false);
+  const [letterChanges, setLetterChanges] = useState("");
 
   useEffect(() => {
     const p = loadPrefs();
@@ -117,6 +121,13 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
       setDisplaySections(optimizeResult.resumeOriginal.sections.map((s) => ({ ...s })));
     }
   }, [optimizeResult]);
+
+  useEffect(() => {
+    if (letterResult?.letter) {
+      setLetterText(letterResult.letter);
+      setLetterChanges("");
+    }
+  }, [letterResult]);
 
   async function run() {
     if (!prefs || !active) return;
@@ -183,6 +194,25 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
     setInterviewFollowupLoading(false);
   }
 
+  async function runLetterRefine(instruction?: string) {
+    if (!prefs || !letterText.trim()) return;
+    const refineInstruction = instruction || letterRefineInput.trim();
+    if (!refineInstruction) return;
+    setLetterRefineLoading(true);
+    setError("");
+    const profile = profileToText(prefs);
+    try {
+      const r = await refineCoverLetter(profile, jobInput, letterText, refineInstruction);
+      setLetterText(r.letter);
+      setLetterResult(r);
+      setLetterChanges(r.changes || "");
+      setLetterRefineInput("");
+    } catch (e) {
+      setError((e as Error).message);
+    }
+    setLetterRefineLoading(false);
+  }
+
   function applySuggestion(suggestion: { section: string; original: string; improved: string; id: number }) {
     setDisplaySections((prev) =>
       prev.map((s) => {
@@ -240,7 +270,7 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
                   key={s.key}
                   onClick={() => {
                     setActive(s.key);
-                    setInterviewResult(null); setLetterResult(null); setOfferResult(null); setJdMatchResult(null); setJdCompareResult(null); setOptimizeResult(null); setAppliedIds(new Set()); setExpandedQuestions(new Set()); setInterviewFollowupInput(""); setError(""); setDisplaySections([]);
+                    setInterviewResult(null); setLetterResult(null); setOfferResult(null); setJdMatchResult(null); setJdCompareResult(null); setOptimizeResult(null); setAppliedIds(new Set()); setExpandedQuestions(new Set()); setInterviewFollowupInput(""); setError(""); setDisplaySections([]); setLetterText(""); setLetterRefineInput(""); setLetterRefineLoading(false); setLetterChanges("");
                     if (s.key === "resume-optimize" && !expInput && prefs) {
                       if (prefs.experiences?.length) {
                         setExpInput(prefs.experiences.map((e) => `${e.duration ?? ""} ${e.company} ${e.role}\n${e.description ?? ""}\n成果: ${e.highlights.join("; ")}`).join("\n\n"));
@@ -673,13 +703,75 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
               <div className="card p-5 space-y-3">
                 <div className="flex items-center justify-between">
                   <h3 className="text-sm font-bold text-gray-900">求职信</h3>
-                  <button onClick={() => navigator.clipboard.writeText(letterResult.letter).then(() => alert("已复制"))} className="text-xs text-brand-600">复制</button>
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      onClick={() => navigator.clipboard.writeText(letterText).then(() => alert("已复制"))}
+                      className="text-[11px] px-2.5 py-1 rounded-md bg-gray-200 text-gray-700 hover:bg-gray-300 font-medium transition"
+                    >
+                      复制
+                    </button>
+                    <button
+                      onClick={() => exportWord([{ title: "求职信", content: letterText }], "求职信")}
+                      className="text-[11px] px-2.5 py-1 rounded-md bg-blue-500 text-white hover:bg-blue-600 font-medium transition"
+                    >
+                      Word
+                    </button>
+                  </div>
                 </div>
-                <div className="p-4 rounded-lg bg-gray-50 text-sm text-gray-700 whitespace-pre-line leading-relaxed">{letterResult.letter}</div>
+
+                <textarea
+                  value={letterText}
+                  onChange={(e) => setLetterText(e.target.value)}
+                  rows={14}
+                  className="w-full px-4 py-3 rounded-lg border border-gray-200 text-sm text-gray-700 leading-relaxed resize-y focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-200"
+                />
+
+                {letterChanges && (
+                  <div className="px-3 py-2 rounded-lg bg-green-50 border border-green-100 text-xs text-green-700">
+                    本次修改：{letterChanges}
+                  </div>
+                )}
+
                 <div className="flex flex-wrap gap-1.5">
                   {letterResult.highlights.map((h) => <span key={h} className="text-[10px] px-2 py-0.5 rounded-full bg-brand-50 text-brand-600">{h}</span>)}
                 </div>
-                <p className="text-xs text-gray-500">{letterResult.tips}</p>
+                {letterResult.tips && <p className="text-xs text-gray-500">{letterResult.tips}</p>}
+
+                <div className="border-t border-gray-100 pt-3 space-y-3">
+                  <h4 className="text-xs font-bold text-gray-700">AI 修改</h4>
+                  <textarea
+                    value={letterRefineInput}
+                    onChange={(e) => setLetterRefineInput(e.target.value)}
+                    placeholder="如：让开头更有吸引力 / 突出Python技能 / 语气更正式 / 缩短到300字..."
+                    rows={2}
+                    className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm resize-none focus:outline-none focus:border-brand-500"
+                  />
+                  <div className="flex flex-wrap gap-1.5">
+                    <span className="text-[10px] text-gray-400">快速修改：</span>
+                    {["更正式", "更简洁", "突出实习经历", "加强技术能力描述", "调整开头更有吸引力", "缩短到300字"].map((t) => (
+                      <button key={t} onClick={() => runLetterRefine(t)}
+                        disabled={letterRefineLoading}
+                        className="text-[10px] px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 hover:bg-brand-50 hover:text-brand-600 transition disabled:opacity-50">
+                        {t}
+                      </button>
+                    ))}
+                  </div>
+                  <button
+                    onClick={() => runLetterRefine()}
+                    disabled={letterRefineLoading || !letterRefineInput.trim()}
+                    className="w-full py-2.5 rounded-lg text-sm font-semibold text-white bg-brand-500 hover:bg-brand-600 disabled:opacity-50 shadow-sm transition"
+                  >
+                    {letterRefineLoading ? "AI 修改中..." : "AI 修改"}
+                  </button>
+                </div>
+
+                <button
+                  onClick={run}
+                  disabled={loading}
+                  className="w-full py-2 rounded-lg text-xs font-medium text-gray-500 border border-gray-200 hover:bg-gray-50 transition"
+                >
+                  重新生成（从零开始）
+                </button>
               </div>
             )}
 
