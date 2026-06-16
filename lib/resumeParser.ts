@@ -1,4 +1,5 @@
 import { supabase } from "./supabase";
+import type { Experience } from "./types";
 
 const WORKER_URL =
   typeof window !== "undefined"
@@ -12,6 +13,7 @@ export interface ParsedResume {
   skills: string[];
   targetRoles: string[];
   experience: string[];
+  experiences?: Experience[];
   strengths: string[];
   weaknesses: string[];
   summary: string;

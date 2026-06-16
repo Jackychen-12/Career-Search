@@ -68,6 +68,17 @@ export interface Job {
 /** Normalized job before firstSeen/scores are attached. */
 export type NormalizedJob = Omit<Job, "firstSeen" | "lastSeen" | "scores" | "aiReason">;
 
+export interface Experience {
+  company: string;
+  role: string;
+  department?: string;
+  industry?: string;
+  duration?: string;
+  skills: string[];
+  highlights: string[];
+  description: string;
+}
+
 /** User preferences, stored in the browser (no account, no server). */
 export interface Prefs {
   categories: Category[];
@@ -80,6 +91,7 @@ export interface Prefs {
   targetRoles?: string[];
   resumeKeywords?: string[];
   experience?: string[];
+  experiences?: Experience[];
   strengths?: string[];
   weaknesses?: string[];
   summary?: string;

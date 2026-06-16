@@ -68,9 +68,39 @@ async function callDeepSeek(env: Env, headers: HeadersInit, system: string, user
 }
 
 // ─── Skill: 简历解析 ───
-const RESUME_PROMPT = `你是简历解析专家。提取结构化信息，返回 JSON：
-{"school":"","major":"","degree":"本科|硕士|博士","skills":["技能1"...],"targetRoles":["方向1"...],"experience":["公司-岗位-简述"...],"strengths":["优势1"...],"weaknesses":["短板1"...],"summary":"一句话概括"}
-skills 5-15个，targetRoles 3-5个。只返回 JSON。`;
+const RESUME_PROMPT = `你是简历解析专家。从简历中提取结构化信息，特别注意完整提取每段实习/工作经历的细节。
+返回 JSON：
+{
+  "school": "学校名",
+  "major": "专业",
+  "degree": "本科|硕士|博士",
+  "skills": ["技能1", "技能2"],
+  "targetRoles": ["目标岗位方向1"],
+  "experiences": [
+    {
+      "company": "公司名",
+      "role": "岗位名称",
+      "department": "部门（如有，否则null）",
+      "industry": "所属行业（互联网/金融/快消/咨询等）",
+      "duration": "起止时间（如 2025.03 - 2025.09）",
+      "skills": ["该段经历用到的具体技能"],
+      "highlights": ["量化成果1（如 用户增长10%）", "量化成果2"],
+      "description": "完整工作内容描述（50-150字，STAR格式）"
+    }
+  ],
+  "strengths": ["优势1"],
+  "weaknesses": ["短板1"],
+  "summary": "一句话概括候选人画像"
+}
+规则：
+- skills 提取 5-15 个核心技能
+- targetRoles 3-5 个目标方向
+- experiences 必须提取简历中每一段实习/工作/项目经历，不要遗漏
+- 每段 experience 的 skills 只填该段经历实际用到的技能（3-8个）
+- highlights 提取量化数据（数字/百分比/规模），没有则填核心职责
+- industry 从以下选择：互联网/金融/外企/快消/咨询/教育/医疗/制造/其他
+- 如果简历中没有明确的实习经历，从项目经历/课题研究中提取
+只返回 JSON。`;
 
 // ─── Skill: 面试题定制 ───
 const INTERVIEW_PROMPT = `你是一个资深面试官。根据候选人背景和目标岗位，生成针对性面试题。
