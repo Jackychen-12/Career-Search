@@ -51,6 +51,7 @@ export function computeProfileMatchDetailed(job: Job, prefs: Prefs): MatchResult
   const userRoles = (prefs.targetRoles ?? []).map(norm);
   const userCategories = prefs.categories.map(norm);
   const userCities = prefs.cities;
+  const userExps = prefs.experiences ?? [];
   const reasons: string[] = [];
 
   if (userSkills.length === 0 && userRoles.length === 0 && userCategories.length === 0) {
@@ -61,7 +62,7 @@ export function computeProfileMatchDetailed(job: Job, prefs: Prefs): MatchResult
 
   let score = 0;
 
-  // Skill match (40%)
+  // Skill match (35%)
   if (userSkills.length > 0) {
     const jobSkills = tags ? tags.skills.map(norm) : [];
     const text = norm([job.title, job.description ?? "", ...job.tags].join(" "));
@@ -73,7 +74,7 @@ export function computeProfileMatchDetailed(job: Job, prefs: Prefs): MatchResult
     }
 
     const skillScore = Math.min(matched.length / Math.max(userSkills.length * 0.2, 1), 1);
-    score += 0.4 * skillScore;
+    score += 0.35 * skillScore;
 
     if (matched.length > 0) {
       const display = [...new Set(matched)].slice(0, 3).map((s) => {
@@ -84,7 +85,7 @@ export function computeProfileMatchDetailed(job: Job, prefs: Prefs): MatchResult
     }
   }
 
-  // Role match (30%)
+  // Role match (25%)
   if (userRoles.length > 0) {
     const titleNorm = norm(job.title);
     const roleNorm = tags ? norm(tags.roleType) : "";
@@ -98,7 +99,52 @@ export function computeProfileMatchDetailed(job: Job, prefs: Prefs): MatchResult
         break;
       }
     }
-    score += roleMatch ? 0.3 : 0;
+    score += roleMatch ? 0.25 : 0;
+  }
+
+  // Experience match (15%)
+  if (userExps.length > 0) {
+    const text = norm([job.title, job.description ?? "", ...job.tags].join(" "));
+    const titleNorm = norm(job.title);
+    const jobIndustry = tags ? norm(tags.industry) : norm(job.category);
+    let expScore = 0;
+    let bestExpReason = "";
+
+    for (const exp of userExps) {
+      let thisScore = 0;
+      const expSkills = exp.skills.map(norm);
+      const expRole = norm(exp.role);
+      const expIndustry = exp.industry ? norm(exp.industry) : "";
+
+      // Experience skills vs job requirements
+      if (expSkills.length > 0) {
+        let hits = 0;
+        for (const es of expSkills) {
+          if (textIncludes(text, es)) hits++;
+        }
+        thisScore += 0.4 * Math.min(hits / Math.max(expSkills.length * 0.3, 1), 1);
+      }
+
+      // Experience role vs job title
+      if (expRole && (titleNorm.includes(expRole) || expRole.includes(titleNorm.slice(0, 4)))) {
+        thisScore += 0.35;
+      }
+
+      // Experience industry vs job industry
+      if (expIndustry && (jobIndustry.includes(expIndustry) || expIndustry.includes(jobIndustry))) {
+        thisScore += 0.25;
+      }
+
+      if (thisScore > expScore) {
+        expScore = thisScore;
+        bestExpReason = `${exp.company}·${exp.role}`;
+      }
+    }
+
+    score += 0.15 * Math.min(expScore, 1);
+    if (expScore > 0.2 && bestExpReason) {
+      reasons.push(`经历相关: ${bestExpReason}`);
+    }
   }
 
   // Category match (15%)
@@ -111,12 +157,12 @@ export function computeProfileMatchDetailed(job: Job, prefs: Prefs): MatchResult
     }
   }
 
-  // City match (15%)
+  // City match (10%)
   if (userCities.length > 0) {
     const matchedCity = job.location.find((l) => userCities.some((c) => l.includes(c)));
     if (matchedCity) {
       reasons.push(`城市: ${matchedCity}`);
-      score += 0.15;
+      score += 0.1;
     }
   }
 

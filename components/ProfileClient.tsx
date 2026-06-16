@@ -7,7 +7,7 @@ import { getSession, getUser, signInWithGitHub, type GhUser } from "@/lib/auth";
 import { hasPrefs } from "@/lib/ranking";
 import { extractPdfText, parseResumeWithAI, extractKeywordsLocal, type ParsedResume } from "@/lib/resumeParser";
 import { computeProfileMatchDetailed } from "@/lib/matchScore";
-import type { Category, Job, JobType, Prefs } from "@/lib/types";
+import type { Category, Experience, Job, JobType, Prefs } from "@/lib/types";
 
 function toggle<T>(arr: T[], v: T): T[] {
   return arr.includes(v) ? arr.filter((x) => x !== v) : [...arr, v];
@@ -51,15 +51,20 @@ export default function ProfileClient({ jobs }: { jobs: Job[] }) {
       setResumeText(text);
       const result = await parseResumeWithAI(text);
       setAiResult(result);
+      const exps = result.experiences ?? [];
+      const expSkills = exps.flatMap((e) => e.skills);
+      const allSkills = [...new Set([...result.skills, ...expSkills])];
+      const expFlatback = exps.map((e) => `${e.company}-${e.role}-${e.description?.slice(0, 50) ?? ""}`);
       setDraft({
         ...draft,
         school: result.school ?? "",
         major: result.major ?? "",
         degree: (result.degree as Prefs["degree"]) ?? "",
-        skills: result.skills,
+        skills: allSkills,
         targetRoles: result.targetRoles,
-        resumeKeywords: result.skills,
-        experience: result.experience ?? [],
+        resumeKeywords: allSkills,
+        experience: result.experience?.length ? result.experience : expFlatback,
+        experiences: exps,
         strengths: result.strengths ?? [],
         weaknesses: result.weaknesses ?? [],
         summary: result.summary ?? "",
@@ -83,7 +88,11 @@ export default function ProfileClient({ jobs }: { jobs: Job[] }) {
     try {
       const result = await parseResumeWithAI(resumeText);
       setAiResult(result);
-      setDraft({ ...draft, school: result.school ?? "", major: result.major ?? "", degree: (result.degree as Prefs["degree"]) ?? "", skills: result.skills, targetRoles: result.targetRoles, resumeKeywords: result.skills, experience: result.experience ?? [], strengths: result.strengths ?? [], weaknesses: result.weaknesses ?? [], summary: result.summary ?? "" });
+      const exps = result.experiences ?? [];
+      const expSkills = exps.flatMap((e) => e.skills);
+      const allSkills = [...new Set([...result.skills, ...expSkills])];
+      const expFlatback = exps.map((e) => `${e.company}-${e.role}-${e.description?.slice(0, 50) ?? ""}`);
+      setDraft({ ...draft, school: result.school ?? "", major: result.major ?? "", degree: (result.degree as Prefs["degree"]) ?? "", skills: allSkills, targetRoles: result.targetRoles, resumeKeywords: allSkills, experience: result.experience?.length ? result.experience : expFlatback, experiences: exps, strengths: result.strengths ?? [], weaknesses: result.weaknesses ?? [], summary: result.summary ?? "" });
       setStep(2);
     } catch {
       const keywords = extractKeywordsLocal(resumeText);
@@ -276,6 +285,42 @@ export default function ProfileClient({ jobs }: { jobs: Job[] }) {
               </div>
             </div>
 
+            {/* Structured experiences */}
+            {(draft.experiences ?? []).length > 0 && (
+              <div className="card p-5 space-y-3">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-medium text-gray-700">实习/工作经历（{draft.experiences!.length} 段）</label>
+                </div>
+                {draft.experiences!.map((exp, idx) => (
+                  <div key={idx} className="p-3 rounded-lg border border-gray-100 relative group">
+                    <button
+                      onClick={() => setDraft({ ...draft, experiences: draft.experiences!.filter((_, i) => i !== idx) })}
+                      className="absolute top-2 right-2 text-gray-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition text-sm"
+                    >✕</button>
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-sm font-semibold text-gray-900">{exp.company}</span>
+                      <span className="text-xs text-brand-600">{exp.role}</span>
+                      {exp.department && <span className="text-[11px] text-gray-400">· {exp.department}</span>}
+                    </div>
+                    <div className="flex items-center gap-2 text-[11px] text-gray-400 mb-2">
+                      {exp.duration && <span>{exp.duration}</span>}
+                      {exp.industry && <span className="px-1.5 py-0.5 rounded bg-gray-100 text-gray-500">{exp.industry}</span>}
+                    </div>
+                    {exp.skills.length > 0 && (
+                      <div className="flex flex-wrap gap-1 mb-1.5">
+                        {exp.skills.map((s) => <span key={s} className="text-[10px] px-1.5 py-0.5 rounded-full bg-brand-50 text-brand-600">{s}</span>)}
+                      </div>
+                    )}
+                    {exp.highlights.length > 0 && (
+                      <div className="text-[11px] text-gray-600">
+                        {exp.highlights.map((h, hi) => <span key={hi} className="mr-2">• {h}</span>)}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+
             {/* Email notification */}
             <div className="card p-4 bg-brand-50/30 border-brand-100 space-y-2">
               <div className="flex items-center justify-between">
@@ -344,14 +389,31 @@ export default function ProfileClient({ jobs }: { jobs: Job[] }) {
               </div>
             )}
 
-            {(draft.experience ?? []).length > 0 && (
+            {(draft.experiences ?? []).length > 0 && (
               <div className="card p-4">
-                <div className="text-xs font-medium text-gray-700 mb-2">经历概要</div>
-                <div className="space-y-1.5">
-                  {draft.experience!.map((e, i) => (
-                    <div key={i} className="text-xs text-gray-600 flex items-start gap-2">
-                      <span className="shrink-0 w-1.5 h-1.5 rounded-full bg-brand-400 mt-1.5" />
-                      <span>{e}</span>
+                <div className="text-xs font-medium text-gray-700 mb-3">实习/工作经历（{draft.experiences!.length} 段）</div>
+                <div className="space-y-2.5">
+                  {draft.experiences!.map((exp, i) => (
+                    <div key={i} className="p-3 rounded-lg bg-gray-50/80 border border-gray-100">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-sm font-semibold text-gray-900">{exp.company}</span>
+                        <span className="text-xs text-brand-600">{exp.role}</span>
+                        {exp.department && <span className="text-[11px] text-gray-400">· {exp.department}</span>}
+                      </div>
+                      <div className="flex items-center gap-2 text-[11px] text-gray-400 mb-1.5">
+                        {exp.duration && <span>{exp.duration}</span>}
+                        {exp.industry && <span className="px-1.5 py-0.5 rounded bg-gray-100 text-gray-500">{exp.industry}</span>}
+                      </div>
+                      {exp.skills.length > 0 && (
+                        <div className="flex flex-wrap gap-1 mb-1">
+                          {exp.skills.map((s) => <span key={s} className="text-[10px] px-1.5 py-0.5 rounded-full bg-brand-50 text-brand-600">{s}</span>)}
+                        </div>
+                      )}
+                      {exp.highlights.length > 0 && (
+                        <div className="text-[11px] text-gray-600">
+                          {exp.highlights.map((h, hi) => <span key={hi} className="mr-2">• {h}</span>)}
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>

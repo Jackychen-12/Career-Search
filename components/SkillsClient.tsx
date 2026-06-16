@@ -32,7 +32,21 @@ function profileToText(p: Prefs): string {
   if (p.summary) parts.push(`概述: ${p.summary}`);
   if (p.strengths?.length) parts.push(`优势: ${p.strengths.join(", ")}`);
   if (p.weaknesses?.length) parts.push(`待提升: ${p.weaknesses.join(", ")}`);
-  if (p.experience?.length) parts.push(`经历:\n${p.experience.join("\n")}`);
+  if (p.experiences?.length) {
+    parts.push("经历:");
+    p.experiences.forEach((e, i) => {
+      const line = [`${i + 1}. ${e.company} · ${e.role}`];
+      if (e.department) line[0] += ` · ${e.department}`;
+      if (e.duration) line.push(`   时间: ${e.duration}`);
+      if (e.industry) line.push(`   行业: ${e.industry}`);
+      if (e.skills.length) line.push(`   技能: ${e.skills.join(", ")}`);
+      if (e.highlights.length) line.push(`   成果: ${e.highlights.join("; ")}`);
+      if (e.description) line.push(`   描述: ${e.description}`);
+      parts.push(line.join("\n"));
+    });
+  } else if (p.experience?.length) {
+    parts.push(`经历:\n${p.experience.join("\n")}`);
+  }
   return parts.join("\n");
 }
 
@@ -133,8 +147,12 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
                   onClick={() => {
                     setActive(s.key);
                     setInterviewResult(null); setResumeResult(null); setLetterResult(null); setOfferResult(null); setJdMatchResult(null); setCustomResumeResult(null); setJdCompareResult(null); setDirectionResult(null); setOptimizeResult(null); setAppliedIds(new Set()); setError("");
-                    if (s.key === "resume-optimize" && !expInput && prefs?.experience?.length) {
-                      setExpInput(prefs.experience.join("\n"));
+                    if (s.key === "resume-optimize" && !expInput && prefs) {
+                      if (prefs.experiences?.length) {
+                        setExpInput(prefs.experiences.map((e) => `${e.duration ?? ""} ${e.company} ${e.role}\n${e.description ?? ""}\n成果: ${e.highlights.join("; ")}`).join("\n\n"));
+                      } else if (prefs.experience?.length) {
+                        setExpInput(prefs.experience.join("\n"));
+                      }
                     }
                     if (s.key === "direction" && !directionInput && prefs?.targetRoles?.length) {
                       setDirectionInput(prefs.targetRoles[0]);
@@ -166,8 +184,8 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
                       {[prefs?.school, prefs?.major, prefs?.degree].filter(Boolean).join(" · ")}
                       {(prefs?.skills?.length ?? 0) > 0 && ` · ${prefs!.skills!.slice(0, 3).join(", ")}${prefs!.skills!.length > 3 ? "..." : ""}`}
                     </div>
-                    {(prefs?.experience?.length ?? 0) > 0 && (
-                      <div className="text-[11px] text-brand-500 mt-0.5">{prefs!.experience!.length} 段经历已就绪</div>
+                    {((prefs?.experiences?.length ?? 0) > 0 || (prefs?.experience?.length ?? 0) > 0) && (
+                      <div className="text-[11px] text-brand-500 mt-0.5">{prefs!.experiences?.length ?? prefs!.experience!.length} 段经历已就绪</div>
                     )}
                   </div>
                   <a href="/profile/" className="shrink-0 text-[11px] text-brand-600 hover:text-brand-700 underline">修改</a>

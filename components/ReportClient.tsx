@@ -152,6 +152,27 @@ export default function ReportClient({ jobs }: { jobs: Job[] }) {
               )}
             </div>
           )}
+          {(prefs.experiences ?? []).length > 0 && (
+            <div className="mt-4 border-t border-gray-100 pt-3">
+              <div className="text-xs font-medium text-gray-700 mb-2">实习/工作经历（{prefs.experiences!.length} 段）</div>
+              <div className="space-y-2">
+                {prefs.experiences!.map((exp, i) => (
+                  <div key={i} className="p-2.5 rounded-lg bg-gray-50 border border-gray-100">
+                    <div className="flex items-center gap-2 mb-0.5">
+                      <span className="text-xs font-semibold text-gray-900">{exp.company}</span>
+                      <span className="text-[11px] text-brand-600">{exp.role}</span>
+                      {exp.duration && <span className="text-[10px] text-gray-400">{exp.duration}</span>}
+                    </div>
+                    {exp.skills.length > 0 && (
+                      <div className="flex flex-wrap gap-1 mt-1">
+                        {exp.skills.slice(0, 5).map((s) => <span key={s} className="text-[10px] px-1.5 py-0.5 rounded-full bg-brand-50 text-brand-600">{s}</span>)}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </section>
 
         {/* Match distribution */}
