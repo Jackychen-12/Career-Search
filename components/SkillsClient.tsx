@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { loadPrefs } from "@/lib/prefs";
 import { hasPrefs } from "@/lib/ranking";
 import { getSession } from "@/lib/auth";
@@ -109,6 +109,16 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
   const [letterRefineInput, setLetterRefineInput] = useState("");
   const [letterRefineLoading, setLetterRefineLoading] = useState(false);
   const [letterChanges, setLetterChanges] = useState("");
+  const [jobSearchQuery, setJobSearchQuery] = useState("");
+
+  const searchedJobs = useMemo(() => {
+    const q = jobSearchQuery.trim().toLowerCase();
+    if (!q) return [];
+    return jobs.filter((j) => {
+      const text = [j.company, j.title, j.description ?? "", ...j.location, ...j.tags, ...(j.aiTags?.skills ?? [])].join(" ").toLowerCase();
+      return text.includes(q);
+    }).slice(0, 20);
+  }, [jobs, jobSearchQuery]);
 
   useEffect(() => {
     const p = loadPrefs();
@@ -231,7 +241,6 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
     setAppliedIds(new Set(optimizeResult.suggestions.map((s) => s.id)));
   }
 
-  const topJobs = jobs.slice(0, 20);
 
   const groupedSuggestions = optimizeResult
     ? optimizeResult.suggestions.reduce<Record<string, typeof optimizeResult.suggestions>>((acc, s) => {
@@ -270,7 +279,7 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
                   key={s.key}
                   onClick={() => {
                     setActive(s.key);
-                    setInterviewResult(null); setLetterResult(null); setOfferResult(null); setJdMatchResult(null); setJdCompareResult(null); setOptimizeResult(null); setAppliedIds(new Set()); setExpandedQuestions(new Set()); setInterviewFollowupInput(""); setError(""); setDisplaySections([]); setLetterText(""); setLetterRefineInput(""); setLetterRefineLoading(false); setLetterChanges("");
+                    setInterviewResult(null); setLetterResult(null); setOfferResult(null); setJdMatchResult(null); setJdCompareResult(null); setOptimizeResult(null); setAppliedIds(new Set()); setExpandedQuestions(new Set()); setInterviewFollowupInput(""); setError(""); setDisplaySections([]); setLetterText(""); setLetterRefineInput(""); setLetterRefineLoading(false); setLetterChanges(""); setJobSearchQuery("");
                     if (s.key === "resume-optimize" && !expInput && prefs) {
                       if (prefs.experiences?.length) {
                         setExpInput(prefs.experiences.map((e) => `${e.duration ?? ""} ${e.company} ${e.role}\n${e.description ?? ""}\n成果: ${e.highlights.join("; ")}`).join("\n\n"));
@@ -315,8 +324,42 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
                 </div>
 
                 {(active === "resume-optimize" || active === "cover-letter" || active === "jd-match") && (
-                  <div>
-                    <label className="text-xs text-gray-500 mb-1 block">目标岗位（粘贴 JD 或输入公司+岗位名）</label>
+                  <div className="space-y-2">
+                    <label className="text-xs text-gray-500 mb-1 block">目标岗位（搜索导入或粘贴 JD）</label>
+                    <div className="relative">
+                      <input
+                        value={jobSearchQuery}
+                        onChange={(e) => setJobSearchQuery(e.target.value)}
+                        placeholder="搜索公司、岗位名、城市..."
+                        className="w-full pl-8 pr-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:border-brand-500"
+                      />
+                      <svg className="absolute left-2.5 top-2.5 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                    </div>
+                    {searchedJobs.length > 0 && (
+                      <div className="max-h-[200px] overflow-y-auto rounded-lg border border-gray-200 divide-y divide-gray-50">
+                        {searchedJobs.map((j) => (
+                          <button
+                            key={j.id}
+                            onClick={() => {
+                              setJobInput(`${j.company} - ${j.title}\n${j.description ?? ""}\n技能要求: ${j.aiTags?.skills.join(", ") ?? ""}`);
+                              setJobSearchQuery("");
+                            }}
+                            className="w-full px-3 py-2 text-left hover:bg-brand-50/50 transition flex items-center justify-between gap-2"
+                          >
+                            <div className="min-w-0">
+                              <div className="text-xs font-medium text-gray-900 truncate">{j.company} · {j.title}</div>
+                              <div className="flex items-center gap-1.5 mt-0.5">
+                                <span className="text-[10px] text-gray-400">{j.location[0] ?? ""}</span>
+                                {j.aiTags?.skills.slice(0, 3).map((s) => (
+                                  <span key={s} className="text-[10px] px-1 py-0 rounded bg-gray-100 text-gray-500">{s}</span>
+                                ))}
+                              </div>
+                            </div>
+                            <span className="shrink-0 text-[10px] text-brand-600 font-medium">导入</span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
                     <textarea
                       value={jobInput}
                       onChange={(e) => setJobInput(e.target.value)}
@@ -324,15 +367,6 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
                       rows={3}
                       className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm resize-none focus:outline-none focus:border-brand-500"
                     />
-                    <div className="flex flex-wrap gap-1.5 mt-2">
-                      <span className="text-[10px] text-gray-400">快速填入：</span>
-                      {topJobs.slice(0, 6).map((j) => (
-                        <button key={j.id} onClick={() => setJobInput(`${j.company} - ${j.title}\n${j.description ?? ""}\n技能要求: ${j.aiTags?.skills.join(", ") ?? ""}`)}
-                          className="text-[10px] px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 hover:bg-brand-50 hover:text-brand-600 transition">
-                          {j.company}
-                        </button>
-                      ))}
-                    </div>
                   </div>
                 )}
 
@@ -363,8 +397,42 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
                 )}
 
                 {active === "jd-compare" && (
-                  <div>
-                    <label className="text-xs text-gray-500 mb-1 block">待对比的岗位 JD（每个 JD 用 --- 分隔）</label>
+                  <div className="space-y-2">
+                    <label className="text-xs text-gray-500 mb-1 block">待对比的岗位 JD（搜索导入或手动输入，用 --- 分隔）</label>
+                    <div className="relative">
+                      <input
+                        value={jobSearchQuery}
+                        onChange={(e) => setJobSearchQuery(e.target.value)}
+                        placeholder="搜索公司、岗位名、城市..."
+                        className="w-full pl-8 pr-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:border-brand-500"
+                      />
+                      <svg className="absolute left-2.5 top-2.5 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                    </div>
+                    {searchedJobs.length > 0 && (
+                      <div className="max-h-[200px] overflow-y-auto rounded-lg border border-gray-200 divide-y divide-gray-50">
+                        {searchedJobs.map((j) => (
+                          <button
+                            key={j.id}
+                            onClick={() => {
+                              setJdsInput((prev) => (prev ? prev + "\n---\n" : "") + `${j.company} - ${j.title}\n${j.description ?? ""}\n技能要求: ${j.aiTags?.skills.join(", ") ?? ""}`);
+                              setJobSearchQuery("");
+                            }}
+                            className="w-full px-3 py-2 text-left hover:bg-brand-50/50 transition flex items-center justify-between gap-2"
+                          >
+                            <div className="min-w-0">
+                              <div className="text-xs font-medium text-gray-900 truncate">{j.company} · {j.title}</div>
+                              <div className="flex items-center gap-1.5 mt-0.5">
+                                <span className="text-[10px] text-gray-400">{j.location[0] ?? ""}</span>
+                                {j.aiTags?.skills.slice(0, 3).map((s) => (
+                                  <span key={s} className="text-[10px] px-1 py-0 rounded bg-gray-100 text-gray-500">{s}</span>
+                                ))}
+                              </div>
+                            </div>
+                            <span className="shrink-0 text-[10px] text-brand-600 font-medium">+ 添加</span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
                     <textarea
                       value={jdsInput}
                       onChange={(e) => setJdsInput(e.target.value)}
@@ -372,15 +440,6 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
                       rows={8}
                       className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm resize-none focus:outline-none focus:border-brand-500"
                     />
-                    <div className="flex flex-wrap gap-1.5 mt-2">
-                      <span className="text-[10px] text-gray-400">快速添加：</span>
-                      {topJobs.slice(0, 8).map((j) => (
-                        <button key={j.id} onClick={() => setJdsInput((prev) => (prev ? prev + "\n---\n" : "") + `${j.company} - ${j.title}\n${j.description ?? ""}\n技能要求: ${j.aiTags?.skills.join(", ") ?? ""}`)}
-                          className="text-[10px] px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 hover:bg-brand-50 hover:text-brand-600 transition">
-                          + {j.company}
-                        </button>
-                      ))}
-                    </div>
                   </div>
                 )}
 
