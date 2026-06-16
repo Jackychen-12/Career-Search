@@ -53,7 +53,7 @@ interface TimelineEvent {
 }
 
 type MainTab = "all" | "saved";
-type SubView = "kanban" | "timeline" | "table";
+type SubView = "kanban" | "timeline";
 
 function getKanbanColumn(item: UnifiedItem): TrackingStatus {
   if (KANBAN_COLS.includes(item.status)) return item.status;
@@ -312,46 +312,35 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
         {/* ═══ Tab: 全部记录 ═══ */}
         {mainTab === "all" && (
           <>
-            {/* Stat cards */}
+            {/* Unified status chip bar */}
             {activeItems.length > 0 && (
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-                <StatCard label="总投递" value={stats.total} color="text-slate-900" cardClass="bg-gradient-to-br from-slate-50 to-slate-100/50 border-l-4 border-l-slate-400" />
-                <StatCard label="面试中" value={stats.byStatus.interview + stats.byStatus.hr} sub={`笔试 ${stats.byStatus.written}`} color="text-amber-600" cardClass="bg-gradient-to-br from-amber-50 to-orange-50/50 border-l-4 border-l-amber-400" />
-                <StatCard label="已拿 Offer" value={stats.byStatus.offer} color="text-green-600" cardClass="bg-gradient-to-br from-emerald-50 to-green-50/50 border-l-4 border-l-emerald-500" />
-                <StatCard label="Offer 率" value={`${stats.offerRate}%`} sub={stats.avgRoundsToOffer > 0 ? `平均 ${stats.avgRoundsToOffer} 轮` : undefined} color="text-brand-600" cardClass="bg-gradient-to-br from-violet-50 to-indigo-50/50 border-l-4 border-l-brand-400" />
-                <StatCard label="本周活跃" value={stats.weeklyActivity} color="text-cyan-600" cardClass="bg-gradient-to-br from-cyan-50 to-sky-50/50 border-l-4 border-l-cyan-400" />
-              </div>
-            )}
-
-            {/* Status filter bar */}
-            <div className="flex flex-wrap gap-2">
-              {(["applied", "written", "interview", "hr", "offer", "rejected"] as TrackingStatus[]).map((key) => {
-                const cfg = STATUS_CONFIG[key];
-                const count = counts[key] ?? 0;
-                if (count === 0) return null;
-                return (
-                  <button
-                    key={key}
-                    onClick={() => setStatusFilter(statusFilter === key ? null : key)}
-                    className={`px-3.5 py-2.5 rounded-xl flex items-center gap-2 transition border ${cfg.light} ${statusFilter === key ? "ring-2 ring-brand-400 border-transparent shadow-sm" : "border-gray-200/60 hover:border-gray-300"}`}
-                  >
-                    <span className={`w-2.5 h-2.5 rounded-full ${cfg.bg}`} />
-                    <span className="text-lg font-bold text-gray-900">{count}</span>
-                    <span className="text-sm text-gray-600">{cfg.label}</span>
-                  </button>
-                );
-              })}
-              {activeItems.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {(["applied", "written", "interview", "hr", "offer", "rejected"] as TrackingStatus[]).map((key) => {
+                  const cfg = STATUS_CONFIG[key];
+                  const count = counts[key] ?? 0;
+                  if (count === 0) return null;
+                  return (
+                    <button
+                      key={key}
+                      onClick={() => setStatusFilter(statusFilter === key ? null : key)}
+                      className={`px-3.5 py-2.5 rounded-xl flex items-center gap-2 transition border ${cfg.light} ${statusFilter === key ? "ring-2 ring-brand-400 border-transparent shadow-sm" : "border-gray-200/60 hover:border-gray-300"}`}
+                    >
+                      <span className={`w-2.5 h-2.5 rounded-full ${cfg.bg}`} />
+                      <span className="text-lg font-bold text-gray-900">{count}</span>
+                      <span className="text-sm text-gray-600">{cfg.label}</span>
+                    </button>
+                  );
+                })}
                 <div className="px-3.5 py-2.5 rounded-xl flex items-center gap-2 border border-gray-200/60 bg-white">
                   <span className="text-lg font-bold text-gray-900">{activeItems.length}</span>
                   <span className="text-sm text-gray-600">总计</span>
                 </div>
-              )}
-            </div>
+              </div>
+            )}
 
             {/* Sub view tabs */}
             <div className="flex gap-0.5 p-0.5 bg-gray-100 rounded-lg w-fit">
-              {([["kanban", "看板"], ["timeline", "时间线"], ["table", "表格"]] as [SubView, string][]).map(([key, label]) => (
+              {([["kanban", "看板"], ["timeline", "时间线"]] as [SubView, string][]).map(([key, label]) => (
                 <button key={key} onClick={() => { setSubView(key); setEditId(null); }} className={`px-4 py-1.5 rounded-md text-sm font-medium transition ${subView === key ? "bg-white text-gray-900 shadow-sm" : "text-gray-500"}`}>
                   {label}
                 </button>
@@ -527,108 +516,24 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
                     )}
                   </div>
                 )}
-
-                {/* ── Table View ── */}
-                {subView === "table" && (
-                  <div className="space-y-2">
-                    {filteredItems.map((t) => (
-                      <div key={t.id} className="card overflow-hidden">
-                        <div className="px-4 py-3 flex items-center gap-3 cursor-pointer" onClick={() => setEditId(editId === t.id ? null : t.id)}>
-                          <span className={`shrink-0 text-xs font-medium px-2 py-0.5 rounded-full ${STATUS_CONFIG[t.status].bg} text-white`}>
-                            {STATUS_CONFIG[t.status].label}
-                          </span>
-                          <div className="flex-1 min-w-0">
-                            <div className="text-sm font-medium text-gray-900 truncate">
-                              {t.company} · {t.title}
-                              {t.interview && <span className="text-xs text-amber-500 ml-1.5">({t.interview.rounds.length}轮面试)</span>}
-                            </div>
-                            <div className="text-xs text-gray-500 mt-0.5">
-                              {t.location && <>{t.location} · </>}{t.jobType}
-                              {t.entry.appliedAt && ` · 投递于 ${t.entry.appliedAt.slice(0, 10)}`}
-                              {t.interview?.nextInterviewAt && <span className="text-brand-600"> · 下次面试 {t.interview.nextInterviewAt.slice(5)}</span>}
-                            </div>
-                          </div>
-                          {t.entry.priority && <span className={`text-xs font-medium ${t.entry.priority === "high" ? "text-red-600" : t.entry.priority === "medium" ? "text-amber-600" : "text-gray-400"}`}>{t.entry.priority === "high" ? "高" : t.entry.priority === "medium" ? "中" : "低"}</span>}
-                          <span className="text-gray-300 text-xs">{editId === t.id ? "▲" : "▼"}</span>
-                        </div>
-                        {editId === t.id && !t.isInterviewOnly && (
-                          <div className="px-4 pb-4 pt-1 border-t border-gray-50 space-y-3">
-                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                              <div><label className="text-xs text-gray-500 block mb-0.5">状态</label>
-                                <select value={t.entry.status} onChange={(e) => updateEntry(t.id, { status: e.target.value as TrackingStatus })} className="w-full text-sm px-2 py-1.5 rounded-md border border-gray-200">
-                                  {Object.entries(STATUS_CONFIG).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
-                                </select></div>
-                              <div><label className="text-xs text-gray-500 block mb-0.5">优先级</label>
-                                <select value={t.entry.priority ?? ""} onChange={(e) => updateEntry(t.id, { priority: (e.target.value || undefined) as TrackingEntry["priority"] })} className="w-full text-sm px-2 py-1.5 rounded-md border border-gray-200">
-                                  <option value="">-</option><option value="high">高</option><option value="medium">中</option><option value="low">低</option>
-                                </select></div>
-                              <div><label className="text-xs text-gray-500 block mb-0.5">投递日期</label>
-                                <input type="date" value={t.entry.appliedAt ?? ""} onChange={(e) => updateEntry(t.id, { appliedAt: e.target.value || undefined })} className="w-full text-sm px-2 py-1.5 rounded-md border border-gray-200" /></div>
-                              <div><label className="text-xs text-gray-500 block mb-0.5">面试日期</label>
-                                <input type="date" value={t.entry.interviewAt ?? ""} onChange={(e) => updateEntry(t.id, { interviewAt: e.target.value || undefined })} className="w-full text-sm px-2 py-1.5 rounded-md border border-gray-200" /></div>
-                            </div>
-                            <div className="grid grid-cols-3 gap-2">
-                              <input value={t.entry.channel ?? ""} onChange={(e) => updateEntry(t.id, { channel: e.target.value || undefined })} placeholder="渠道" className="text-sm px-2 py-1.5 rounded-md border border-gray-200" />
-                              <input value={t.entry.contact ?? ""} onChange={(e) => updateEntry(t.id, { contact: e.target.value || undefined })} placeholder="联系人" className="text-sm px-2 py-1.5 rounded-md border border-gray-200" />
-                              <input value={t.entry.salary ?? ""} onChange={(e) => updateEntry(t.id, { salary: e.target.value || undefined })} placeholder="薪资" className="text-sm px-2 py-1.5 rounded-md border border-gray-200" />
-                            </div>
-                            <textarea value={t.entry.notes ?? ""} onChange={(e) => updateEntry(t.id, { notes: e.target.value || undefined })} placeholder="备注..." rows={2} className="w-full text-sm px-2 py-1.5 rounded-md border border-gray-200 resize-none" />
-                            <div className="flex justify-between">
-                              <button onClick={() => deleteEntry(t.id)} className="text-xs text-red-500">删除</button>
-                              <div className="flex items-center gap-3">
-                                {t.interview && <button onClick={() => { setEditRecord(t.interview); setShowForm(true); }} className="text-xs text-brand-600 font-medium">编辑面试</button>}
-                                {t.job && <a href={`/job/${t.job.id}`} className="text-xs text-gray-600 hover:text-gray-900">详情 →</a>}
-                                {t.applyUrl && <a href={t.applyUrl} target="_blank" rel="noreferrer" className="text-xs text-brand-600">投递 →</a>}
-                              </div>
-                            </div>
-                          </div>
-                        )}
-                        {editId === t.id && t.isInterviewOnly && t.interview && (
-                          <div className="px-4 pb-4 pt-1 border-t border-gray-50 space-y-3">
-                            {t.interview.rounds.length > 0 && (
-                              <div className="space-y-1.5">
-                                {t.interview.rounds.map((round, rIdx) => (
-                                  <div key={round.id} className="bg-gray-50 rounded-lg px-3 py-2 flex items-center gap-2 text-xs flex-wrap">
-                                    <span className="font-bold text-gray-600">{round.round || `第${rIdx + 1}轮`}</span>
-                                    <span className="text-gray-400">{round.date}</span>
-                                    {round.result && (
-                                      <span className={`text-xs font-medium px-1.5 py-0.5 rounded ${round.result === "通过" ? "bg-green-100 text-green-700" : round.result === "挂了" ? "bg-red-100 text-red-700" : "bg-yellow-100 text-yellow-700"}`}>{round.result}</span>
-                                    )}
-                                    {round.feeling && <span className="text-gray-400">感受: {round.feeling}</span>}
-                                  </div>
-                                ))}
-                              </div>
-                            )}
-                            {t.interview.salaryInfo && <div className="text-xs text-gray-500">薪资: {t.interview.salaryInfo}</div>}
-                            {t.interview.notes && <div className="text-xs text-gray-500">备注: {t.interview.notes}</div>}
-                            <div className="flex items-center justify-between pt-2 border-t border-gray-100">
-                              <button onClick={() => handleInterviewDelete(t.interview!.id)} className="text-xs text-red-400 hover:text-red-600">删除</button>
-                              <button onClick={() => { setEditRecord(t.interview); setShowForm(true); }} className="text-xs text-brand-600 hover:text-brand-700 font-medium">编辑</button>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                )}
               </>
             )}
 
             {/* Charts section */}
             {activeItems.length > 0 && (
-              <div className="border-t border-gray-200/60 pt-6 space-y-4">
+              <div className="border-t border-gray-200/60 pt-6 space-y-5">
                 <h2 className="text-base font-semibold text-gray-800">数据概览</h2>
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
                   <div className="card p-5">
-                    <h3 className="text-base font-semibold text-gray-700 mb-3">状态分布</h3>
-                    <StatusPie byStatus={stats.byStatus} />
+                    <h3 className="text-base font-semibold text-gray-700 mb-4">状态分布</h3>
+                    <StatusPie byStatus={counts} />
                   </div>
                   <div className="card p-5">
-                    <h3 className="text-base font-semibold text-gray-700 mb-3">投递转化漏斗</h3>
+                    <h3 className="text-base font-semibold text-gray-700 mb-4">投递转化漏斗</h3>
                     <FunnelChart data={stats.conversionFunnel} />
                   </div>
                   <div className="card p-5">
-                    <h3 className="text-base font-semibold text-gray-700 mb-3">近 30 天趋势</h3>
+                    <h3 className="text-base font-semibold text-gray-700 mb-4">近 30 天趋势</h3>
                     <TrendChart data={stats.dailyTrend} />
                   </div>
                 </div>
@@ -684,16 +589,6 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
           onCancel={() => { setShowForm(false); setEditRecord(undefined); }}
         />
       )}
-    </div>
-  );
-}
-
-function StatCard({ label, value, sub, color, cardClass }: { label: string; value: string | number; sub?: string; color: string; cardClass?: string }) {
-  return (
-    <div className={`card p-5 flex flex-col gap-1.5 ${cardClass ?? ""}`}>
-      <div className="text-xs font-medium text-gray-600 uppercase tracking-wide">{label}</div>
-      <div className={`text-3xl font-bold tabular-nums ${color}`}>{value}</div>
-      {sub && <div className="text-xs text-gray-500">{sub}</div>}
     </div>
   );
 }

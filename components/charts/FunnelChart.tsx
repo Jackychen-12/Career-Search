@@ -18,15 +18,15 @@ export function FunnelChart({ data }: FunnelProps) {
   const maxCount = data[0].count;
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-2.5">
       {data.map((item, i) => {
-        const widthPct = maxCount > 0 ? Math.max((item.count / maxCount) * 100, 8) : 8;
+        const widthPct = maxCount > 0 ? Math.max((item.count / maxCount) * 100, 12) : 12;
         return (
           <div key={item.stage} className="flex items-center gap-3">
-            <span className="text-[12px] text-slate-500 dark:text-slate-400 w-14 text-right flex-none">
+            <span className="text-sm text-slate-600 w-16 text-right flex-none font-medium">
               {item.stage}
             </span>
-            <div className="flex-1 relative h-8">
+            <div className="flex-1 relative h-9">
               <div
                 className="h-full rounded-md flex items-center px-3 transition-all duration-500"
                 style={{
@@ -34,12 +34,12 @@ export function FunnelChart({ data }: FunnelProps) {
                   backgroundColor: i === data.length - 1 ? COLORS[5] : COLORS[Math.min(i, 4)],
                 }}
               >
-                <span className="text-[11px] font-semibold text-white whitespace-nowrap">
+                <span className="text-xs font-bold text-white whitespace-nowrap">
                   {item.count}
                 </span>
               </div>
             </div>
-            <span className="text-[11px] text-slate-400 dark:text-slate-500 w-10 flex-none">
+            <span className="text-xs font-medium text-slate-500 w-12 flex-none text-right tabular-nums">
               {item.rate}%
             </span>
           </div>

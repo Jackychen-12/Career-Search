@@ -32,16 +32,16 @@ export function StatusPie({ byStatus }: StatusPieProps) {
   const total = data.reduce((s, d) => s + d.value, 0);
 
   return (
-    <div className="flex items-center gap-4">
-      <div className="w-40 h-40 flex-none">
+    <div className="flex items-center gap-6">
+      <div className="w-44 h-44 flex-none">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie
               data={data}
               cx="50%"
               cy="50%"
-              innerRadius={38}
-              outerRadius={65}
+              innerRadius={40}
+              outerRadius={70}
               paddingAngle={2}
               dataKey="value"
               strokeWidth={0}
@@ -56,18 +56,19 @@ export function StatusPie({ byStatus }: StatusPieProps) {
                 backgroundColor: "rgba(255,255,255,0.95)",
                 border: "1px solid #e2e8f0",
                 borderRadius: 8,
-                fontSize: 12,
+                fontSize: 13,
               }}
             />
           </PieChart>
         </ResponsiveContainer>
       </div>
-      <div className="flex-1 space-y-1.5">
+      <div className="flex-1 space-y-2">
         {data.map((d) => (
-          <div key={d.name} className="flex items-center gap-2 text-[12px]">
-            <span className="w-2 h-2 rounded-full flex-none" style={{ backgroundColor: d.color }} />
-            <span className="text-slate-600 dark:text-slate-300 flex-1">{d.name}</span>
-            <span className="font-medium text-slate-900 dark:text-slate-100 tabular-nums">{d.value}</span>
+          <div key={d.name} className="flex items-center gap-2.5 text-sm">
+            <span className="w-2.5 h-2.5 rounded-full flex-none" style={{ backgroundColor: d.color }} />
+            <span className="text-slate-600 flex-1">{d.name}</span>
+            <span className="font-semibold text-slate-900 tabular-nums">{d.value}</span>
+            <span className="text-xs text-slate-400 tabular-nums w-10 text-right">{Math.round((d.value / total) * 100)}%</span>
           </div>
         ))}
       </div>
