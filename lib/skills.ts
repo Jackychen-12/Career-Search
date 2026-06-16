@@ -44,6 +44,7 @@ export interface ResumePolishResult {
 
 export interface ResumeOptimizeSuggestion {
   id: number;
+  section: string;
   title: string;
   impact: string;
   tags: string[];
@@ -56,7 +57,14 @@ export interface ResumeOptimizeResult {
   originalScore: number;
   optimizedScore: number;
   suggestions: ResumeOptimizeSuggestion[];
+  resumeOriginal: { sections: { title: string; content: string }[] };
   resume: { sections: { title: string; content: string }[] };
+  directionAdvice?: {
+    skillsRequired: string[];
+    skillsBonus: string[];
+    keyMetrics: string[];
+    commonMistakes: string[];
+  };
   keywords: string[];
   tips: string;
 }

@@ -4,20 +4,19 @@ import { useEffect, useState } from "react";
 import { loadPrefs } from "@/lib/prefs";
 import { hasPrefs } from "@/lib/ranking";
 import { getSession } from "@/lib/auth";
-import { generateInterview, followupInterview, polishResume, generateCoverLetter, compareOffers, analyzeJdMatch, generateCustomResume, compareJds, getDirectionTemplate, optimizeResume } from "@/lib/skills";
-import type { InterviewQuestion, ResumePolishResult, CoverLetterResult, OfferCompareResult, JdMatchResult, CustomResumeResult, JdCompareResult, DirectionTemplateResult, ResumeOptimizeResult } from "@/lib/skills";
+import { generateInterview, followupInterview, generateCoverLetter, compareOffers, analyzeJdMatch, compareJds, optimizeResume } from "@/lib/skills";
+import type { InterviewQuestion, CoverLetterResult, OfferCompareResult, JdMatchResult, JdCompareResult, ResumeOptimizeResult } from "@/lib/skills";
 import type { Job, Prefs } from "@/lib/types";
 
-type Skill = "interview" | "resume-optimize" | "cover-letter" | "offer" | "jd-match" | "jd-compare" | "direction";
+type Skill = "interview" | "resume-optimize" | "cover-letter" | "offer" | "jd-match" | "jd-compare";
 
 const SKILLS: { key: Skill; label: string; desc: string; icon: string }[] = [
   { key: "interview", label: "面试题定制", desc: "根据你的背景和目标岗位，AI 生成针对性面试题+参考答案", icon: "🎯" },
-  { key: "resume-optimize", label: "简历优化", desc: "AI 分析简历与 JD 差距，优先级改写建议 + 一键生成定制简历", icon: "📝" },
+  { key: "resume-optimize", label: "简历优化", desc: "AI 逐句分析简历，优先级改写建议 + 导出定制简历", icon: "📝" },
   { key: "cover-letter", label: "求职信生成", desc: "根据目标岗位 JD，生成定制化求职信", icon: "✉️" },
   { key: "offer", label: "Offer 对比", desc: "多个 Offer 横向对比，综合分析给出推荐", icon: "⚖️" },
   { key: "jd-match", label: "JD 匹配分析", desc: "深度分析简历与 JD 匹配度，关键词高亮+差距分析", icon: "🔍" },
   { key: "jd-compare", label: "多 JD 对比", desc: "批量对比多个岗位匹配度，智能排序投递优先级", icon: "📊" },
-  { key: "direction", label: "方向模版", desc: "按求职方向生成简历模版、技能清单和策略建议", icon: "🧭" },
 ];
 
 function profileToText(p: Prefs): string {
@@ -50,6 +49,40 @@ function profileToText(p: Prefs): string {
   return parts.join("\n");
 }
 
+function exportPDF(sections: { title: string; content: string }[], name: string) {
+  const html = sections
+    .map(
+      (s) =>
+        `<div style="margin-bottom:18px"><h2 style="font-size:15px;font-weight:700;color:#1a1a1a;margin:0 0 6px;border-bottom:1px solid #e5e7eb;padding-bottom:4px">${s.title}</h2><div style="font-size:13px;color:#374151;line-height:1.7;white-space:pre-line">${s.content}</div></div>`
+    )
+    .join("");
+  const w = window.open("", "_blank");
+  if (!w) return;
+  w.document.write(
+    `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${name} - 简历</title><style>@page{margin:20mm 18mm}body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;max-width:700px;margin:0 auto;padding:24px;color:#1a1a1a}@media print{body{padding:0}}</style></head><body>${html}</body></html>`
+  );
+  w.document.close();
+  w.print();
+}
+
+function exportWord(sections: { title: string; content: string }[], name: string) {
+  const body = sections
+    .map(
+      (s) =>
+        `<h2 style="font-size:14pt;font-weight:bold;color:#1a1a1a;border-bottom:1pt solid #ccc;padding-bottom:4pt;margin-bottom:6pt">${s.title}</h2><p style="font-size:11pt;color:#333;line-height:1.8;white-space:pre-line">${s.content}</p>`
+    )
+    .join("");
+  const html = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><style>body{font-family:"Microsoft YaHei","SimSun",sans-serif;padding:20pt}</style></head><body>${body}</body></html>`;
+  const blob = new Blob(["\ufeff" + html], { type: "application/msword" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `${name}_简历.doc`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(a.href);
+}
+
 export default function SkillsClient({ jobs }: { jobs: Job[] }) {
   const [prefs, setPrefs] = useState<Prefs | null>(null);
   const [loggedIn, setLoggedIn] = useState(false);
@@ -57,22 +90,18 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // Skill-specific state
   const [jobInput, setJobInput] = useState("");
   const [expInput, setExpInput] = useState("");
   const [offersInput, setOffersInput] = useState("");
   const [jdsInput, setJdsInput] = useState("");
-  const [directionInput, setDirectionInput] = useState("");
   const [interviewResult, setInterviewResult] = useState<InterviewQuestion[] | null>(null);
-  const [resumeResult, setResumeResult] = useState<ResumePolishResult | null>(null);
   const [letterResult, setLetterResult] = useState<CoverLetterResult | null>(null);
   const [offerResult, setOfferResult] = useState<OfferCompareResult | null>(null);
   const [jdMatchResult, setJdMatchResult] = useState<JdMatchResult | null>(null);
-  const [customResumeResult, setCustomResumeResult] = useState<CustomResumeResult | null>(null);
   const [jdCompareResult, setJdCompareResult] = useState<JdCompareResult | null>(null);
-  const [directionResult, setDirectionResult] = useState<DirectionTemplateResult | null>(null);
   const [optimizeResult, setOptimizeResult] = useState<ResumeOptimizeResult | null>(null);
   const [appliedIds, setAppliedIds] = useState<Set<number>>(new Set());
+  const [displaySections, setDisplaySections] = useState<{ title: string; content: string }[]>([]);
   const [interviewFollowupInput, setInterviewFollowupInput] = useState("");
   const [interviewFollowupLoading, setInterviewFollowupLoading] = useState(false);
   const [expandedQuestions, setExpandedQuestions] = useState<Set<number>>(new Set());
@@ -82,6 +111,12 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
     if (hasPrefs(p)) setPrefs(p);
     getSession().then((s) => setLoggedIn(!!s));
   }, []);
+
+  useEffect(() => {
+    if (optimizeResult?.resumeOriginal?.sections) {
+      setDisplaySections(optimizeResult.resumeOriginal.sections.map((s) => ({ ...s })));
+    }
+  }, [optimizeResult]);
 
   async function run() {
     if (!prefs || !active) return;
@@ -108,9 +143,6 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
       } else if (active === "jd-compare") {
         const r = await compareJds(profile, jdsInput);
         setJdCompareResult(r);
-      } else if (active === "direction") {
-        const r = await getDirectionTemplate(profile, directionInput);
-        setDirectionResult(r);
       }
     } catch (e) {
       setError((e as Error).message);
@@ -151,8 +183,34 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
     setInterviewFollowupLoading(false);
   }
 
-  // Quick fill from job list
+  function applySuggestion(suggestion: { section: string; original: string; improved: string; id: number }) {
+    setDisplaySections((prev) =>
+      prev.map((s) => {
+        if (s.content.includes(suggestion.original)) {
+          return { ...s, content: s.content.replace(suggestion.original, suggestion.improved) };
+        }
+        return s;
+      })
+    );
+    setAppliedIds((prev) => new Set([...prev, suggestion.id]));
+  }
+
+  function applyAll() {
+    if (!optimizeResult) return;
+    setDisplaySections(optimizeResult.resume.sections.map((s) => ({ ...s })));
+    setAppliedIds(new Set(optimizeResult.suggestions.map((s) => s.id)));
+  }
+
   const topJobs = jobs.slice(0, 20);
+
+  const groupedSuggestions = optimizeResult
+    ? optimizeResult.suggestions.reduce<Record<string, typeof optimizeResult.suggestions>>((acc, s) => {
+        const key = s.section || "其他";
+        if (!acc[key]) acc[key] = [];
+        acc[key].push(s);
+        return acc;
+      }, {})
+    : {};
 
   return (
     <div className="min-h-screen">
@@ -176,22 +234,19 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
         ) : (
           <>
             {/* Skill cards */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
               {SKILLS.map((s) => (
                 <button
                   key={s.key}
                   onClick={() => {
                     setActive(s.key);
-                    setInterviewResult(null); setResumeResult(null); setLetterResult(null); setOfferResult(null); setJdMatchResult(null); setCustomResumeResult(null); setJdCompareResult(null); setDirectionResult(null); setOptimizeResult(null); setAppliedIds(new Set()); setExpandedQuestions(new Set()); setInterviewFollowupInput(""); setError("");
+                    setInterviewResult(null); setLetterResult(null); setOfferResult(null); setJdMatchResult(null); setJdCompareResult(null); setOptimizeResult(null); setAppliedIds(new Set()); setExpandedQuestions(new Set()); setInterviewFollowupInput(""); setError(""); setDisplaySections([]);
                     if (s.key === "resume-optimize" && !expInput && prefs) {
                       if (prefs.experiences?.length) {
                         setExpInput(prefs.experiences.map((e) => `${e.duration ?? ""} ${e.company} ${e.role}\n${e.description ?? ""}\n成果: ${e.highlights.join("; ")}`).join("\n\n"));
                       } else if (prefs.experience?.length) {
                         setExpInput(prefs.experience.join("\n"));
                       }
-                    }
-                    if (s.key === "direction" && !directionInput && prefs?.targetRoles?.length) {
-                      setDirectionInput(prefs.targetRoles[0]);
                     }
                     if (["resume-optimize", "cover-letter", "jd-match"].includes(s.key) && !jobInput && prefs?.targetRoles?.length) {
                       setJobInput(prefs.targetRoles.join("、"));
@@ -214,7 +269,6 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
               <div className="card p-5 space-y-4">
                 <h3 className="text-sm font-bold text-gray-900">{SKILLS.find((s) => s.key === active)?.label}</h3>
 
-                {/* Auto-detected profile banner */}
                 <div className="p-3 rounded-lg bg-brand-50/60 border border-brand-100 flex items-start gap-3">
                   <div className="shrink-0 w-8 h-8 rounded-full bg-brand-500 text-white flex items-center justify-center text-sm font-bold">AI</div>
                   <div className="flex-1 min-w-0">
@@ -300,27 +354,6 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
                   </div>
                 )}
 
-                {active === "direction" && (
-                  <div>
-                    <label className="text-xs text-gray-500 mb-1 block">目标求职方向</label>
-                    <input
-                      value={directionInput}
-                      onChange={(e) => setDirectionInput(e.target.value)}
-                      placeholder="如：AI产品经理、数据分析师、量化交易..."
-                      className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:border-brand-500"
-                    />
-                    <div className="flex flex-wrap gap-1.5 mt-2">
-                      <span className="text-[10px] text-gray-400">热门方向：</span>
-                      {["产品经理", "数据分析", "后端开发", "前端开发", "AI/算法", "运营", "咨询", "投行/金融"].map((d) => (
-                        <button key={d} onClick={() => setDirectionInput(d)}
-                          className="text-[10px] px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 hover:bg-brand-50 hover:text-brand-600 transition">
-                          {d}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
                 {error && <div className="p-3 rounded-lg bg-red-50 text-xs text-red-600">{error}</div>}
 
                 <button
@@ -336,7 +369,6 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
             {/* ── 面试题定制结果 ── */}
             {active === "interview" && (
               <div className="space-y-4">
-                {/* Loading state */}
                 {loading && !interviewResult && (
                   <div className="card p-12 text-center">
                     <div className="text-brand-600 font-medium text-sm">AI 正在根据你的画像生成面试题...</div>
@@ -353,7 +385,6 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
                   </div>
                 )}
 
-                {/* Questions list */}
                 {interviewResult && interviewResult.length > 0 && (
                   <div className="card p-5 space-y-3">
                     <div className="flex items-center justify-between">
@@ -414,7 +445,6 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
                   </div>
                 )}
 
-                {/* Follow-up input */}
                 {interviewResult && interviewResult.length > 0 && (
                   <div className="card p-5 space-y-3">
                     <h3 className="text-sm font-bold text-gray-900">继续追问</h3>
@@ -460,7 +490,7 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
                     <div className="absolute h-full bg-brand-500 rounded-full transition-all" style={{ width: `${optimizeResult.optimizedScore}%`, opacity: 0.3 }} />
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-xs text-gray-500">定制版</span>
+                    <span className="text-xs text-gray-500">优化版</span>
                     <span className="text-xl font-bold text-brand-600">{optimizeResult.optimizedScore}分</span>
                   </div>
                 </div>
@@ -468,79 +498,165 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
                 {/* Apply all button */}
                 <div className="flex items-center justify-between">
                   <h3 className="text-sm font-bold text-gray-900">
-                    按优先级排序的改写建议
-                    <span className="ml-2 text-xs font-normal text-gray-400">{optimizeResult.suggestions.length} 条</span>
+                    改写建议
+                    <span className="ml-2 text-xs font-normal text-gray-400">{optimizeResult.suggestions.length} 条 · 按段落分组</span>
                   </h3>
-                  <button
-                    onClick={() => setAppliedIds(new Set(optimizeResult.suggestions.map((s) => s.id)))}
-                    className="px-3 py-1.5 rounded-lg text-xs font-semibold text-white bg-red-500 hover:bg-red-600 transition"
-                  >
-                    一键全部应用
-                  </button>
+                  <div className="flex gap-2">
+                    {appliedIds.size > 0 && (
+                      <button
+                        onClick={() => {
+                          setAppliedIds(new Set());
+                          if (optimizeResult.resumeOriginal?.sections) {
+                            setDisplaySections(optimizeResult.resumeOriginal.sections.map((s) => ({ ...s })));
+                          }
+                        }}
+                        className="px-3 py-1.5 rounded-lg text-xs font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 transition"
+                      >
+                        重置
+                      </button>
+                    )}
+                    <button
+                      onClick={applyAll}
+                      className="px-3 py-1.5 rounded-lg text-xs font-semibold text-white bg-red-500 hover:bg-red-600 transition"
+                    >
+                      一键全部应用
+                    </button>
+                  </div>
                 </div>
 
                 {/* Two-column layout */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                  {/* Left: Suggestions */}
-                  <div className="space-y-3 lg:max-h-[600px] lg:overflow-y-auto lg:pr-2">
-                    {optimizeResult.suggestions.map((s) => {
-                      const applied = appliedIds.has(s.id);
-                      return (
-                        <div key={s.id} className={`p-3 rounded-lg border transition ${applied ? "border-green-200 bg-green-50/50" : "border-gray-100 bg-white"}`}>
-                          <div className="flex items-start justify-between gap-2 mb-2">
-                            <div className="flex items-center gap-2">
-                              <span className="shrink-0 w-6 h-6 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center">
-                                {applied ? "✓" : String(s.id).padStart(2, "0")}
-                              </span>
-                              <span className="text-xs font-bold text-gray-900">{s.title}</span>
-                            </div>
-                            <span className="shrink-0 text-[10px] font-bold text-red-500 bg-red-50 px-1.5 py-0.5 rounded">{s.impact}</span>
-                          </div>
-                          <div className="flex flex-wrap gap-1 mb-2">
-                            {s.tags.map((t) => <span key={t} className="text-[10px] px-1.5 py-0.5 rounded bg-gray-100 text-gray-600">{t}</span>)}
-                          </div>
-                          <div className="text-[11px] text-gray-400 mb-1">BEFORE</div>
-                          <div className="text-xs text-gray-500 line-through mb-2">{s.original}</div>
-                          <div className="text-[11px] text-brand-600 mb-1">AFTER</div>
-                          <div className="text-xs text-gray-900 font-medium mb-2">{s.improved}</div>
-                          <div className="text-[11px] text-gray-400 mb-2">{s.reason}</div>
-                          {!applied && (
-                            <button
-                              onClick={() => setAppliedIds((prev) => new Set([...prev, s.id]))}
-                              className="text-[11px] px-3 py-1 rounded-md bg-brand-500 text-white hover:bg-brand-600 transition"
-                            >
-                              应用
-                            </button>
-                          )}
+                  {/* Left: Suggestions grouped by section */}
+                  <div className="space-y-4 lg:max-h-[700px] lg:overflow-y-auto lg:pr-2">
+                    {Object.entries(groupedSuggestions).map(([section, suggestions]) => (
+                      <div key={section}>
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className="text-xs font-bold text-gray-700">{section}</span>
+                          <span className="text-[10px] text-gray-400">({suggestions.length}条建议)</span>
                         </div>
-                      );
-                    })}
+                        <div className="space-y-2.5">
+                          {suggestions.map((s) => {
+                            const applied = appliedIds.has(s.id);
+                            return (
+                              <div key={s.id} className={`p-3 rounded-lg border transition ${applied ? "border-green-200 bg-green-50/50" : "border-gray-100 bg-white"}`}>
+                                <div className="flex items-start justify-between gap-2 mb-2">
+                                  <div className="flex items-center gap-2">
+                                    <span className={`shrink-0 w-6 h-6 rounded-full text-white text-[10px] font-bold flex items-center justify-center ${applied ? "bg-green-500" : "bg-red-500"}`}>
+                                      {applied ? "✓" : String(s.id).padStart(2, "0")}
+                                    </span>
+                                    <span className="text-xs font-bold text-gray-900">{s.title}</span>
+                                  </div>
+                                  <span className="shrink-0 text-[10px] font-bold text-red-500 bg-red-50 px-1.5 py-0.5 rounded">{s.impact}</span>
+                                </div>
+                                <div className="flex flex-wrap gap-1 mb-2">
+                                  {s.tags.map((t) => <span key={t} className="text-[10px] px-1.5 py-0.5 rounded bg-gray-100 text-gray-600">{t}</span>)}
+                                </div>
+                                <div className="text-[11px] text-gray-400 mb-1">BEFORE</div>
+                                <div className="text-xs text-gray-500 line-through mb-2">{s.original}</div>
+                                <div className="text-[11px] text-brand-600 mb-1">AFTER</div>
+                                <div className="text-xs text-gray-900 font-medium mb-2">{s.improved}</div>
+                                <div className="text-[11px] text-gray-400 mb-2">{s.reason}</div>
+                                {!applied && (
+                                  <button
+                                    onClick={() => applySuggestion(s)}
+                                    className="text-[11px] px-3 py-1 rounded-md bg-brand-500 text-white hover:bg-brand-600 transition"
+                                  >
+                                    应用此建议
+                                  </button>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    ))}
+
+                    {/* Direction Advice Panel */}
+                    {optimizeResult.directionAdvice && (
+                      <div className="mt-4 p-4 rounded-lg border border-gray-200 bg-gray-50/50 space-y-3">
+                        <h4 className="text-xs font-bold text-gray-800">方向参考</h4>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                          <div>
+                            <div className="text-[11px] font-semibold text-green-700 mb-1.5">必备技能</div>
+                            <div className="flex flex-wrap gap-1">
+                              {optimizeResult.directionAdvice.skillsRequired.map((s) => (
+                                <span key={s} className="text-[10px] px-1.5 py-0.5 rounded-full bg-green-100 text-green-700">{s}</span>
+                              ))}
+                            </div>
+                          </div>
+                          <div>
+                            <div className="text-[11px] font-semibold text-blue-700 mb-1.5">加分技能</div>
+                            <div className="flex flex-wrap gap-1">
+                              {optimizeResult.directionAdvice.skillsBonus.map((s) => (
+                                <span key={s} className="text-[10px] px-1.5 py-0.5 rounded-full bg-blue-100 text-blue-700">{s}</span>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                        {optimizeResult.directionAdvice.keyMetrics.length > 0 && (
+                          <div>
+                            <div className="text-[11px] font-semibold text-purple-700 mb-1.5">关键量化指标</div>
+                            <div className="flex flex-wrap gap-1">
+                              {optimizeResult.directionAdvice.keyMetrics.map((m) => (
+                                <span key={m} className="text-[10px] px-1.5 py-0.5 rounded-full bg-purple-100 text-purple-700">{m}</span>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                        {optimizeResult.directionAdvice.commonMistakes.length > 0 && (
+                          <div>
+                            <div className="text-[11px] font-semibold text-red-600 mb-1.5">常见错误</div>
+                            <ul className="space-y-1">
+                              {optimizeResult.directionAdvice.commonMistakes.map((m) => (
+                                <li key={m} className="text-[10px] text-red-500 flex items-start gap-1">
+                                  <span className="mt-0.5 shrink-0">!</span><span>{m}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
 
-                  {/* Right: Resume preview */}
-                  <div className="lg:max-h-[600px] lg:overflow-y-auto">
+                  {/* Right: Resume preview + export */}
+                  <div className="lg:max-h-[700px] lg:overflow-y-auto">
                     <div className="border border-gray-200 rounded-lg overflow-hidden bg-white">
-                      <div className="px-5 py-3 bg-gray-50 border-b border-gray-200 flex items-center justify-between">
-                        <span className="text-xs font-bold text-gray-700">定制版简历 · 预览</span>
-                        <button
-                          onClick={() => {
-                            const text = optimizeResult.resume.sections.map((s) => `【${s.title}】\n${s.content}`).join("\n\n");
-                            navigator.clipboard.writeText(text).then(() => alert("已复制到剪贴板"));
-                          }}
-                          className="text-[11px] text-brand-600 hover:text-brand-700 font-medium"
-                        >
-                          复制全文
-                        </button>
+                      <div className="px-5 py-3 bg-gray-50 border-b border-gray-200 flex items-center justify-between gap-2">
+                        <span className="text-xs font-bold text-gray-700">
+                          {appliedIds.size === optimizeResult.suggestions.length ? "优化版简历" : "简历预览"}
+                          <span className="ml-1.5 text-[10px] font-normal text-gray-400">{appliedIds.size}/{optimizeResult.suggestions.length} 处已应用</span>
+                        </span>
+                        <div className="flex items-center gap-1.5">
+                          <button
+                            onClick={() => exportPDF(displaySections, prefs?.school ?? "简历")}
+                            className="text-[11px] px-2.5 py-1 rounded-md bg-brand-500 text-white hover:bg-brand-600 font-medium transition"
+                          >
+                            PDF
+                          </button>
+                          <button
+                            onClick={() => exportWord(displaySections, prefs?.school ?? "简历")}
+                            className="text-[11px] px-2.5 py-1 rounded-md bg-blue-500 text-white hover:bg-blue-600 font-medium transition"
+                          >
+                            Word
+                          </button>
+                          <button
+                            onClick={() => {
+                              const text = displaySections.map((s) => `【${s.title}】\n${s.content}`).join("\n\n");
+                              navigator.clipboard.writeText(text).then(() => alert("已复制到剪贴板"));
+                            }}
+                            className="text-[11px] px-2.5 py-1 rounded-md bg-gray-200 text-gray-700 hover:bg-gray-300 font-medium transition"
+                          >
+                            复制
+                          </button>
+                        </div>
                       </div>
-                      {optimizeResult.resume.sections.map((s, i) => (
+                      {displaySections.map((s, i) => (
                         <div key={i} className={`px-5 py-3 ${i > 0 ? "border-t border-gray-100" : ""}`}>
                           <div className="text-xs font-bold text-gray-800 mb-1.5">{s.title}</div>
                           <div className="text-xs text-gray-600 whitespace-pre-line leading-relaxed">{s.content}</div>
                         </div>
                       ))}
-                      <div className="px-5 py-3 border-t border-gray-100 bg-gray-50">
-                        <div className="text-[10px] text-gray-400">AI 改写自动 · {appliedIds.size}/{optimizeResult.suggestions.length} 处已应用</div>
-                      </div>
                     </div>
                   </div>
                 </div>
@@ -589,7 +705,6 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
             {jdMatchResult && (
               <div className="card p-5 space-y-5">
                 <div className="flex items-start gap-5">
-                  {/* 圆环分数 */}
                   <div className="flex-none">
                     <svg width="100" height="100" viewBox="0 0 100 100">
                       <circle cx="50" cy="50" r="42" fill="none" stroke="#e2e8f0" strokeWidth="8" />
@@ -623,7 +738,6 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
                   </div>
                 </div>
 
-                {/* JD 关键词 */}
                 <div>
                   <h4 className="text-xs font-bold text-gray-700 mb-2">JD 关键词匹配</h4>
                   <div className="flex flex-wrap gap-1.5">
@@ -638,7 +752,6 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
                   </div>
                 </div>
 
-                {/* 建议 */}
                 <div>
                   <h4 className="text-xs font-bold text-gray-700 mb-2">优化建议</h4>
                   <div className="space-y-1.5">
@@ -696,105 +809,6 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
                   <div className="text-xs text-brand-600">{jdCompareResult.strategy}</div>
                 </div>
                 <div className="text-xs text-gray-500"><strong>时间规划：</strong>{jdCompareResult.timeline}</div>
-              </div>
-            )}
-
-            {/* Direction Template Result */}
-            {directionResult && active === "direction" && (
-              <div className="card p-5 space-y-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="text-base font-bold text-gray-900">{directionResult.direction}</h3>
-                    <p className="text-xs text-gray-500 mt-0.5">{directionResult.overview}</p>
-                  </div>
-                </div>
-
-                <div className="p-4 rounded-lg bg-gray-50 space-y-3">
-                  <div className="text-xs font-bold text-gray-700">求职意向模版</div>
-                  <div className="text-sm text-gray-800">{directionResult.template.objective}</div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div className="p-3 rounded-lg bg-green-50">
-                    <div className="text-xs font-bold text-green-700 mb-2">必备技能</div>
-                    <div className="flex flex-wrap gap-1.5">
-                      {directionResult.template.skillsRequired.map((s) => (
-                        <span key={s} className="text-[11px] px-2 py-0.5 rounded-full bg-green-100 text-green-700">{s}</span>
-                      ))}
-                    </div>
-                  </div>
-                  <div className="p-3 rounded-lg bg-blue-50">
-                    <div className="text-xs font-bold text-blue-700 mb-2">加分技能</div>
-                    <div className="flex flex-wrap gap-1.5">
-                      {directionResult.template.skillsBonus.map((s) => (
-                        <span key={s} className="text-[11px] px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">{s}</span>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <div className="text-xs font-bold text-gray-700">经历模版（STAR 法则）</div>
-                  {directionResult.template.experienceTemplate.map((exp) => (
-                    <div key={exp.type} className="p-3 rounded-lg border border-gray-100">
-                      <div className="text-[11px] font-semibold text-brand-600 mb-1">{exp.type}</div>
-                      <div className="text-xs text-gray-600 whitespace-pre-wrap">{exp.example}</div>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="p-3 rounded-lg bg-gray-50">
-                  <div className="text-xs font-bold text-gray-700 mb-1">学历 / 证书重点</div>
-                  <div className="text-xs text-gray-600">{directionResult.template.educationFocus}</div>
-                </div>
-
-                <div className="p-3 rounded-lg bg-brand-50">
-                  <div className="text-xs font-bold text-brand-700 mb-1">自我评价模版</div>
-                  <div className="text-xs text-brand-600">{directionResult.template.selfIntro}</div>
-                </div>
-
-                <div>
-                  <div className="text-xs font-bold text-gray-700 mb-2">关键量化指标</div>
-                  <div className="flex flex-wrap gap-1.5">
-                    {directionResult.keyMetrics.map((m) => (
-                      <span key={m} className="text-[11px] px-2 py-0.5 rounded-full bg-purple-100 text-purple-700">{m}</span>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <div className="text-xs font-bold text-red-600 mb-2">常见错误</div>
-                  <ul className="space-y-1">
-                    {directionResult.commonMistakes.map((m) => (
-                      <li key={m} className="text-xs text-red-500 flex items-start gap-1.5">
-                        <span className="mt-0.5 shrink-0">⚠</span><span>{m}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                <div>
-                  <div className="text-xs font-bold text-gray-700 mb-2">面试重点考察</div>
-                  <div className="flex flex-wrap gap-1.5">
-                    {directionResult.interviewFocus.map((f) => (
-                      <span key={f} className="text-[11px] px-2 py-0.5 rounded-full bg-amber-100 text-amber-700">{f}</span>
-                    ))}
-                  </div>
-                </div>
-
-                {directionResult.relatedDirections.length > 0 && (
-                  <div>
-                    <div className="text-xs font-bold text-gray-700 mb-2">相近方向</div>
-                    <div className="flex flex-wrap gap-1.5">
-                      {directionResult.relatedDirections.map((d) => (
-                        <button key={d} onClick={() => setDirectionInput(d)}
-                          className="text-[11px] px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 hover:bg-brand-50 hover:text-brand-600 transition cursor-pointer">
-                          {d}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
               </div>
             )}
           </>
