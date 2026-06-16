@@ -14,17 +14,18 @@ import type { TrackedJobOption } from "./InterviewForm";
 
 const FunnelChart = dynamic(() => import("./charts/FunnelChart").then((m) => ({ default: m.FunnelChart })), { ssr: false });
 const TrendChart = dynamic(() => import("./charts/TrendChart").then((m) => ({ default: m.TrendChart })), { ssr: false });
-const StatusPie = dynamic(() => import("./charts/StatusPie").then((m) => ({ default: m.StatusPie })), { ssr: false });
 
-const STATUS_CONFIG: Record<TrackingStatus, { label: string; color: string; bg: string; order: number; light: string; border: string }> = {
-  saved:     { label: "收藏",   color: "text-gray-600",   bg: "bg-gray-400",   order: 0, light: "bg-gray-50",    border: "border-l-gray-400" },
-  applied:   { label: "已投递", color: "text-blue-600",   bg: "bg-blue-500",   order: 1, light: "bg-blue-50",    border: "border-l-blue-400" },
-  written:   { label: "笔试",   color: "text-indigo-600", bg: "bg-indigo-500", order: 2, light: "bg-indigo-50",  border: "border-l-indigo-400" },
-  interview: { label: "面试",   color: "text-amber-600",  bg: "bg-amber-500",  order: 3, light: "bg-amber-50",   border: "border-l-amber-400" },
-  hr:        { label: "HR面",   color: "text-orange-600", bg: "bg-orange-500", order: 4, light: "bg-orange-50",  border: "border-l-orange-400" },
-  offer:     { label: "Offer",  color: "text-brand-600",  bg: "bg-brand-500",  order: 5, light: "bg-green-50",   border: "border-l-green-500" },
-  rejected:  { label: "已拒",   color: "text-red-500",    bg: "bg-red-400",    order: 6, light: "bg-red-50",     border: "border-l-red-400" },
-  withdrawn: { label: "放弃",   color: "text-gray-400",   bg: "bg-gray-300",   order: 7, light: "bg-gray-50",    border: "border-l-gray-300" },
+const STATUS_KEYS: TrackingStatus[] = ["applied", "written", "interview", "hr", "offer", "rejected", "withdrawn"];
+
+const STATUS_CONFIG: Record<TrackingStatus, { label: string; color: string; bg: string; order: number; light: string; border: string; hex: string }> = {
+  saved:     { label: "收藏",   color: "text-gray-600",   bg: "bg-gray-400",   order: 0, light: "bg-gray-50",    border: "border-l-gray-400",   hex: "#9ca3af" },
+  applied:   { label: "已投递", color: "text-blue-600",   bg: "bg-blue-500",   order: 1, light: "bg-blue-50",    border: "border-l-blue-400",   hex: "#3b82f6" },
+  written:   { label: "笔试",   color: "text-indigo-600", bg: "bg-indigo-500", order: 2, light: "bg-indigo-50",  border: "border-l-indigo-400", hex: "#6366f1" },
+  interview: { label: "面试",   color: "text-amber-600",  bg: "bg-amber-500",  order: 3, light: "bg-amber-50",   border: "border-l-amber-400",  hex: "#f59e0b" },
+  hr:        { label: "HR面",   color: "text-orange-600", bg: "bg-orange-500", order: 4, light: "bg-orange-50",  border: "border-l-orange-400", hex: "#ea580c" },
+  offer:     { label: "Offer",  color: "text-brand-600",  bg: "bg-brand-500",  order: 5, light: "bg-green-50",   border: "border-l-green-500",  hex: "#22c55e" },
+  rejected:  { label: "已拒",   color: "text-red-500",    bg: "bg-red-400",    order: 6, light: "bg-red-50",     border: "border-l-red-400",    hex: "#ef4444" },
+  withdrawn: { label: "放弃",   color: "text-gray-400",   bg: "bg-gray-300",   order: 7, light: "bg-gray-50",    border: "border-l-gray-300",   hex: "#94a3b8" },
 };
 
 const KANBAN_COLS: TrackingStatus[] = ["applied", "written", "interview", "hr", "offer"];
@@ -371,7 +372,7 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
                               <span className={`text-sm font-semibold ${cfg.color}`}>{cfg.label}</span>
                               <span className="text-xs text-gray-500 ml-auto">{colItems.length}</span>
                             </div>
-                            <div className="space-y-1.5 min-h-[80px]">
+                            <div className="space-y-1.5 min-h-[80px] max-h-[480px] overflow-y-auto pr-0.5">
                               {colItems.map((t) => {
                                 const isEnded = t.status === "rejected" || t.status === "withdrawn";
                                 return (
@@ -519,21 +520,98 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
               </>
             )}
 
-            {/* Charts section */}
+            {/* ═══ 数据概览 ═══ */}
             {activeItems.length > 0 && (
               <div className="border-t border-gray-200/60 pt-6 space-y-5">
                 <h2 className="text-base font-semibold text-gray-800">数据概览</h2>
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                  <div className="card p-5">
-                    <h3 className="text-base font-semibold text-gray-700 mb-4">状态分布</h3>
-                    <StatusPie byStatus={counts} />
+
+                {/* Status distribution — detailed */}
+                <div className="card p-6 space-y-5">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                    <h3 className="text-base font-semibold text-gray-800">状态分布</h3>
+                    <div className="flex items-center gap-4 text-sm flex-wrap">
+                      <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-50 border border-slate-200/60">
+                        <span className="text-gray-500">总投递</span>
+                        <span className="font-bold text-gray-900">{activeItems.length}</span>
+                      </div>
+                      <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-green-50 border border-green-200/60">
+                        <span className="text-gray-500">Offer 率</span>
+                        <span className="font-bold text-green-600">{stats.offerRate}%</span>
+                      </div>
+                      {stats.avgRoundsToOffer > 0 && (
+                        <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-violet-50 border border-violet-200/60">
+                          <span className="text-gray-500">平均轮次</span>
+                          <span className="font-bold text-brand-600">{stats.avgRoundsToOffer}</span>
+                        </div>
+                      )}
+                      <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-cyan-50 border border-cyan-200/60">
+                        <span className="text-gray-500">本周活跃</span>
+                        <span className="font-bold text-cyan-600">{stats.weeklyActivity}</span>
+                      </div>
+                    </div>
                   </div>
-                  <div className="card p-5">
-                    <h3 className="text-base font-semibold text-gray-700 mb-4">投递转化漏斗</h3>
+
+                  {/* Stacked proportion bar */}
+                  <div className="h-3.5 rounded-full overflow-hidden flex bg-gray-100">
+                    {STATUS_KEYS.map((key) => {
+                      const count = counts[key] ?? 0;
+                      if (count === 0) return null;
+                      return (
+                        <div
+                          key={key}
+                          className="h-full transition-all duration-500"
+                          style={{ width: `${(count / activeItems.length) * 100}%`, backgroundColor: STATUS_CONFIG[key].hex }}
+                          title={`${STATUS_CONFIG[key].label}: ${count}`}
+                        />
+                      );
+                    })}
+                  </div>
+
+                  {/* Per-status detail grid */}
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+                    {STATUS_KEYS.map((key) => {
+                      const cfg = STATUS_CONFIG[key];
+                      const count = counts[key] ?? 0;
+                      if (count === 0) return null;
+                      const pct = Math.round((count / activeItems.length) * 100);
+                      const statusItems = activeItems.filter((i) => i.status === key);
+                      return (
+                        <div key={key} className={`p-3.5 rounded-xl ${cfg.light} border border-gray-100/60`}>
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center gap-2">
+                              <div className="w-3 h-3 rounded-full" style={{ backgroundColor: cfg.hex }} />
+                              <span className="text-sm font-semibold text-gray-700">{cfg.label}</span>
+                            </div>
+                            <span className="text-xs font-medium text-gray-400 tabular-nums">{pct}%</span>
+                          </div>
+                          <div className="text-2xl font-bold text-gray-900 tabular-nums mb-2">{count}</div>
+                          {/* Proportion micro bar */}
+                          <div className="h-1.5 rounded-full bg-gray-200/60 overflow-hidden mb-2.5">
+                            <div className="h-full rounded-full transition-all duration-500" style={{ width: `${pct}%`, backgroundColor: cfg.hex }} />
+                          </div>
+                          {/* Company names preview */}
+                          <div className="space-y-0.5">
+                            {statusItems.slice(0, 3).map((item) => (
+                              <div key={item.id} className="text-xs text-gray-500 truncate">{item.company} · {item.title}</div>
+                            ))}
+                            {statusItems.length > 3 && (
+                              <div className="text-xs text-gray-400">+{statusItems.length - 3} 更多</div>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Funnel + Trend — 2 columns */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                  <div className="card p-6">
+                    <h3 className="text-base font-semibold text-gray-700 mb-5">投递转化漏斗</h3>
                     <FunnelChart data={stats.conversionFunnel} />
                   </div>
-                  <div className="card p-5">
-                    <h3 className="text-base font-semibold text-gray-700 mb-4">近 30 天趋势</h3>
+                  <div className="card p-6">
+                    <h3 className="text-base font-semibold text-gray-700 mb-5">近 30 天趋势</h3>
                     <TrendChart data={stats.dailyTrend} />
                   </div>
                 </div>
