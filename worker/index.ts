@@ -105,8 +105,14 @@ const RESUME_PROMPT = `你是简历解析专家。从简历中提取结构化信
 // ─── Skill: 面试题定制 ───
 const INTERVIEW_PROMPT = `你是一个资深面试官。根据候选人背景和目标岗位，生成针对性面试题。
 返回 JSON：
-{"questions":[{"question":"面试题","category":"技术|业务|行为|情景","difficulty":"简单|中等|困难","tips":"回答要点提示","sample":"参考答案要点"}]}
-生成 8-10 道题，覆盖技术能力、业务理解、行为面试、情景模拟。题目要具体，不要泛泛而谈。`;
+{"questions":[{"question":"面试题","category":"技术|业务|行为|情景","difficulty":"简单|中等|困难","tips":"回答要点提示（50-100字）","sample":"参考答案要点（100-200字，结构化回答）"}]}
+生成 8-10 道题，覆盖技术能力、业务理解、行为面试、情景模拟。题目要具体，不要泛泛而谈。sample 必须是详细的参考答案，不是简单提示。`;
+
+// ─── Skill: 面试题追问 ───
+const INTERVIEW_FOLLOWUP_PROMPT = `你是一个资深面试官。根据候选人背景、已有面试题和用户追问，生成新的针对性面试题。
+不要重复已有题目。返回 JSON：
+{"questions":[{"question":"面试题","category":"技术|业务|行为|情景","difficulty":"简单|中等|困难","tips":"回答要点提示（50-100字）","sample":"参考答案要点（100-200字，结构化回答）"}]}
+生成 3-5 道新题，紧扣用户追问方向。sample 必须是详细的参考答案。`;
 
 // ─── Skill: 简历润色 ───
 const RESUME_POLISH_PROMPT = `你是简历优化专家。根据候选人的背景和目标岗位，对每段经历给出具体的润色建议。
@@ -343,6 +349,16 @@ export default {
       const job = body.job as string ?? "";
       return callDeepSeek(env, cors, INTERVIEW_PROMPT,
         `候选人背景：\n${profile}\n\n目标岗位：\n${job}`, 3000);
+    }
+
+    // 面试题追问
+    if (path === "/api/skill/interview-followup") {
+      const profile = body.profile as string ?? "";
+      const job = body.job as string ?? "";
+      const previous = body.previous as string ?? "";
+      const followup = body.followup as string ?? "";
+      return callDeepSeek(env, cors, INTERVIEW_FOLLOWUP_PROMPT,
+        `候选人背景：\n${profile}\n\n目标岗位：\n${job}\n\n已有题目：\n${previous}\n\n用户追问：\n${followup}`, 3000);
     }
 
     // 简历润色

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { loadPrefs } from "@/lib/prefs";
 import { hasPrefs } from "@/lib/ranking";
 import { getSession } from "@/lib/auth";
-import { generateInterview, polishResume, generateCoverLetter, compareOffers, analyzeJdMatch, generateCustomResume, compareJds, getDirectionTemplate, optimizeResume } from "@/lib/skills";
+import { generateInterview, followupInterview, polishResume, generateCoverLetter, compareOffers, analyzeJdMatch, generateCustomResume, compareJds, getDirectionTemplate, optimizeResume } from "@/lib/skills";
 import type { InterviewQuestion, ResumePolishResult, CoverLetterResult, OfferCompareResult, JdMatchResult, CustomResumeResult, JdCompareResult, DirectionTemplateResult, ResumeOptimizeResult } from "@/lib/skills";
 import type { Job, Prefs } from "@/lib/types";
 
@@ -73,6 +73,9 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
   const [directionResult, setDirectionResult] = useState<DirectionTemplateResult | null>(null);
   const [optimizeResult, setOptimizeResult] = useState<ResumeOptimizeResult | null>(null);
   const [appliedIds, setAppliedIds] = useState<Set<number>>(new Set());
+  const [interviewFollowupInput, setInterviewFollowupInput] = useState("");
+  const [interviewFollowupLoading, setInterviewFollowupLoading] = useState(false);
+  const [expandedQuestions, setExpandedQuestions] = useState<Set<number>>(new Set());
 
   useEffect(() => {
     const p = loadPrefs();
@@ -115,6 +118,39 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
     setLoading(false);
   }
 
+  async function runInterviewDirect() {
+    if (!prefs) return;
+    setLoading(true);
+    setError("");
+    const profile = profileToText(prefs);
+    const job = prefs.targetRoles?.join("、") ?? "";
+    try {
+      const r = await generateInterview(profile, job);
+      setInterviewResult(r.questions);
+      setExpandedQuestions(new Set());
+    } catch (e) {
+      setError((e as Error).message);
+    }
+    setLoading(false);
+  }
+
+  async function runInterviewFollowup() {
+    if (!prefs || !interviewResult?.length || !interviewFollowupInput.trim()) return;
+    setInterviewFollowupLoading(true);
+    setError("");
+    const profile = profileToText(prefs);
+    const job = prefs.targetRoles?.join("、") ?? "";
+    const previous = interviewResult.map((q, i) => `${i + 1}. [${q.category}] ${q.question}`).join("\n");
+    try {
+      const r = await followupInterview(profile, job, previous, interviewFollowupInput);
+      setInterviewResult([...interviewResult, ...r.questions]);
+      setInterviewFollowupInput("");
+    } catch (e) {
+      setError((e as Error).message);
+    }
+    setInterviewFollowupLoading(false);
+  }
+
   // Quick fill from job list
   const topJobs = jobs.slice(0, 20);
 
@@ -146,7 +182,7 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
                   key={s.key}
                   onClick={() => {
                     setActive(s.key);
-                    setInterviewResult(null); setResumeResult(null); setLetterResult(null); setOfferResult(null); setJdMatchResult(null); setCustomResumeResult(null); setJdCompareResult(null); setDirectionResult(null); setOptimizeResult(null); setAppliedIds(new Set()); setError("");
+                    setInterviewResult(null); setResumeResult(null); setLetterResult(null); setOfferResult(null); setJdMatchResult(null); setCustomResumeResult(null); setJdCompareResult(null); setDirectionResult(null); setOptimizeResult(null); setAppliedIds(new Set()); setExpandedQuestions(new Set()); setInterviewFollowupInput(""); setError("");
                     if (s.key === "resume-optimize" && !expInput && prefs) {
                       if (prefs.experiences?.length) {
                         setExpInput(prefs.experiences.map((e) => `${e.duration ?? ""} ${e.company} ${e.role}\n${e.description ?? ""}\n成果: ${e.highlights.join("; ")}`).join("\n\n"));
@@ -157,8 +193,11 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
                     if (s.key === "direction" && !directionInput && prefs?.targetRoles?.length) {
                       setDirectionInput(prefs.targetRoles[0]);
                     }
-                    if (["interview", "resume-optimize", "cover-letter", "jd-match"].includes(s.key) && !jobInput && prefs?.targetRoles?.length) {
+                    if (["resume-optimize", "cover-letter", "jd-match"].includes(s.key) && !jobInput && prefs?.targetRoles?.length) {
                       setJobInput(prefs.targetRoles.join("、"));
+                    }
+                    if (s.key === "interview" && prefs) {
+                      runInterviewDirect();
                     }
                   }}
                   className={`card p-4 text-left transition ${active === s.key ? "border-brand-500 shadow-md" : "hover:border-gray-300"}`}
@@ -170,8 +209,8 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
               ))}
             </div>
 
-            {/* Input area */}
-            {active && (
+            {/* Input area — skip for interview (auto-generates from profile) */}
+            {active && active !== "interview" && (
               <div className="card p-5 space-y-4">
                 <h3 className="text-sm font-bold text-gray-900">{SKILLS.find((s) => s.key === active)?.label}</h3>
 
@@ -191,7 +230,7 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
                   <a href="/profile/" className="shrink-0 text-[11px] text-brand-600 hover:text-brand-700 underline">修改</a>
                 </div>
 
-                {(active === "interview" || active === "resume-optimize" || active === "cover-letter" || active === "jd-match") && (
+                {(active === "resume-optimize" || active === "cover-letter" || active === "jd-match") && (
                   <div>
                     <label className="text-xs text-gray-500 mb-1 block">目标岗位（粘贴 JD 或输入公司+岗位名）</label>
                     <textarea
@@ -294,26 +333,116 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
               </div>
             )}
 
-            {/* Results */}
-            {interviewResult && (
-              <div className="card p-5 space-y-3">
-                <h3 className="text-sm font-bold text-gray-900">面试题（{interviewResult.length} 道）</h3>
-                {interviewResult.map((q, i) => (
-                  <div key={i} className="p-3 rounded-lg border border-gray-100">
-                    <div className="flex items-start gap-2">
-                      <span className="shrink-0 w-6 h-6 rounded-full bg-brand-50 text-brand-600 text-xs font-bold flex items-center justify-center">{i + 1}</span>
-                      <div className="flex-1">
-                        <div className="text-sm font-medium text-gray-900">{q.question}</div>
-                        <div className="flex gap-2 mt-1">
-                          <span className="text-[10px] px-2 py-0.5 rounded-full bg-gray-100 text-gray-600">{q.category}</span>
-                          <span className="text-[10px] px-2 py-0.5 rounded-full bg-gray-100 text-gray-600">{q.difficulty}</span>
-                        </div>
-                        <div className="text-xs text-gray-500 mt-2"><strong>回答要点：</strong>{q.tips}</div>
-                        <div className="text-xs text-gray-400 mt-1"><strong>参考答案：</strong>{q.sample}</div>
-                      </div>
-                    </div>
+            {/* ── 面试题定制结果 ── */}
+            {active === "interview" && (
+              <div className="space-y-4">
+                {/* Loading state */}
+                {loading && !interviewResult && (
+                  <div className="card p-12 text-center">
+                    <div className="text-brand-600 font-medium text-sm">AI 正在根据你的画像生成面试题...</div>
+                    <div className="text-[11px] text-gray-400 mt-2">{[prefs?.school, prefs?.major, ...(prefs?.targetRoles ?? []).slice(0, 2)].filter(Boolean).join(" · ")}</div>
                   </div>
-                ))}
+                )}
+
+                {error && !interviewResult && (
+                  <div className="card p-5">
+                    <div className="p-3 rounded-lg bg-red-50 text-xs text-red-600 mb-3">{error}</div>
+                    <button onClick={runInterviewDirect} className="w-full py-2.5 rounded-lg text-sm font-semibold text-white bg-brand-500 hover:bg-brand-600 shadow-sm transition">
+                      重新生成
+                    </button>
+                  </div>
+                )}
+
+                {/* Questions list */}
+                {interviewResult && interviewResult.length > 0 && (
+                  <div className="card p-5 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-sm font-bold text-gray-900">面试题（{interviewResult.length} 道）</h3>
+                      <button
+                        onClick={() => setExpandedQuestions(expandedQuestions.size === interviewResult.length ? new Set() : new Set(interviewResult.map((_, i) => i)))}
+                        className="text-[11px] text-brand-600 hover:text-brand-700"
+                      >
+                        {expandedQuestions.size === interviewResult.length ? "全部收起" : "展开全部答案"}
+                      </button>
+                    </div>
+                    {interviewResult.map((q, i) => {
+                      const isExpanded = expandedQuestions.has(i);
+                      return (
+                        <div key={i} className="rounded-lg border border-gray-100 overflow-hidden">
+                          <button
+                            onClick={() => setExpandedQuestions((prev) => {
+                              const next = new Set(prev);
+                              if (next.has(i)) next.delete(i); else next.add(i);
+                              return next;
+                            })}
+                            className="w-full p-3 text-left flex items-start gap-2 hover:bg-gray-50/50 transition"
+                          >
+                            <span className="shrink-0 w-6 h-6 rounded-full bg-brand-50 text-brand-600 text-xs font-bold flex items-center justify-center mt-0.5">{i + 1}</span>
+                            <div className="flex-1 min-w-0">
+                              <div className="text-sm font-medium text-gray-900">{q.question}</div>
+                              <div className="flex gap-2 mt-1.5">
+                                <span className={`text-[10px] px-2 py-0.5 rounded-full ${
+                                  q.category === "技术" ? "bg-blue-50 text-blue-600" :
+                                  q.category === "业务" ? "bg-purple-50 text-purple-600" :
+                                  q.category === "行为" ? "bg-green-50 text-green-600" :
+                                  "bg-amber-50 text-amber-600"
+                                }`}>{q.category}</span>
+                                <span className={`text-[10px] px-2 py-0.5 rounded-full ${
+                                  q.difficulty === "困难" ? "bg-red-50 text-red-600" :
+                                  q.difficulty === "中等" ? "bg-amber-50 text-amber-600" :
+                                  "bg-green-50 text-green-600"
+                                }`}>{q.difficulty}</span>
+                              </div>
+                            </div>
+                            <span className={`shrink-0 text-gray-400 text-xs transition-transform ${isExpanded ? "rotate-180" : ""}`}>▼</span>
+                          </button>
+                          {isExpanded && (
+                            <div className="px-3 pb-3 pt-0 ml-8 mr-3 space-y-2 border-t border-gray-50">
+                              <div className="pt-2">
+                                <div className="text-[11px] font-semibold text-brand-700 mb-1">回答要点</div>
+                                <div className="text-xs text-gray-600 leading-relaxed">{q.tips}</div>
+                              </div>
+                              <div className="p-2.5 rounded-lg bg-gray-50">
+                                <div className="text-[11px] font-semibold text-gray-700 mb-1">参考答案</div>
+                                <div className="text-xs text-gray-600 leading-relaxed whitespace-pre-line">{q.sample}</div>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {/* Follow-up input */}
+                {interviewResult && interviewResult.length > 0 && (
+                  <div className="card p-5 space-y-3">
+                    <h3 className="text-sm font-bold text-gray-900">继续追问</h3>
+                    <textarea
+                      value={interviewFollowupInput}
+                      onChange={(e) => setInterviewFollowupInput(e.target.value)}
+                      placeholder="如：再来几道技术题 / 针对字节跳动追问 / 考察数据分析能力的题 / 行为面试题..."
+                      rows={2}
+                      className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm resize-none focus:outline-none focus:border-brand-500"
+                    />
+                    <div className="flex flex-wrap gap-1.5">
+                      <span className="text-[10px] text-gray-400">快速追问：</span>
+                      {["再来几道技术题", "行为面试题", "压力面试题", "HR 面常见题"].map((t) => (
+                        <button key={t} onClick={() => { setInterviewFollowupInput(t); }}
+                          className="text-[10px] px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 hover:bg-brand-50 hover:text-brand-600 transition">
+                          {t}
+                        </button>
+                      ))}
+                    </div>
+                    <button
+                      onClick={runInterviewFollowup}
+                      disabled={interviewFollowupLoading || !interviewFollowupInput.trim()}
+                      className="w-full py-2.5 rounded-lg text-sm font-semibold text-white bg-brand-500 hover:bg-brand-600 disabled:opacity-50 shadow-sm transition"
+                    >
+                      {interviewFollowupLoading ? "AI 生成中..." : "追问生成"}
+                    </button>
+                  </div>
+                )}
               </div>
             )}
 

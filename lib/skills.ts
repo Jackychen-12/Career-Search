@@ -117,6 +117,10 @@ export function generateInterview(profile: string, job: string) {
   return callSkill<{ questions: InterviewQuestion[] }>("/api/skill/interview", { profile, job });
 }
 
+export function followupInterview(profile: string, job: string, previous: string, followup: string) {
+  return callSkill<{ questions: InterviewQuestion[] }>("/api/skill/interview-followup", { profile, job, previous, followup });
+}
+
 export function polishResume(profile: string, job: string, experiences: string) {
   return callSkill<ResumePolishResult>("/api/skill/resume-polish", { profile, job, experiences });
 }
