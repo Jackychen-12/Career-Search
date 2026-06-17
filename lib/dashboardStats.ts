@@ -107,6 +107,10 @@ export function computeDashboardStats(
       const key = e.interviewAt.slice(0, 10);
       if (!interviewHeatmap[key]) interviewHeatmap[key] = 1;
     }
+    if (e.appliedAt) {
+      const key = e.appliedAt.slice(0, 10);
+      interviewHeatmap[key] = (interviewHeatmap[key] || 0) + 1;
+    }
   }
 
   return {

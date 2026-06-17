@@ -306,6 +306,24 @@ const DIRECTION_TEMPLATE_PROMPT = `你是资深职业顾问。根据候选人背
 - 模版内容要可以直接参考使用
 只返回 JSON。`;
 
+// ─── Skill: 投递进展 AI 分析 ───
+const PROGRESS_ANALYZE_PROMPT = `你是求职数据分析专家。根据候选人的求职进展数据，给出深度分析和建议。
+返回 JSON：
+{
+  "summary": "一句话总结当前求职状态（20-40字）",
+  "insights": ["数据洞察1", "数据洞察2", "数据洞察3"],
+  "suggestions": ["行动建议1", "行动建议2", "行动建议3"],
+  "riskWarnings": ["风险提醒（如有，否则空数组）"],
+  "weeklyPlan": "下周行动建议（50-100字）"
+}
+规则：
+- summary 简洁有力，突出最重要的发现
+- insights 基于数据给出 3 条洞察，要有数据支撑
+- suggestions 给出 3 条具体、可操作的建议
+- riskWarnings 只在有明显风险时才填（如转化率过低、投递量不足等）
+- weeklyPlan 给出下周具体的每日行动建议
+只返回 JSON。`;
+
 // ─── Skill: 面试记录 AI 解析 ───
 const INTERVIEW_PARSE_PROMPT = `你是一个面试记录助手。从用户的自然语言描述中提取结构化面试信息。
 返回 JSON：
@@ -473,6 +491,15 @@ export default {
       const direction = body.direction as string ?? "";
       return callDeepSeek(env, cors, DIRECTION_TEMPLATE_PROMPT,
         `候选人画像：\n${profile}\n\n目标求职方向：\n${direction}`, 4000);
+    }
+
+    // 投递进展 AI 分析
+    if (path === "/api/skill/progress-analyze") {
+      const stats = body.stats as string ?? "";
+      if (stats.length < 10) {
+        return Response.json({ error: "数据不足，无法分析" }, { status: 400, headers: cors });
+      }
+      return callDeepSeek(env, cors, PROGRESS_ANALYZE_PROMPT, stats, 2000);
     }
 
     // 面试记录 AI 解析

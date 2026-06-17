@@ -7,6 +7,7 @@ import { loadInterviews, saveInterview, updateInterview, deleteInterview } from 
 import type { InterviewRecord } from "@/lib/interviews";
 import { syncTrackingToInterview, syncInterviewToTracking, interviewToTrackingStatus } from "@/lib/sync";
 import { computeDashboardStats } from "@/lib/dashboardStats";
+import { analyzeProgress, type ProgressAnalyzeResult } from "@/lib/skills";
 import { getSession } from "@/lib/auth";
 import type { Job } from "@/lib/types";
 import InterviewForm from "./InterviewForm";
@@ -14,6 +15,7 @@ import type { TrackedJobOption } from "./InterviewForm";
 
 const FunnelChart = dynamic(() => import("./charts/FunnelChart").then((m) => ({ default: m.FunnelChart })), { ssr: false });
 const TrendChart = dynamic(() => import("./charts/TrendChart").then((m) => ({ default: m.TrendChart })), { ssr: false });
+const InterviewCalendar = dynamic(() => import("./charts/InterviewCalendar").then((m) => ({ default: m.InterviewCalendar })), { ssr: false });
 
 const STATUS_KEYS: TrackingStatus[] = ["applied", "written", "interview", "hr", "offer", "rejected", "withdrawn"];
 
@@ -78,6 +80,9 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
   const [statusFilter, setStatusFilter] = useState<TrackingStatus | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [editRecord, setEditRecord] = useState<InterviewRecord | undefined>();
+  const [aiAnalysis, setAiAnalysis] = useState<ProgressAnalyzeResult | null>(null);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState("");
 
   useEffect(() => {
     getSession().then((s) => {
@@ -250,6 +255,25 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "求职记录");
     XLSX.writeFile(wb, "求职记录.xlsx");
+  }
+
+  async function handleAnalyze() {
+    setAiLoading(true);
+    setAiError("");
+    try {
+      const lines = [
+        `总投递 ${activeItems.length}，本周活跃 ${stats.weeklyActivity}`,
+        `Offer 率 ${stats.offerRate}%，平均面试轮次 ${stats.avgRoundsToOffer || "无数据"}`,
+        `状态分布：${STATUS_KEYS.map((k) => `${STATUS_CONFIG[k].label} ${counts[k] ?? 0}`).join("、")}`,
+        `转化漏斗：${stats.conversionFunnel.map((s) => `${s.stage} ${s.count}(${s.rate}%)`).join(" → ")}`,
+      ];
+      const result = await analyzeProgress(lines.join("\n"));
+      setAiAnalysis(result);
+    } catch (e) {
+      setAiError((e as Error).message);
+    } finally {
+      setAiLoading(false);
+    }
   }
 
   if (!loaded) {
@@ -525,91 +549,88 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
               <div className="border-t border-gray-200/60 pt-6 space-y-5">
                 <h2 className="text-base font-semibold text-gray-800">数据概览</h2>
 
-                {/* Status distribution — detailed */}
-                <div className="card p-6 space-y-5">
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                    <h3 className="text-base font-semibold text-gray-800">状态分布</h3>
-                    <div className="flex items-center gap-4 text-sm flex-wrap">
-                      <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-50 border border-slate-200/60">
-                        <span className="text-gray-500">总投递</span>
-                        <span className="font-bold text-gray-900">{activeItems.length}</span>
-                      </div>
-                      <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-green-50 border border-green-200/60">
-                        <span className="text-gray-500">Offer 率</span>
-                        <span className="font-bold text-green-600">{stats.offerRate}%</span>
-                      </div>
-                      {stats.avgRoundsToOffer > 0 && (
-                        <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-violet-50 border border-violet-200/60">
-                          <span className="text-gray-500">平均轮次</span>
-                          <span className="font-bold text-brand-600">{stats.avgRoundsToOffer}</span>
-                        </div>
-                      )}
-                      <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-cyan-50 border border-cyan-200/60">
-                        <span className="text-gray-500">本周活跃</span>
-                        <span className="font-bold text-cyan-600">{stats.weeklyActivity}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Stacked proportion bar */}
-                  <div className="h-3.5 rounded-full overflow-hidden flex bg-gray-100">
-                    {STATUS_KEYS.map((key) => {
-                      const count = counts[key] ?? 0;
-                      if (count === 0) return null;
-                      return (
-                        <div
-                          key={key}
-                          className="h-full transition-all duration-500"
-                          style={{ width: `${(count / activeItems.length) * 100}%`, backgroundColor: STATUS_CONFIG[key].hex }}
-                          title={`${STATUS_CONFIG[key].label}: ${count}`}
-                        />
-                      );
-                    })}
-                  </div>
-
-                  {/* Per-status detail grid */}
-                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-                    {STATUS_KEYS.map((key) => {
-                      const cfg = STATUS_CONFIG[key];
-                      const count = counts[key] ?? 0;
-                      if (count === 0) return null;
-                      const pct = Math.round((count / activeItems.length) * 100);
-                      const statusItems = activeItems.filter((i) => i.status === key);
-                      return (
-                        <div key={key} className={`p-3.5 rounded-xl ${cfg.light} border border-gray-100/60`}>
-                          <div className="flex items-center justify-between mb-2">
-                            <div className="flex items-center gap-2">
-                              <div className="w-3 h-3 rounded-full" style={{ backgroundColor: cfg.hex }} />
-                              <span className="text-sm font-semibold text-gray-700">{cfg.label}</span>
-                            </div>
-                            <span className="text-xs font-medium text-gray-400 tabular-nums">{pct}%</span>
-                          </div>
-                          <div className="text-2xl font-bold text-gray-900 tabular-nums mb-2">{count}</div>
-                          {/* Proportion micro bar */}
-                          <div className="h-1.5 rounded-full bg-gray-200/60 overflow-hidden mb-2.5">
-                            <div className="h-full rounded-full transition-all duration-500" style={{ width: `${pct}%`, backgroundColor: cfg.hex }} />
-                          </div>
-                          {/* Company names preview */}
-                          <div className="space-y-0.5">
-                            {statusItems.slice(0, 3).map((item) => (
-                              <div key={item.id} className="text-xs text-gray-500 truncate">{item.company} · {item.title}</div>
-                            ))}
-                            {statusItems.length > 3 && (
-                              <div className="text-xs text-gray-400">+{statusItems.length - 3} 更多</div>
-                            )}
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* Funnel + Trend — 2 columns */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                  {/* 左上：漏斗 */}
                   <div className="card p-6">
                     <h3 className="text-base font-semibold text-gray-700 mb-5">投递转化漏斗</h3>
                     <FunnelChart data={stats.conversionFunnel} />
                   </div>
+
+                  {/* 右上：AI 分析 */}
+                  <div className="card p-6">
+                    <div className="flex items-center justify-between mb-5">
+                      <h3 className="text-base font-semibold text-gray-700">AI 投递分析</h3>
+                      {aiAnalysis && (
+                        <button onClick={handleAnalyze} className="text-xs text-brand-600 hover:text-brand-700">重新分析</button>
+                      )}
+                    </div>
+                    {aiLoading ? (
+                      <div className="flex flex-col items-center justify-center h-48 gap-3">
+                        <div className="w-8 h-8 border-2 border-brand-500/30 border-t-brand-500 rounded-full animate-spin" />
+                        <span className="text-sm text-gray-400">AI 分析中...</span>
+                      </div>
+                    ) : aiError ? (
+                      <div className="flex flex-col items-center justify-center h-48 gap-3">
+                        <span className="text-sm text-red-500">{aiError}</span>
+                        <button onClick={handleAnalyze} className="text-xs text-brand-600 hover:text-brand-700">重试</button>
+                      </div>
+                    ) : aiAnalysis ? (
+                      <div className="space-y-4 text-sm">
+                        <p className="font-semibold text-gray-900">{aiAnalysis.summary}</p>
+                        <div>
+                          <div className="text-xs font-medium text-gray-500 mb-1.5">数据洞察</div>
+                          <ul className="space-y-1">
+                            {aiAnalysis.insights.map((item, i) => (
+                              <li key={i} className="text-gray-700 flex gap-2"><span className="text-brand-500 shrink-0">•</span>{item}</li>
+                            ))}
+                          </ul>
+                        </div>
+                        <div>
+                          <div className="text-xs font-medium text-gray-500 mb-1.5">行动建议</div>
+                          <ul className="space-y-1">
+                            {aiAnalysis.suggestions.map((item, i) => (
+                              <li key={i} className="text-gray-700 flex gap-2"><span className="text-green-500 shrink-0">•</span>{item}</li>
+                            ))}
+                          </ul>
+                        </div>
+                        {aiAnalysis.riskWarnings.length > 0 && (
+                          <div>
+                            <div className="text-xs font-medium text-red-500 mb-1.5">风险提醒</div>
+                            <ul className="space-y-1">
+                              {aiAnalysis.riskWarnings.map((item, i) => (
+                                <li key={i} className="text-red-600 flex gap-2"><span className="shrink-0">⚠</span>{item}</li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                        <div className="pt-3 border-t border-gray-100">
+                          <div className="text-xs font-medium text-gray-500 mb-1.5">下周计划</div>
+                          <p className="text-gray-700">{aiAnalysis.weeklyPlan}</p>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col items-center justify-center h-48 gap-3">
+                        <div className="w-12 h-12 rounded-full bg-brand-50 flex items-center justify-center">
+                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#5b4cff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M12 2a7 7 0 0 1 7 7c0 2.4-1.2 4.5-3 5.7V17a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1v-2.3C6.2 13.5 5 11.4 5 9a7 7 0 0 1 7-7z" />
+                            <line x1="9" y1="21" x2="15" y2="21" />
+                          </svg>
+                        </div>
+                        <button onClick={handleAnalyze} className="px-4 py-2 rounded-lg bg-brand-600 text-white text-sm font-medium hover:bg-brand-700 transition">
+                          生成 AI 分析
+                        </button>
+                        <p className="text-xs text-gray-400">基于你的求职数据生成个性化分析</p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* 左下：热力图 */}
+                  <div className="card p-6">
+                    <h3 className="text-base font-semibold text-gray-700 mb-5">求职活动热力</h3>
+                    <InterviewCalendar heatmap={stats.interviewHeatmap} />
+                  </div>
+
+                  {/* 右下：趋势 */}
                   <div className="card p-6">
                     <h3 className="text-base font-semibold text-gray-700 mb-5">近 30 天趋势</h3>
                     <TrendChart data={stats.dailyTrend} />

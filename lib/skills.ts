@@ -122,6 +122,18 @@ export interface DirectionTemplateResult {
   relatedDirections: string[];
 }
 
+export interface ProgressAnalyzeResult {
+  summary: string;
+  insights: string[];
+  suggestions: string[];
+  riskWarnings: string[];
+  weeklyPlan: string;
+}
+
+export function analyzeProgress(stats: string) {
+  return callSkill<ProgressAnalyzeResult>("/api/skill/progress-analyze", { stats });
+}
+
 export function generateInterview(profile: string, job: string) {
   return callSkill<{ questions: InterviewQuestion[] }>("/api/skill/interview", { profile, job });
 }

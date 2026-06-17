@@ -40,12 +40,12 @@ export function InterviewCalendar({ heatmap }: CalendarProps) {
   }
   if (currentWeek.length > 0) weeks.push(currentWeek);
 
-  const totalInterviews = Object.values(heatmap).reduce((s, v) => s + v, 0);
+  const totalActivity = Object.values(heatmap).reduce((s, v) => s + v, 0);
 
-  if (totalInterviews === 0) {
+  if (totalActivity === 0) {
     return (
       <div className="flex items-center justify-center h-36 text-sm text-slate-400">
-        暂无面试记录
+        暂无求职活动记录
       </div>
     );
   }
@@ -55,7 +55,7 @@ export function InterviewCalendar({ heatmap }: CalendarProps) {
       <div className="flex gap-[3px]">
         <div className="flex flex-col gap-[3px] mr-1">
           {WEEKDAYS.filter((_, i) => i % 2 === 1).map((d) => (
-            <div key={d} className="w-3 h-3 flex items-center justify-center text-[8px] text-slate-400 leading-none">
+            <div key={d} className="w-3 h-3 flex items-center justify-center text-xs text-slate-400 leading-none">
               {d}
             </div>
           ))}
@@ -67,7 +67,7 @@ export function InterviewCalendar({ heatmap }: CalendarProps) {
                 <div
                   key={cell.date}
                   className={`w-3 h-3 rounded-[2px] ${getColor(cell.count)} transition-colors`}
-                  title={`${cell.date}: ${cell.count} 场面试`}
+                  title={`${cell.date}: ${cell.count} 次活动`}
                 />
               ))}
             </div>
@@ -75,13 +75,13 @@ export function InterviewCalendar({ heatmap }: CalendarProps) {
         </div>
       </div>
       <div className="flex items-center gap-2 mt-3">
-        <span className="text-[10px] text-slate-400">少</span>
+        <span className="text-xs text-slate-400">少</span>
         {[0, 1, 2, 3].map((n) => (
           <div key={n} className={`w-3 h-3 rounded-[2px] ${getColor(n)}`} />
         ))}
-        <span className="text-[10px] text-slate-400">多</span>
-        <span className="ml-auto text-[11px] text-slate-500 dark:text-slate-400">
-          共 <strong className="text-slate-700 dark:text-slate-200">{totalInterviews}</strong> 场面试
+        <span className="text-xs text-slate-400">多</span>
+        <span className="ml-auto text-xs text-slate-500 dark:text-slate-400">
+          共 <strong className="text-slate-700 dark:text-slate-200">{totalActivity}</strong> 次活动
         </span>
       </div>
     </div>
