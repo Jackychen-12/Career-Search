@@ -166,7 +166,7 @@ export default function Header({
 
   return (
     <header className="sticky top-0 z-40 backdrop-blur-xl bg-white/70 border-b border-gray-200/50 shadow-sm">
-      <div className="max-w-[1360px] mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
         <a href="/" className="flex items-center gap-2.5 group">
           <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-brand-400 to-brand-600 grid place-items-center shadow-sm group-hover:shadow-md transition">
             <span className="text-xs font-bold text-white">C</span>

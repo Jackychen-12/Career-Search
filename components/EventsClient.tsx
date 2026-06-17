@@ -104,13 +104,18 @@ export default function EventsClient({ events, articles = [] }: { events: Campus
         {/* Events tab */}
         {tab === "events" && (
           filteredEvents.length === 0 ? (
-            <div className="card p-12 text-center text-gray-400">暂无符合条件的宣讲活动</div>
+            <div className="card p-12 text-center">
+              <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-gray-100 flex items-center justify-center text-gray-300">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4M8 2v4M3 10h18" /></svg>
+              </div>
+              <p className="text-sm text-gray-500">暂无符合条件的宣讲活动</p>
+            </div>
           ) : (
             <>
               {upcoming.length > 0 && (
                 <section>
                   <h2 className="text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">
-                    <span className="w-1.5 h-4 rounded-full bg-brand-500" /> 即将举行（{upcoming.length}）
+                    <span className="w-1 h-4 rounded-full bg-brand-500" /> 即将举行（{upcoming.length}）
                   </h2>
                   <div className="space-y-2">{upcoming.map((e) => <EventCard key={e.id} event={e} isUpcoming />)}</div>
                 </section>
@@ -118,7 +123,7 @@ export default function EventsClient({ events, articles = [] }: { events: Campus
               {past.length > 0 && (
                 <section>
                   <h2 className="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
-                    <span className="w-1.5 h-4 rounded-full bg-gray-300" /> 已结束（{past.length}）
+                    <span className="w-1 h-4 rounded-full bg-gray-300" /> 已结束（{past.length}）
                   </h2>
                   <div className="space-y-2 opacity-70">{past.map((e) => <EventCard key={e.id} event={e} />)}</div>
                 </section>
@@ -130,7 +135,12 @@ export default function EventsClient({ events, articles = [] }: { events: Campus
         {/* Articles tab */}
         {tab === "articles" && (
           filteredArticles.length === 0 ? (
-            <div className="card p-12 text-center text-gray-400">暂无校招公众号文章</div>
+            <div className="card p-12 text-center">
+              <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-gray-100 flex items-center justify-center text-gray-300">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /></svg>
+              </div>
+              <p className="text-sm text-gray-500">暂无校招公众号文章</p>
+            </div>
           ) : (
             <div className="space-y-2">
               {filteredArticles.map((a) => (

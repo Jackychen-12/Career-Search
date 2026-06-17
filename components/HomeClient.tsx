@@ -186,7 +186,13 @@ export default function HomeClient({
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-6">
             <section>
               {result.items.length === 0 ? (
-                <div className="card p-12 text-center text-gray-400">没有符合条件的岗位，换个筛选试试。</div>
+                <div className="card p-12 text-center">
+                  <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-gray-100 flex items-center justify-center text-gray-300">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="11" cy="11" r="8" /><path d="M21 21l-4.35-4.35" /></svg>
+                  </div>
+                  <p className="text-sm text-gray-500">没有符合条件的岗位</p>
+                  <p className="text-xs text-gray-400 mt-1">换个筛选试试</p>
+                </div>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
                   {result.items.map((j) => (

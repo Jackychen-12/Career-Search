@@ -119,7 +119,7 @@ export default function ReportClient({ jobs }: { jobs: Job[] }) {
         {/* Profile overview */}
         <section className="card p-6">
           <h2 className="text-base font-bold text-gray-900 mb-4 flex items-center gap-2">
-            <span className="w-1.5 h-5 rounded-full bg-brand-500" />
+            <span className="w-1 h-4 rounded-full bg-brand-500" />
             画像概览
           </h2>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
@@ -178,7 +178,7 @@ export default function ReportClient({ jobs }: { jobs: Job[] }) {
         {/* Match distribution */}
         <section className="card p-6">
           <h2 className="text-base font-bold text-gray-900 mb-4 flex items-center gap-2">
-            <span className="w-1.5 h-5 rounded-full bg-brand-500" />
+            <span className="w-1 h-4 rounded-full bg-brand-500" />
             匹配度分布
           </h2>
           <div className="grid grid-cols-4 gap-3 mb-4">
@@ -243,7 +243,7 @@ export default function ReportClient({ jobs }: { jobs: Job[] }) {
         {/* Resume optimization tips — placed prominently after match distribution */}
         <section className="card p-6">
           <h2 className="text-base font-bold text-gray-900 mb-4 flex items-center gap-2">
-            <span className="w-1.5 h-5 rounded-full bg-brand-500" />
+            <span className="w-1 h-4 rounded-full bg-brand-500" />
             简历优化建议
           </h2>
           <div className="space-y-3">
@@ -286,7 +286,7 @@ export default function ReportClient({ jobs }: { jobs: Job[] }) {
         {/* Top 10 recommendations */}
         <section className="card p-6">
           <h2 className="text-base font-bold text-gray-900 mb-4 flex items-center gap-2">
-            <span className="w-1.5 h-5 rounded-full bg-brand-500" />
+            <span className="w-1 h-4 rounded-full bg-brand-500" />
             Top 10 推荐岗位
           </h2>
           <div className="space-y-3">
@@ -314,7 +314,7 @@ export default function ReportClient({ jobs }: { jobs: Job[] }) {
         {/* Skill gap analysis */}
         <section className="card p-6">
           <h2 className="text-base font-bold text-gray-900 mb-4 flex items-center gap-2">
-            <span className="w-1.5 h-5 rounded-full bg-brand-500" />
+            <span className="w-1 h-4 rounded-full bg-brand-500" />
             技能分析
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -361,7 +361,7 @@ export default function ReportClient({ jobs }: { jobs: Job[] }) {
         {Object.keys(industryDist).length > 0 && (
           <section className="card p-6">
             <h2 className="text-base font-bold text-gray-900 mb-4 flex items-center gap-2">
-              <span className="w-1.5 h-5 rounded-full bg-brand-500" />
+              <span className="w-1 h-4 rounded-full bg-brand-500" />
               推荐优先投递行业
             </h2>
             <div className="flex flex-wrap gap-2">
@@ -379,7 +379,7 @@ export default function ReportClient({ jobs }: { jobs: Job[] }) {
         {urgentTop.length > 0 && (
           <section className="card p-6">
             <h2 className="text-base font-bold text-gray-900 mb-4 flex items-center gap-2">
-              <span className="w-1.5 h-5 rounded-full bg-red-500" />
+              <span className="w-1 h-4 rounded-full bg-red-500" />
               投递策略 · 紧急优先
             </h2>
             <p className="text-xs text-gray-500 mb-3">以下匹配岗位即将截止，建议尽快投递：</p>
@@ -403,7 +403,7 @@ export default function ReportClient({ jobs }: { jobs: Job[] }) {
         {/* Interview prep */}
         <section className="card p-6">
           <h2 className="text-base font-bold text-gray-900 mb-4 flex items-center gap-2">
-            <span className="w-1.5 h-5 rounded-full bg-brand-500" />
+            <span className="w-1 h-4 rounded-full bg-brand-500" />
             面试题预测
           </h2>
           <p className="text-xs text-gray-500 mb-3">基于你的目标岗位和技能，可能会被问到的面试题：</p>

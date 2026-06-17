@@ -15,7 +15,7 @@ function toggle<T>(arr: T[], v: T): T[] {
 
 function Chip({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
   return (
-    <button onClick={onClick} className={`px-3 py-1.5 rounded-lg text-sm transition ${active ? "bg-brand-500 text-white shadow-sm" : "text-gray-600 hover:bg-gray-100 border border-gray-200"}`}>
+    <button onClick={onClick} className={`px-3 h-[30px] inline-flex items-center rounded-full text-[13px] font-medium transition ${active ? "bg-brand-500 text-white shadow-sm shadow-brand-500/20" : "text-gray-600 hover:text-brand-600 hover:bg-brand-50/80"}`}>
       {children}
     </button>
   );

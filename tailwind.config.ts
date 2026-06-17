@@ -14,6 +14,10 @@ const config: Config = {
           600: "#4a3de6",
           700: "#3a2ecc",
         },
+        nav: {
+          DEFAULT: "#5b4cff",
+          light: "#ededff",
+        },
       },
       fontFamily: {
         sans: [

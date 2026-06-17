@@ -14,10 +14,10 @@ function Chip({ active, onClick, children }: { active: boolean; onClick: () => v
   return (
     <button
       onClick={onClick}
-      className={`px-2.5 py-1 rounded text-xs font-medium transition ${
+      className={`px-3 h-[30px] inline-flex items-center rounded-full text-[13px] font-medium transition ${
         active
-          ? "bg-brand-500 text-white shadow-sm"
-          : "text-gray-600 hover:text-gray-900 hover:bg-gray-100 border border-gray-200"
+          ? "bg-brand-500 text-white shadow-sm shadow-brand-500/20"
+          : "text-gray-600 hover:text-brand-600 hover:bg-brand-50/80"
       }`}
     >
       {children}

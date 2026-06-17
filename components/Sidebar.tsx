@@ -45,7 +45,7 @@ export default function Sidebar({ jobs, now, onOpenWeekly }: { jobs: Job[]; now:
       {/* 临近截止 */}
       <div className="card p-4">
         <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
-          <span className="w-1 h-4 bg-red-500 rounded-sm" />
+          <span className="w-1 h-4 bg-red-500 rounded-full" />
           临近截止
         </h3>
         {urgentJobs.length === 0 ? (
@@ -78,7 +78,7 @@ export default function Sidebar({ jobs, now, onOpenWeekly }: { jobs: Job[]; now:
       {topMatch.length > 0 && (
         <div className="card p-4">
           <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
-            <span className="w-1 h-4 bg-brand-500 rounded-sm" />
+            <span className="w-1 h-4 bg-brand-500 rounded-full" />
             AI 推荐
           </h3>
           <ol className="space-y-2">
@@ -104,7 +104,7 @@ export default function Sidebar({ jobs, now, onOpenWeekly }: { jobs: Job[]; now:
       {/* 投递清单入口 + 预览 */}
       <div className="card p-4">
         <h3 className="text-sm font-semibold mb-2 flex items-center gap-2">
-          <span className="w-1 h-4 bg-brand-500 rounded-sm" />
+          <span className="w-1 h-4 bg-brand-500 rounded-full" />
           本周建议投递
         </h3>
         {weeklyTop.length > 0 ? (

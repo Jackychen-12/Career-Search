@@ -144,7 +144,7 @@ export default function WeeklyPlan({
                 return (
                   <div key={key}>
                     <h4 className={`text-xs font-bold ${color} mb-2 flex items-center gap-1.5`}>
-                      <span className="w-1.5 h-4 rounded-full bg-current opacity-50" />
+                      <span className="w-1 h-4 rounded-full bg-current opacity-50" />
                       {label}（{items.length}）
                     </h4>
                     <div className="space-y-1.5">

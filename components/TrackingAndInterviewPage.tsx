@@ -25,7 +25,7 @@ const STATUS_CONFIG: Record<TrackingStatus, { label: string; color: string; bg: 
   written:   { label: "笔试",   color: "text-indigo-600", bg: "bg-indigo-500", order: 2, light: "bg-indigo-50",  border: "border-l-indigo-400", hex: "#6366f1" },
   interview: { label: "面试",   color: "text-amber-600",  bg: "bg-amber-500",  order: 3, light: "bg-amber-50",   border: "border-l-amber-400",  hex: "#f59e0b" },
   hr:        { label: "HR面",   color: "text-orange-600", bg: "bg-orange-500", order: 4, light: "bg-orange-50",  border: "border-l-orange-400", hex: "#ea580c" },
-  offer:     { label: "Offer",  color: "text-brand-600",  bg: "bg-brand-500",  order: 5, light: "bg-green-50",   border: "border-l-green-500",  hex: "#22c55e" },
+  offer:     { label: "Offer",  color: "text-green-600",  bg: "bg-green-500",  order: 5, light: "bg-green-50",   border: "border-l-green-500",  hex: "#22c55e" },
   rejected:  { label: "已拒",   color: "text-red-500",    bg: "bg-red-400",    order: 6, light: "bg-red-50",     border: "border-l-red-400",    hex: "#ef4444" },
   withdrawn: { label: "放弃",   color: "text-gray-400",   bg: "bg-gray-300",   order: 7, light: "bg-gray-50",    border: "border-l-gray-300",   hex: "#94a3b8" },
 };
@@ -289,7 +289,12 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
   if (!loggedIn) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="card p-12 text-center text-gray-400">请先登录查看求职管理</div>
+        <div className="card p-12 text-center">
+          <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-gray-100 flex items-center justify-center text-gray-300 text-xl">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
+          </div>
+          <p className="text-sm text-gray-500">请先登录查看求职管理</p>
+        </div>
       </div>
     );
   }
@@ -375,12 +380,18 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
             </div>
 
             {activeItems.length === 0 ? (
-              <div className="card p-12 text-center text-gray-400">还没有追踪任何岗位，去首页点心形收藏或点击「+ 新增记录」</div>
+              <div className="card p-12 text-center">
+                <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-brand-50 flex items-center justify-center text-brand-400 text-xl">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 5v14M5 12h14" /></svg>
+                </div>
+                <p className="text-sm text-gray-500">还没有追踪任何岗位</p>
+                <p className="text-xs text-gray-400 mt-1">去首页点心形收藏或点击「+ 新增记录」</p>
+              </div>
             ) : (
               <>
                 {/* ── Kanban View ── */}
                 {subView === "kanban" && (
-                  <>
+                  <div className="animate-fadeIn">
                     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
                       {KANBAN_COLS.map((colStatus) => {
                         const cfg = STATUS_CONFIG[colStatus];
@@ -500,12 +511,12 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
                         </div>
                       );
                     })()}
-                  </>
+                  </div>
                 )}
 
                 {/* ── Timeline View ── */}
                 {subView === "timeline" && (
-                  <>
+                  <div className="animate-fadeIn">
                   <div className={`relative pl-8 ${!timelineExpanded && timelineEvents.length > 15 ? "max-h-[600px] overflow-hidden" : ""}`}>
                     <div className="absolute left-[11px] top-2 bottom-2 w-0.5 bg-gradient-to-b from-brand-300 via-gray-200 to-gray-100 rounded-full" />
                     {groupedEvents.length === 0 ? (
@@ -555,7 +566,7 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
                       </button>
                     </div>
                   )}
-                  </>
+                  </div>
                 )}
               </>
             )}
@@ -581,7 +592,7 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
                 </button>
 
                 {overviewOpen && (
-                  <div className="mt-5 grid grid-cols-1 lg:grid-cols-2 gap-4">
+                  <div className="mt-5 grid grid-cols-1 lg:grid-cols-2 gap-4 animate-fadeIn">
                   {/* 左上：漏斗 */}
                   <div className="card p-6">
                     <h3 className="text-base font-semibold text-gray-700 mb-5">投递转化漏斗</h3>
@@ -678,7 +689,13 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
         {mainTab === "saved" && (
           <>
             {savedItems.length === 0 ? (
-              <div className="card p-12 text-center text-gray-400">暂无收藏岗位，去首页点心形收藏感兴趣的职位</div>
+              <div className="card p-12 text-center">
+                <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-gray-100 flex items-center justify-center text-gray-300">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" /></svg>
+                </div>
+                <p className="text-sm text-gray-500">暂无收藏岗位</p>
+                <p className="text-xs text-gray-400 mt-1">去首页点心形收藏感兴趣的职位</p>
+              </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                 {savedItems.map((item) => (
