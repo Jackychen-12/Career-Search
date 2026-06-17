@@ -83,6 +83,8 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
   const [aiAnalysis, setAiAnalysis] = useState<ProgressAnalyzeResult | null>(null);
   const [aiLoading, setAiLoading] = useState(false);
   const [aiError, setAiError] = useState("");
+  const [overviewOpen, setOverviewOpen] = useState(false);
+  const [timelineExpanded, setTimelineExpanded] = useState(false);
 
   useEffect(() => {
     getSession().then((s) => {
@@ -347,7 +349,7 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
                   return (
                     <button
                       key={key}
-                      onClick={() => setStatusFilter(statusFilter === key ? null : key)}
+                      onClick={() => { setStatusFilter(statusFilter === key ? null : key); setTimelineExpanded(false); }}
                       className={`px-3.5 py-2.5 rounded-xl flex items-center gap-2 transition border ${cfg.light} ${statusFilter === key ? "ring-2 ring-brand-400 border-transparent shadow-sm" : "border-gray-200/60 hover:border-gray-300"}`}
                     >
                       <span className={`w-2.5 h-2.5 rounded-full ${cfg.bg}`} />
@@ -366,7 +368,7 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
             {/* Sub view tabs */}
             <div className="flex gap-0.5 p-0.5 bg-gray-100 rounded-lg w-fit">
               {([["kanban", "看板"], ["timeline", "时间线"]] as [SubView, string][]).map(([key, label]) => (
-                <button key={key} onClick={() => { setSubView(key); setEditId(null); }} className={`px-4 py-1.5 rounded-md text-sm font-medium transition ${subView === key ? "bg-white text-gray-900 shadow-sm" : "text-gray-500"}`}>
+                <button key={key} onClick={() => { setSubView(key); setEditId(null); setTimelineExpanded(false); }} className={`px-4 py-1.5 rounded-md text-sm font-medium transition ${subView === key ? "bg-white text-gray-900 shadow-sm" : "text-gray-500"}`}>
                   {label}
                 </button>
               ))}
@@ -501,7 +503,8 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
 
                 {/* ── Timeline View ── */}
                 {subView === "timeline" && (
-                  <div className="relative pl-8">
+                  <>
+                  <div className={`relative pl-8 ${!timelineExpanded && timelineEvents.length > 15 ? "max-h-[600px] overflow-hidden" : ""}`}>
                     <div className="absolute left-[11px] top-2 bottom-2 w-0.5 bg-gradient-to-b from-brand-300 via-gray-200 to-gray-100 rounded-full" />
                     {groupedEvents.length === 0 ? (
                       <div className="text-sm text-gray-400 text-center py-12">暂无时间线数据</div>
@@ -540,16 +543,43 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
                       </div>
                     )}
                   </div>
+                  {!timelineExpanded && timelineEvents.length > 15 && (
+                    <div className="relative -mt-16 pt-16 bg-gradient-to-t from-white to-transparent flex justify-center pb-2">
+                      <button
+                        onClick={() => setTimelineExpanded(true)}
+                        className="px-4 py-1.5 rounded-full bg-white border border-gray-200 text-sm text-gray-600 hover:text-brand-600 hover:border-brand-300 shadow-sm transition"
+                      >
+                        展开全部 ({timelineEvents.length} 条事件)
+                      </button>
+                    </div>
+                  )}
+                  </>
                 )}
               </>
             )}
 
             {/* ═══ 数据概览 ═══ */}
             {activeItems.length > 0 && (
-              <div className="border-t border-gray-200/60 pt-6 space-y-5">
-                <h2 className="text-base font-semibold text-gray-800">数据概览</h2>
+              <div className="border-t border-gray-200/60 pt-6">
+                <button
+                  onClick={() => setOverviewOpen(!overviewOpen)}
+                  className="w-full flex items-center justify-between group"
+                >
+                  <h2 className="text-base font-semibold text-gray-800 group-hover:text-brand-600 transition">数据概览</h2>
+                  <div className="flex items-center gap-3">
+                    {!overviewOpen && (
+                      <span className="text-xs text-gray-400 hidden sm:inline">
+                        Offer率 {stats.offerRate}% · 本周活跃 {stats.weeklyActivity}
+                      </span>
+                    )}
+                    <svg className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${overviewOpen ? "rotate-180" : ""}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="6 9 12 15 18 9" />
+                    </svg>
+                  </div>
+                </button>
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                {overviewOpen && (
+                  <div className="mt-5 grid grid-cols-1 lg:grid-cols-2 gap-4">
                   {/* 左上：漏斗 */}
                   <div className="card p-6">
                     <h3 className="text-base font-semibold text-gray-700 mb-5">投递转化漏斗</h3>
@@ -636,6 +666,7 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
                     <TrendChart data={stats.dailyTrend} />
                   </div>
                 </div>
+                )}
               </div>
             )}
           </>
