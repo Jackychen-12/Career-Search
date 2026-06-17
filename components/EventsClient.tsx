@@ -46,7 +46,7 @@ export default function EventsClient({ events, articles = [] }: { events: Campus
           <div className="flex items-center gap-3">
             <a href="/" className="text-[15px] font-bold text-gray-900 hover:text-brand-600 transition">← Career Search</a>
             <span className="text-gray-300">·</span>
-            <span className="text-[14px] font-medium text-gray-700">宣讲 & 资讯</span>
+            <span className="text-[15px] font-semibold text-gray-700">宣讲 & 资讯</span>
           </div>
           <span className="text-xs text-gray-400">{events.length} 活动 · {articles.length} 文章</span>
         </div>
@@ -114,7 +114,7 @@ export default function EventsClient({ events, articles = [] }: { events: Campus
             <>
               {upcoming.length > 0 && (
                 <section>
-                  <h2 className="text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">
+                  <h2 className="text-base font-bold text-gray-900 mb-3 flex items-center gap-2">
                     <span className="w-1 h-4 rounded-full bg-brand-500" /> 即将举行（{upcoming.length}）
                   </h2>
                   <div className="space-y-2">{upcoming.map((e) => <EventCard key={e.id} event={e} isUpcoming />)}</div>
@@ -122,7 +122,7 @@ export default function EventsClient({ events, articles = [] }: { events: Campus
               )}
               {past.length > 0 && (
                 <section>
-                  <h2 className="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
+                  <h2 className="text-base font-bold text-gray-700 mb-3 flex items-center gap-2">
                     <span className="w-1 h-4 rounded-full bg-gray-300" /> 已结束（{past.length}）
                   </h2>
                   <div className="space-y-2 opacity-70">{past.map((e) => <EventCard key={e.id} event={e} />)}</div>

@@ -171,7 +171,7 @@ export default function Header({
           <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-brand-400 to-brand-600 grid place-items-center shadow-sm group-hover:shadow-md transition">
             <span className="text-xs font-bold text-white">C</span>
           </div>
-          <span className="text-[15px] font-semibold text-gray-900 group-hover:text-brand-600 transition">Career Search</span>
+          <span className="text-lg font-bold text-gray-900 group-hover:text-brand-600 transition tracking-tight">Career Search</span>
         </a>
         <div className="flex items-center gap-2">
           <span className="hidden sm:inline text-[11px] text-gray-400 bg-gray-100/60 px-2 py-0.5 rounded-full">
