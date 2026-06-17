@@ -444,6 +444,8 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
                                 <span className="text-sm font-bold text-gray-900">{item.company} · {item.title}</span>
                               </div>
                               <div className="text-xs text-gray-500 mt-1">
+                                {item.interview?.department && <span className="text-brand-600 font-medium">{item.interview.department}</span>}
+                                {item.interview?.department && (item.location || item.jobType) && <span> · </span>}
                                 {item.location && <>{item.location} · </>}{item.jobType}
                                 {item.entry.appliedAt && ` · 投递于 ${item.entry.appliedAt.slice(0, 10)}`}
                               </div>

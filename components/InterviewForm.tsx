@@ -230,7 +230,7 @@ export default function InterviewForm({ initial, trackedJobs, onSave, onCancel }
             <textarea
               value={aiText}
               onChange={(e) => setAiText(e.target.value)}
-              placeholder="描述你的面试情况，例如：今天下午字节跳动AI产品经理一面，面试官是张明，商业化部门的。问了我做过的项目、对AGI的看法、一个需求分析case。大概40分钟，感觉还行..."
+              placeholder="描述你的面试情况，例如：今天下午腾讯微信支付产品经理一面，面试官是张明。问了我做过的项目、对支付行业的看法、一个需求分析case。大概40分钟，感觉还行..."
               rows={4}
               className="w-full text-sm px-3 py-2.5 rounded-lg border border-brand-200 bg-white/80 resize-none focus:outline-none focus:ring-2 focus:ring-brand-400/30 focus:border-brand-400"
             />
@@ -260,8 +260,8 @@ export default function InterviewForm({ initial, trackedJobs, onSave, onCancel }
                 <input value={position} onChange={(e) => setPosition(e.target.value)} placeholder="如：AI产品经理" className="w-full text-sm px-3 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-brand-400/30 focus:border-brand-400" />
               </div>
               <div>
-                <label className="text-[11px] text-gray-500 block mb-1">部门</label>
-                <input value={department} onChange={(e) => setDepartment(e.target.value)} placeholder="如：商业化" className="w-full text-sm px-3 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-brand-400/30 focus:border-brand-400" />
+                <label className="text-[11px] text-gray-500 block mb-1">业务线 / 部门</label>
+                <input value={department} onChange={(e) => setDepartment(e.target.value)} placeholder="如：微信支付 / 飞书 / 商业化" className="w-full text-sm px-3 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-brand-400/30 focus:border-brand-400" />
               </div>
               <div>
                 <label className="text-[11px] text-gray-500 block mb-1">投递渠道</label>
