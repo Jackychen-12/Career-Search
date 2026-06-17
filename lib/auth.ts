@@ -18,16 +18,14 @@ export async function signInWithGitHub() {
   if (error) console.error("Login error:", error.message);
 }
 
-export async function signInWithEmail(email: string, password: string) {
-  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+export async function sendMagicLink(email: string) {
+  const { error } = await supabase.auth.signInWithOtp({
+    email,
+    options: {
+      emailRedirectTo: window.location.origin + "/callback/",
+    },
+  });
   if (error) throw new Error(error.message);
-  return data;
-}
-
-export async function signUpWithEmail(email: string, password: string) {
-  const { data, error } = await supabase.auth.signUp({ email, password });
-  if (error) throw new Error(error.message);
-  return data;
 }
 
 export async function signOut() {

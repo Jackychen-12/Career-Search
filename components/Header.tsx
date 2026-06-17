@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { signInWithGitHub, signInWithEmail, signUpWithEmail, signOut, getUser, type GhUser } from "@/lib/auth";
+import { signInWithGitHub, sendMagicLink, signOut, getUser, type GhUser } from "@/lib/auth";
 import { hasPrefs } from "@/lib/ranking";
 import { loadPrefs, savePrefs } from "@/lib/prefs";
 
@@ -108,10 +108,9 @@ export default function Header({
   const [menuOpen, setMenuOpen] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
   const [loginEmail, setLoginEmail] = useState("");
-  const [loginPwd, setLoginPwd] = useState("");
   const [loginErr, setLoginErr] = useState("");
   const [loginLoading, setLoginLoading] = useState(false);
-  const [isSignUp, setIsSignUp] = useState(false);
+  const [emailSent, setEmailSent] = useState(false);
 
   useEffect(() => {
     getUser().then((u) => {
@@ -138,17 +137,8 @@ export default function Header({
     setLoginErr("");
     setLoginLoading(true);
     try {
-      if (isSignUp) {
-        await signUpWithEmail(loginEmail, loginPwd);
-      } else {
-        await signInWithEmail(loginEmail, loginPwd);
-      }
-      const u = await getUser();
-      setUser(u);
-      setLoggedIn(!!u);
-      setShowLogin(false);
-      setLoginEmail("");
-      setLoginPwd("");
+      await sendMagicLink(loginEmail);
+      setEmailSent(true);
     } catch (e) {
       setLoginErr((e as Error).message);
     } finally {
@@ -159,8 +149,7 @@ export default function Header({
   function openLogin() {
     setLoginErr("");
     setLoginEmail("");
-    setLoginPwd("");
-    setIsSignUp(false);
+    setEmailSent(false);
     setShowLogin(true);
   }
 
@@ -242,38 +231,46 @@ export default function Header({
       {showLogin && (
         <div className="fixed inset-0 z-50 bg-black/30 backdrop-blur-sm flex items-center justify-center" onClick={() => setShowLogin(false)}>
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm mx-4 p-6 space-y-4" onClick={(e) => e.stopPropagation()}>
-            <h2 className="text-lg font-bold text-gray-900 text-center">{isSignUp ? "注册账号" : "登录"}</h2>
+            <h2 className="text-lg font-bold text-gray-900 text-center">登录</h2>
 
-            <div className="space-y-3">
-              <input
-                type="email"
-                value={loginEmail}
-                onChange={(e) => setLoginEmail(e.target.value)}
-                placeholder="邮箱"
-                className="w-full px-3 py-2.5 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400/30 focus:border-brand-400"
-              />
-              <input
-                type="password"
-                value={loginPwd}
-                onChange={(e) => setLoginPwd(e.target.value)}
-                placeholder="密码"
-                onKeyDown={(e) => e.key === "Enter" && handleEmailAuth()}
-                className="w-full px-3 py-2.5 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400/30 focus:border-brand-400"
-              />
-              {loginErr && <p className="text-xs text-red-500">{loginErr}</p>}
-              <button
-                onClick={handleEmailAuth}
-                disabled={loginLoading || !loginEmail || !loginPwd}
-                className="w-full py-2.5 rounded-lg bg-brand-600 text-white text-sm font-medium hover:bg-brand-700 disabled:opacity-50 transition"
-              >
-                {loginLoading ? "处理中..." : isSignUp ? "注册" : "登录"}
-              </button>
-            </div>
-
-            <p className="text-center text-xs text-gray-400">
-              {isSignUp ? "已有账号？" : "没有账号？"}
-              <button onClick={() => { setIsSignUp(!isSignUp); setLoginErr(""); }} className="text-brand-600 ml-1">{isSignUp ? "去登录" : "注册"}</button>
-            </p>
+            {emailSent ? (
+              <div className="text-center space-y-3 py-2">
+                <div className="w-12 h-12 mx-auto rounded-full bg-green-50 flex items-center justify-center">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                </div>
+                <p className="text-sm text-gray-700">验证邮件已发送至</p>
+                <p className="text-sm font-semibold text-gray-900">{loginEmail}</p>
+                <p className="text-xs text-gray-400">请查收邮箱并点击链接完成登录</p>
+                <button
+                  onClick={() => { setEmailSent(false); setLoginEmail(""); }}
+                  className="text-xs text-brand-600 hover:text-brand-700"
+                >
+                  使用其他邮箱
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <input
+                  type="email"
+                  value={loginEmail}
+                  onChange={(e) => setLoginEmail(e.target.value)}
+                  placeholder="输入邮箱地址"
+                  onKeyDown={(e) => e.key === "Enter" && loginEmail && handleEmailAuth()}
+                  className="w-full px-3 py-2.5 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400/30 focus:border-brand-400"
+                />
+                {loginErr && <p className="text-xs text-red-500">{loginErr}</p>}
+                <button
+                  onClick={handleEmailAuth}
+                  disabled={loginLoading || !loginEmail}
+                  className="w-full py-2.5 rounded-lg bg-brand-600 text-white text-sm font-medium hover:bg-brand-700 disabled:opacity-50 transition"
+                >
+                  {loginLoading ? "发送中..." : "发送验证邮件"}
+                </button>
+                <p className="text-center text-[11px] text-gray-400">无需注册，输入邮箱即可收到登录链接</p>
+              </div>
+            )}
 
             <div className="relative">
               <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-gray-200" /></div>
