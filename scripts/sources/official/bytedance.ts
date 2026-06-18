@@ -1,11 +1,7 @@
 import type { RawJob } from "../../../lib/types";
-import { UA } from "../../lib/fetchUtil";
+import { postJson } from "../../lib/fetchUtil";
 import { STUDENT_ROLE } from "../greenhouse";
 import type { SourceAdapter } from "../types";
-
-// Best-effort adapter for 字节跳动 campus postings. The public endpoint is not a
-// stable contract and is often blocked from data-center IPs — when it changes or
-// blocks us, this throws and the orchestrator simply skips it (logged in meta).
 
 const API = "https://jobs.bytedance.com/api/v1/search/job/posts";
 
@@ -22,15 +18,9 @@ export const bytedance: SourceAdapter = {
   id: "official:bytedance",
   label: "字节跳动官网",
   async fetch(): Promise<RawJob[]> {
-    const res = await fetch(API, {
-      method: "POST",
-      headers: {
-        "User-Agent": UA,
-        "Content-Type": "application/json",
-        Accept: "application/json",
-        "portal-platform": "pc",
-      },
-      body: JSON.stringify({
+    const data = await postJson<{ data?: { job_post_list?: BdPost[] } }>(
+      API,
+      {
         keyword: "实习",
         limit: 30,
         offset: 0,
@@ -39,13 +29,11 @@ export const bytedance: SourceAdapter = {
         subject_id_list: [],
         recruitment_id_list: [],
         portal_type: 6,
-      }),
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status} <- bytedance`);
-    const data = (await res.json()) as { data?: { job_post_list?: BdPost[] } };
+      },
+      { "portal-platform": "pc" },
+    );
     const list = data?.data?.job_post_list ?? [];
     if (list.length === 0) throw new Error("empty / unexpected payload");
-    // Keep genuine campus/实习 roles only (the endpoint also returns social-hire posts).
     return list
       .filter((p) => STUDENT_ROLE.test(p.title))
       .map((p) => {

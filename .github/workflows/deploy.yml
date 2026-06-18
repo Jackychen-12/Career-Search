@@ -29,7 +29,26 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
-        run: npm run crawl || echo "crawl reported issues; keeping last good snapshot"
+        run: npm run crawl
+        continue-on-error: true
+
+      - name: Crawl summary
+        if: always()
+        run: |
+          if [ -f data/meta.json ]; then
+            echo "## Crawl Results" >> $GITHUB_STEP_SUMMARY
+            node -e "
+              const m = require('./data/meta.json');
+              const lines = ['| Source | Count | Error |', '|---|---|---|'];
+              for (const [k, v] of Object.entries(m.sources)) {
+                lines.push('| ' + k + ' | ' + v + ' | ' + (m.errors[k] || '✓') + ' |');
+              }
+              lines.push('', '**Total: ' + m.count + ' jobs** | Updated: ' + m.fetchedAt);
+              console.log(lines.join('\n'));
+            " >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ No meta.json found — crawl may have failed completely" >> $GITHUB_STEP_SUMMARY
+          fi
 
       - name: Send email notifications
         env:

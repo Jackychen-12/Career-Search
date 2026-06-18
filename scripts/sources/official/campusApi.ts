@@ -32,7 +32,10 @@ async function fetchMeituan(): Promise<RawJob[]> {
       applyUrl: `https://campus.meituan.com/recruit/campus/detail/${j.jobId}`,
       tags: ["大厂", "官网"],
     }));
-  } catch { return []; }
+  } catch (e) {
+    console.warn(`  [campus-api] 美团 HTML 解析失败: ${(e as Error).message}`);
+    return [];
+  }
 }
 
 // 腾讯校招（公开页面提取）
@@ -55,7 +58,10 @@ async function fetchTencent(): Promise<RawJob[]> {
       });
     }
     return jobs.slice(0, 50);
-  } catch { return []; }
+  } catch (e) {
+    console.warn(`  [campus-api] 腾讯 HTML 抓取失败: ${(e as Error).message}`);
+    return [];
+  }
 }
 
 // 阿里校招（talent API）
@@ -76,7 +82,10 @@ async function fetchAlibaba(): Promise<RawJob[]> {
       applyUrl: `https://talent.alibaba.com/position/detail?positionId=${j.id}`,
       tags: ["大厂", "官网"],
     }));
-  } catch { return []; }
+  } catch (e) {
+    console.warn(`  [campus-api] 阿里 API 失败: ${(e as Error).message}`);
+    return [];
+  }
 }
 
 // 华为校招
@@ -99,7 +108,10 @@ async function fetchHuawei(): Promise<RawJob[]> {
       });
     }
     return jobs.slice(0, 50);
-  } catch { return []; }
+  } catch (e) {
+    console.warn(`  [campus-api] 华为 HTML 解析失败: ${(e as Error).message}`);
+    return [];
+  }
 }
 
 export const campusApis: SourceAdapter = {
@@ -120,7 +132,7 @@ export const campusApis: SourceAdapter = {
         console.log(`  [campus-api] ${names[i]}: ${r.value.length} 条`);
         all.push(...r.value);
       } else {
-        console.log(`  [campus-api] ${names[i]}: 失败`);
+        console.warn(`  [campus-api] ${names[i]}: 失败 — ${r.reason?.message ?? r.reason}`);
       }
     });
 

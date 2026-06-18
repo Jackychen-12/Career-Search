@@ -21,9 +21,10 @@ import { ashby } from "./sources/ashby";
 import { greenhouse } from "./sources/greenhouse";
 import { lever } from "./sources/lever";
 import { bytedance } from "./sources/official/bytedance";
-import { kuaishou } from "./sources/official/kuaishou";
+// kuaishou, xiaohongshu — 端点已下线(HTTP 404)，待确认新端点后恢复
+// import { kuaishou } from "./sources/official/kuaishou";
+// import { xiaohongshu } from "./sources/official/xiaohongshu";
 import { meituan } from "./sources/official/meituan";
-import { xiaohongshu } from "./sources/official/xiaohongshu";
 import { openSourceRepos } from "./sources/opensourceRepo";
 import { seed } from "./sources/seed";
 import type { SourceAdapter } from "./sources/types";
@@ -33,7 +34,7 @@ function selectAdapters(only: string[]): SourceAdapter[] {
   if (SOURCES_CONFIG.seed) universe.push(seed);
   if (SOURCES_CONFIG.ats) universe.push(greenhouse, lever, ashby);
   if (SOURCES_CONFIG.openSourceRepos) universe.push(openSourceRepos);
-  if (SOURCES_CONFIG.official) universe.push(bytedance, meituan, kuaishou, xiaohongshu, campusApis);
+  if (SOURCES_CONFIG.official) universe.push(bytedance, meituan, campusApis);
   universe.push(nowcoder);
 
   if (only.length > 0) {

@@ -1,31 +1,58 @@
 export const UA =
   "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36";
 
-const DEFAULT_TIMEOUT = Number(process.env.CRAWL_TIMEOUT_MS || 15000);
+const DEFAULT_TIMEOUT = Number(process.env.CRAWL_TIMEOUT_MS || 25000);
+const MAX_RETRIES = 2;
 
-async function request(url: string, headers: Record<string, string>): Promise<Response> {
-  const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), DEFAULT_TIMEOUT);
-  try {
-    const res = await fetch(url, {
-      headers: { "User-Agent": UA, ...headers },
-      signal: ctrl.signal,
-      redirect: "follow",
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status} ${res.statusText} <- ${url}`);
-    return res;
-  } finally {
-    clearTimeout(timer);
+async function fetchWithRetry(url: string, init: RequestInit = {}, retries = MAX_RETRIES): Promise<Response> {
+  for (let attempt = 0; ; attempt++) {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), DEFAULT_TIMEOUT);
+    try {
+      const res = await fetch(url, {
+        ...init,
+        headers: { "User-Agent": UA, ...(init.headers as Record<string, string>) },
+        signal: ctrl.signal,
+        redirect: "follow",
+      });
+      if (res.ok || res.status < 500 || attempt >= retries) {
+        if (!res.ok) throw new Error(`HTTP ${res.status} ${res.statusText} <- ${url}`);
+        return res;
+      }
+      console.warn(`[fetch] ${url} returned ${res.status}, retry ${attempt + 1}/${retries}`);
+    } catch (err) {
+      clearTimeout(timer);
+      if (attempt >= retries) throw err;
+      const msg = err instanceof Error ? err.message : String(err);
+      if (msg.includes("HTTP ") && !msg.includes("5")) throw err;
+      console.warn(`[fetch] ${url} failed (${msg}), retry ${attempt + 1}/${retries}`);
+    } finally {
+      clearTimeout(timer);
+    }
+    await new Promise((r) => setTimeout(r, 1000 * (attempt + 1)));
   }
 }
 
 export async function getText(url: string, headers: Record<string, string> = {}): Promise<string> {
-  const res = await request(url, headers);
+  const res = await fetchWithRetry(url, { headers });
   return res.text();
 }
 
 export async function getJson<T>(url: string, headers: Record<string, string> = {}): Promise<T> {
-  const res = await request(url, { Accept: "application/json", ...headers });
+  const res = await fetchWithRetry(url, { headers: { Accept: "application/json", ...headers } });
+  return (await res.json()) as T;
+}
+
+export async function postJson<T>(
+  url: string,
+  body: unknown,
+  headers: Record<string, string> = {},
+): Promise<T> {
+  const res = await fetchWithRetry(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Accept: "application/json", ...headers },
+    body: JSON.stringify(body),
+  });
   return (await res.json()) as T;
 }
 

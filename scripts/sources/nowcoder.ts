@@ -54,7 +54,10 @@ export const nowcoder: SourceAdapter = {
     const all: RawJob[] = [];
     for (const url of URLS) {
       try {
-        const html = await getText(url);
+        const html = await getText(url, {
+          Referer: "https://www.nowcoder.com/",
+          Cookie: "noticeLoginFlag=1",
+        });
         const jobs = extractJobsFromHtml(html);
         all.push(...jobs);
       } catch (e) {
