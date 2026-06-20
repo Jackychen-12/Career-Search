@@ -189,17 +189,23 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
     setLoading(false);
   }
 
-  async function runInterviewFollowup() {
-    if (!prefs || !interviewResult?.length || !interviewFollowupInput.trim()) return;
+  async function runInterviewFollowup(instruction?: string) {
+    const followupText = instruction || interviewFollowupInput.trim();
+    if (!prefs || !interviewResult?.length || !followupText) return;
+    if (instruction) setInterviewFollowupInput(instruction);
     setInterviewFollowupLoading(true);
     setError("");
     const profile = profileToText(prefs);
     const job = prefs.targetRoles?.join("、") ?? "";
     const previous = interviewResult.map((q, i) => `${i + 1}. [${q.category}] ${q.question}`).join("\n");
     try {
-      const r = await followupInterview(profile, job, previous, interviewFollowupInput);
-      setInterviewResult([...interviewResult, ...r.questions]);
-      setInterviewFollowupInput("");
+      const r = await followupInterview(profile, job, previous, followupText);
+      if (!r.questions?.length) {
+        setError("AI 未生成新题目，请换个追问方向重试");
+      } else {
+        setInterviewResult([...interviewResult, ...r.questions]);
+        setInterviewFollowupInput("");
+      }
     } catch (e) {
       setError((e as Error).message);
     }
@@ -569,14 +575,15 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
                     <div className="flex flex-wrap gap-1.5">
                       <span className="text-[10px] text-gray-400">快速追问：</span>
                       {["再来几道技术题", "行为面试题", "压力面试题", "HR 面常见题"].map((t) => (
-                        <button key={t} onClick={() => { setInterviewFollowupInput(t); }}
-                          className="text-[10px] px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 hover:bg-brand-50 hover:text-brand-600 transition">
+                        <button key={t} onClick={() => runInterviewFollowup(t)}
+                          disabled={interviewFollowupLoading}
+                          className="text-[10px] px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 hover:bg-brand-50 hover:text-brand-600 transition disabled:opacity-50">
                           {t}
                         </button>
                       ))}
                     </div>
                     <button
-                      onClick={runInterviewFollowup}
+                      onClick={() => runInterviewFollowup()}
                       disabled={interviewFollowupLoading || !interviewFollowupInput.trim()}
                       className="w-full py-2.5 rounded-lg text-sm font-semibold text-white bg-brand-500 hover:bg-brand-600 disabled:opacity-50 shadow-sm transition"
                     >

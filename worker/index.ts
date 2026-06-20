@@ -63,7 +63,7 @@ async function callDeepSeek(env: Env, headers: HeadersInit, system: string, user
     const jsonStr = content.replace(/```json\n?/g, "").replace(/```/g, "").trim();
     return Response.json(JSON.parse(jsonStr), { headers });
   } catch {
-    return Response.json({ content }, { headers });
+    return Response.json({ error: "AI 返回格式异常，请重试", content }, { status: 502, headers });
   }
 }
 
@@ -413,8 +413,9 @@ export default {
       const job = body.job as string ?? "";
       const previous = body.previous as string ?? "";
       const followup = body.followup as string ?? "";
+      const recentPrevious = previous.split("\n").slice(-20).join("\n");
       return callDeepSeek(env, cors, INTERVIEW_FOLLOWUP_PROMPT,
-        `候选人背景：\n${profile}\n\n目标岗位：\n${job}\n\n已有题目：\n${previous}\n\n用户追问：\n${followup}`, 3000);
+        `用户追问：\n${followup}\n\n候选人背景：\n${profile}\n\n目标岗位：\n${job}\n\n已有题目（最近）：\n${recentPrevious}`, 3000);
     }
 
     // 简历润色
