@@ -15,7 +15,7 @@ export async function signInWithGitHub() {
       scopes: "gist",
     },
   });
-  if (error) console.error("Login error:", error.message);
+  if (error) throw new Error(error.message);
 }
 
 export async function sendMagicLink(email: string) {
