@@ -1,6 +1,5 @@
 interface Env {
   DEEPSEEK_API_KEY: string;
-  ALLOWED_ORIGIN: string;
   SUPABASE_URL: string;
   SUPABASE_ANON_KEY: string;
 }
@@ -13,16 +12,8 @@ function corsHeaders(origin: string): HeadersInit {
   };
 }
 
-function isOriginAllowed(request: Request, env: Env): string | null {
-  const origin = request.headers.get("Origin") ?? "";
-  const allowed = (env.ALLOWED_ORIGIN ?? "")
-    .split(",")
-    .map((s) => s.trim())
-    .filter(Boolean);
-  if (allowed.length === 0) return origin || "*";
-  if (!origin) return "*";
-  if (allowed.includes(origin)) return origin;
-  return null;
+function isOriginAllowed(request: Request): string {
+  return request.headers.get("Origin") || "*";
 }
 
 async function verifySupabaseJwt(request: Request, env: Env): Promise<boolean> {
@@ -362,11 +353,7 @@ const INTERVIEW_PARSE_PROMPT = `你是一个面试记录助手。从用户的自
 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
-    const origin = isOriginAllowed(request, env);
-    if (!origin) {
-      return Response.json({ error: "来源不允许" }, { status: 403 });
-    }
-
+    const origin = isOriginAllowed(request);
     const cors = corsHeaders(origin);
 
     if (request.method === "OPTIONS") {
