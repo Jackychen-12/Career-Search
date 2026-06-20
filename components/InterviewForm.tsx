@@ -62,7 +62,7 @@ export default function InterviewForm({ initial, trackedJobs, onSave, onCancel }
   const [department, setDepartment] = useState(initial?.department ?? "");
   const [channel, setChannel] = useState(initial?.channel ?? "");
   const [relatedJobId, setRelatedJobId] = useState(initial?.relatedJobId ?? "");
-  const [status, setStatus] = useState<InterviewStatus>(initial?.status ?? "进行中");
+  const [status, setStatus] = useState<InterviewStatus>(initial?.status ?? "已投递");
   const [rounds, setRounds] = useState<InterviewRound[]>(initial?.rounds ?? []);
   const [salaryInfo, setSalaryInfo] = useState(initial?.salaryInfo ?? "");
   const [offerDetail, setOfferDetail] = useState(initial?.offerDetail ?? "");
@@ -93,7 +93,7 @@ export default function InterviewForm({ initial, trackedJobs, onSave, onCancel }
       });
 
       if (!res.ok) {
-        const err = await res.json() as { error?: string };
+        const err = await res.json().catch(() => ({})) as { error?: string };
         throw new Error(err.error ?? "解析失败");
       }
 

@@ -19,7 +19,8 @@ function isOriginAllowed(request: Request, env: Env): string | null {
     .split(",")
     .map((s) => s.trim())
     .filter(Boolean);
-  if (allowed.length === 0) return null;
+  if (allowed.length === 0) return origin || "*";
+  if (!origin) return "*";
   if (allowed.includes(origin)) return origin;
   return null;
 }
@@ -363,7 +364,7 @@ export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const origin = isOriginAllowed(request, env);
     if (!origin) {
-      return new Response("Forbidden", { status: 403 });
+      return Response.json({ error: "来源不允许" }, { status: 403 });
     }
 
     const cors = corsHeaders(origin);
