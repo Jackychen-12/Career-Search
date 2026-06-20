@@ -14,7 +14,7 @@ export interface InterviewRound {
   result: "通过" | "待定" | "挂了" | "";
 }
 
-export type InterviewStatus = "进行中" | "已拿offer" | "已拒" | "已放弃";
+export type InterviewStatus = "已投递" | "进行中" | "已拿offer" | "已拒" | "已放弃";
 
 export interface InterviewRecord {
   id: string;

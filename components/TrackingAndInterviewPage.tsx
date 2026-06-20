@@ -83,8 +83,9 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
   const [aiAnalysis, setAiAnalysis] = useState<ProgressAnalyzeResult | null>(null);
   const [aiLoading, setAiLoading] = useState(false);
   const [aiError, setAiError] = useState("");
-  const [overviewOpen, setOverviewOpen] = useState(false);
+  const [overviewOpen, setOverviewOpen] = useState(true);
   const [timelineExpanded, setTimelineExpanded] = useState(false);
+  const [collapsedCols, setCollapsedCols] = useState<Set<TrackingStatus>>(new Set());
 
   useEffect(() => {
     getSession().then((s) => {
@@ -199,11 +200,20 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
 
   const stats = useMemo(() => computeDashboardStats(tracking, interviews), [tracking, interviews]);
 
+  useEffect(() => {
+    if (overviewOpen && !aiAnalysis && !aiLoading && loggedIn && activeItems.length > 0) {
+      handleAnalyze();
+    }
+  }, [overviewOpen, loggedIn, activeItems.length]);
+
   async function updateEntry(itemId: string, patch: Partial<TrackingEntry>) {
     if (itemId.startsWith("iv-")) return;
     const current = tracking[itemId];
     if (!current) return;
     const newStatus = patch.status ?? current.status;
+    if (newStatus !== "saved" && !current.appliedAt && !patch.appliedAt) {
+      patch.appliedAt = new Date().toISOString().slice(0, 10);
+    }
     const updated = await saveTracking(itemId, newStatus, { ...current, ...patch });
     setTracking(updated);
     await syncTrackingToInterview(itemId, newStatus);
@@ -402,13 +412,26 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
                           }
                           return false;
                         });
+                        const isCollapsed = collapsedCols.has(colStatus);
+                        const toggleCol = () => {
+                          setCollapsedCols((prev) => {
+                            const next = new Set(prev);
+                            if (next.has(colStatus)) next.delete(colStatus); else next.add(colStatus);
+                            return next;
+                          });
+                        };
                         return (
                           <div key={colStatus} className="space-y-2">
-                            <div className={`flex items-center gap-2 px-3 py-2 rounded-lg ${cfg.light}`}>
+                            <div
+                              onClick={toggleCol}
+                              className={`flex items-center gap-2 px-3 py-2 rounded-lg cursor-pointer select-none ${cfg.light} hover:opacity-80 transition`}
+                            >
                               <span className={`w-2.5 h-2.5 rounded-full ${cfg.bg}`} />
                               <span className={`text-sm font-semibold ${cfg.color}`}>{cfg.label}</span>
                               <span className="text-xs text-gray-500 ml-auto">{colItems.length}</span>
+                              <svg className={`w-3.5 h-3.5 text-gray-400 transition-transform ${isCollapsed ? "-rotate-90" : ""}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="6 9 12 15 18 9" /></svg>
                             </div>
+                            {!isCollapsed && (
                             <div className="space-y-1.5 min-h-[80px] max-h-[480px] overflow-y-auto pr-0.5">
                               {colItems.map((t) => {
                                 const isEnded = t.status === "rejected" || t.status === "withdrawn";
@@ -420,6 +443,9 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
                                   >
                                     <div className={`text-sm font-semibold text-gray-900 line-clamp-1 ${isEnded ? "line-through" : ""}`}>{t.company}</div>
                                     <div className="text-xs text-gray-500 mt-0.5 line-clamp-1">{t.title}</div>
+                                    {t.interview?.department && <div className="text-[11px] text-brand-600 mt-0.5">{t.interview.department}</div>}
+                                    {t.entry.appliedAt && <div className="text-[11px] text-gray-400 mt-0.5">投递 {t.entry.appliedAt.slice(5)}</div>}
+                                    {t.entry.channel && <div className="text-[11px] text-gray-400 mt-0.5">渠道: {t.entry.channel}</div>}
                                     {isEnded && <div className="text-[11px] text-red-400 mt-1">{STATUS_CONFIG[t.status].label}</div>}
                                     {t.interview && !isEnded && (
                                       <div className="text-[11px] text-amber-500 mt-1.5">{t.interview.rounds.length}轮面试</div>
@@ -437,6 +463,7 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
                               })}
                               {colItems.length === 0 && <div className="text-xs text-gray-400 text-center py-6">空</div>}
                             </div>
+                            )}
                           </div>
                         );
                       })}

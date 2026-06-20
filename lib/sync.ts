@@ -15,6 +15,8 @@ export function trackingToInterviewStatus(ts: TrackingStatus): InterviewStatus |
       return "已拒";
     case "withdrawn":
       return "已放弃";
+    case "applied":
+      return "已投递";
     default:
       return null;
   }
@@ -36,6 +38,8 @@ export function interviewToTrackingStatus(is: InterviewStatus, rounds?: Intervie
       return "rejected";
     case "已放弃":
       return "withdrawn";
+    case "已投递":
+      return "applied";
   }
 }
 

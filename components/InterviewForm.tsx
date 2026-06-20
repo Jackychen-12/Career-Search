@@ -45,6 +45,7 @@ interface AiParsed {
 }
 
 const STATUS_OPTIONS: { value: InterviewStatus; label: string }[] = [
+  { value: "已投递", label: "已投递" },
   { value: "进行中", label: "进行中" },
   { value: "已拿offer", label: "已拿 Offer" },
   { value: "已拒", label: "已拒" },
