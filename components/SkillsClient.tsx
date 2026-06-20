@@ -19,7 +19,8 @@ const SKILLS: { key: Skill; label: string; desc: string; icon: string }[] = [
   { key: "jd-compare", label: "多 JD 对比", desc: "批量对比多个岗位匹配度，智能排序投递优先级", icon: "📊" },
 ];
 
-function profileToText(p: Prefs): string {
+function profileToText(p: Prefs | null): string {
+  if (!p) return "未设置画像";
   const parts = [];
   if (p.school) parts.push(`学校: ${p.school}`);
   if (p.major) parts.push(`专业: ${p.major}`);
@@ -106,6 +107,111 @@ function exportWord(sections: { title: string; content: string }[], name: string
   URL.revokeObjectURL(a.href);
 }
 
+interface OfferCard {
+  id: number;
+  company: string;
+  department: string;
+  position: string;
+  salary: string;
+  notes: string;
+}
+
+let _nextCardId = 1;
+function createCard(): OfferCard {
+  return { id: _nextCardId++, company: "", department: "", position: "", salary: "", notes: "" };
+}
+
+function serializeCards(cards: OfferCard[]): string {
+  return cards
+    .filter((c) => c.company || c.position)
+    .map((c, i) => {
+      const lines = [`Offer ${i + 1}:`];
+      if (c.company) lines.push(`公司: ${c.company}`);
+      if (c.department) lines.push(`业务线/部门: ${c.department}`);
+      if (c.position) lines.push(`职位: ${c.position}`);
+      if (c.salary) lines.push(`薪资福利: ${c.salary}`);
+      if (c.notes) lines.push(`备注: ${c.notes}`);
+      return lines.join("\n");
+    })
+    .join("\n---\n");
+}
+
+function formatForXiaohongshu(result: OfferCompareResult | JdCompareResult, cards: OfferCard[]): string {
+  const lines: string[] = [];
+  const emojis = ["1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣"];
+  cards.filter((c) => c.company || c.position).forEach((c, i) => {
+    lines.push(`${emojis[i] ?? `${i + 1}.`} ${c.company} ${c.position}`);
+    if (c.department) lines.push(`   ${c.department}`);
+    if (c.salary) lines.push(`   💰 ${c.salary}`);
+    if (c.notes) lines.push(`   📝 ${c.notes}`);
+  });
+  lines.push("");
+  if ("comparison" in result) {
+    lines.push("🔍 对比分析：");
+    result.comparison.forEach((c) => lines.push(`▫️ ${c.dimension}：${c.analysis}`));
+    lines.push("");
+    lines.push(`✅ 推荐：${result.recommendation}`);
+    lines.push(`💡 理由：${result.reason}`);
+    if (result.risks) lines.push(`⚠️ 风险：${result.risks}`);
+  } else {
+    lines.push("🏆 匹配排名：");
+    result.rankings.forEach((r) => lines.push(`${r.rank}. ${r.company} ${r.position} - ${r.score}分 (${r.priority}优先级)`));
+    lines.push("");
+    if (result.strategy) lines.push(`📌 策略：${result.strategy}`);
+  }
+  lines.push("");
+  lines.push("#求职 #offer对比 #校招 #秋招");
+  return lines.join("\n");
+}
+
+function StructuredInputCard({ card, index, onChange, onRemove, canRemove, label }: {
+  card: OfferCard; index: number; label?: string;
+  onChange: (id: number, field: keyof OfferCard, value: string) => void;
+  onRemove: (id: number) => void; canRemove: boolean;
+}) {
+  return (
+    <div className="p-4 rounded-lg border border-gray-200 bg-white space-y-2.5 relative">
+      {canRemove && (
+        <button onClick={() => onRemove(card.id)}
+          className="absolute top-2 right-2 w-6 h-6 rounded-full hover:bg-red-50 text-gray-400 hover:text-red-500 flex items-center justify-center transition text-xs">
+          ×
+        </button>
+      )}
+      <div className="text-xs font-bold text-gray-700">{label ?? "Offer"} {index + 1}</div>
+      <div className="grid grid-cols-2 gap-2">
+        <div>
+          <label className="text-[10px] text-gray-400 block mb-0.5">公司</label>
+          <input value={card.company} onChange={(e) => onChange(card.id, "company", e.target.value)}
+            placeholder="如：字节跳动" className="w-full px-2 py-1.5 rounded-md border border-gray-200 text-xs focus:outline-none focus:border-brand-500" />
+        </div>
+        <div>
+          <label className="text-[10px] text-gray-400 block mb-0.5">业务线/部门</label>
+          <input value={card.department} onChange={(e) => onChange(card.id, "department", e.target.value)}
+            placeholder="如：抖音电商" className="w-full px-2 py-1.5 rounded-md border border-gray-200 text-xs focus:outline-none focus:border-brand-500" />
+        </div>
+      </div>
+      <div className="grid grid-cols-2 gap-2">
+        <div>
+          <label className="text-[10px] text-gray-400 block mb-0.5">职位</label>
+          <input value={card.position} onChange={(e) => onChange(card.id, "position", e.target.value)}
+            placeholder="如：AI产品经理" className="w-full px-2 py-1.5 rounded-md border border-gray-200 text-xs focus:outline-none focus:border-brand-500" />
+        </div>
+        <div>
+          <label className="text-[10px] text-gray-400 block mb-0.5">薪资福利</label>
+          <input value={card.salary} onChange={(e) => onChange(card.id, "salary", e.target.value)}
+            placeholder="如：25k/月, 15薪" className="w-full px-2 py-1.5 rounded-md border border-gray-200 text-xs focus:outline-none focus:border-brand-500" />
+        </div>
+      </div>
+      <div>
+        <label className="text-[10px] text-gray-400 block mb-0.5">优缺点/备注</label>
+        <textarea value={card.notes} onChange={(e) => onChange(card.id, "notes", e.target.value)}
+          placeholder="如：base 北京, 业务前景好, 压力大..." rows={2}
+          className="w-full px-2 py-1.5 rounded-md border border-gray-200 text-xs resize-none focus:outline-none focus:border-brand-500" />
+      </div>
+    </div>
+  );
+}
+
 export default function SkillsClient({ jobs }: { jobs: Job[] }) {
   const [prefs, setPrefs] = useState<Prefs | null>(null);
   const [loggedIn, setLoggedIn] = useState(false);
@@ -117,6 +223,9 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
   const [expInput, setExpInput] = useState("");
   const [offersInput, setOffersInput] = useState("");
   const [selectedJds, setSelectedJds] = useState<Job[]>([]);
+  const [offerCards, setOfferCards] = useState<OfferCard[]>(() => [createCard(), createCard()]);
+  const [jdCards, setJdCards] = useState<OfferCard[]>(() => [createCard(), createCard()]);
+  const [shareToast, setShareToast] = useState(false);
   const [interviewResult, setInterviewResult] = useState<InterviewQuestion[] | null>(null);
   const [letterResult, setLetterResult] = useState<CoverLetterResult | null>(null);
   const [offerResult, setOfferResult] = useState<OfferCompareResult | null>(null);
@@ -166,7 +275,7 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
   }, [letterResult]);
 
   async function run() {
-    if (!prefs || !active) return;
+    if (!active) return;
     setLoading(true);
     setError("");
     const profile = profileToText(prefs);
@@ -182,14 +291,16 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
         const r = await generateCoverLetter(profile, jobInput);
         setLetterResult(r);
       } else if (active === "offer") {
-        const r = await compareOffers(profile, offersInput);
+        const offersText = serializeCards(offerCards);
+        if (!offersText) { setError("请至少填写 2 个 Offer 的公司或职位"); setLoading(false); return; }
+        const r = await compareOffers(profile, offersText);
         setOfferResult(r);
       } else if (active === "jd-match") {
         const r = await analyzeJdMatch(profile, jobInput);
         setJdMatchResult(r);
       } else if (active === "jd-compare") {
-        const jdsText = selectedJds.map((j) => `${j.company} - ${j.title}\n${j.description ?? ""}\n技能要求: ${j.aiTags?.skills.join(", ") ?? ""}`).join("\n---\n");
-        if (!jdsText) { setError("请至少添加 2 个岗位"); setLoading(false); return; }
+        const jdsText = serializeCards(jdCards);
+        if (!jdsText) { setError("请至少填写 2 个岗位的公司或职位"); setLoading(false); return; }
         const r = await compareJds(profile, jdsText);
         setJdCompareResult(r);
       }
@@ -200,11 +311,10 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
   }
 
   async function runInterviewDirect() {
-    if (!prefs) return;
     setLoading(true);
     setError("");
     const profile = profileToText(prefs);
-    const job = prefs.targetRoles?.join("、") ?? "";
+    const job = prefs?.targetRoles?.join("、") ?? "";
     try {
       const r = await generateInterview(profile, job);
       setInterviewResult(r.questions);
@@ -217,12 +327,12 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
 
   async function runInterviewFollowup(instruction?: string) {
     const followupText = instruction || interviewFollowupInput.trim();
-    if (!prefs || !interviewResult?.length || !followupText) return;
+    if (!interviewResult?.length || !followupText) return;
     if (instruction) setInterviewFollowupInput(instruction);
     setInterviewFollowupLoading(true);
     setError("");
     const profile = profileToText(prefs);
-    const job = prefs.targetRoles?.join("、") ?? "";
+    const job = prefs?.targetRoles?.join("、") ?? "";
     const previous = interviewResult.map((q, i) => `${i + 1}. [${q.category}] ${q.question}`).join("\n");
     try {
       const r = await followupInterview(profile, job, previous, followupText);
@@ -239,7 +349,7 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
   }
 
   async function runLetterRefine(instruction?: string) {
-    if (!prefs || !letterText.trim()) return;
+    if (!letterText.trim()) return;
     const refineInstruction = instruction || letterRefineInput.trim();
     if (!refineInstruction) return;
     setLetterRefineLoading(true);
@@ -305,11 +415,11 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
       </header>
 
       <main className="max-w-4xl mx-auto px-4 sm:px-6 py-8 space-y-6">
-        {!loggedIn || !prefs ? (
+        {!loggedIn ? (
           <div className="card p-12 text-center">
-            <h2 className="text-lg font-bold text-gray-900 mb-2">请先登录并设置画像</h2>
-            <p className="text-sm text-gray-500 mb-4">AI 工具需要你的背景信息才能生成针对性内容</p>
-            <a href="/profile/" className="px-4 py-2 rounded-lg text-sm font-medium bg-brand-500 text-white hover:bg-brand-600 transition">去设置画像</a>
+            <h2 className="text-lg font-bold text-gray-900 mb-2">请先登录</h2>
+            <p className="text-sm text-gray-500 mb-4">登录后即可使用 AI 工具，设置画像可获得更精准的结果</p>
+            <a href="/profile/" className="px-4 py-2 rounded-lg text-sm font-medium bg-brand-500 text-white hover:bg-brand-600 transition">去登录</a>
           </div>
         ) : (
           <>
@@ -320,7 +430,7 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
                   key={s.key}
                   onClick={() => {
                     setActive(s.key);
-                    setInterviewResult(null); setLetterResult(null); setOfferResult(null); setJdMatchResult(null); setJdCompareResult(null); setOptimizeResult(null); setAppliedIds(new Set()); setExpandedQuestions(new Set()); setInterviewFollowupInput(""); setError(""); setDisplaySections([]); setLetterText(""); setLetterRefineInput(""); setLetterRefineLoading(false); setLetterChanges(""); setJobSearchQuery(""); setSelectedJds([]);
+                    setInterviewResult(null); setLetterResult(null); setOfferResult(null); setJdMatchResult(null); setJdCompareResult(null); setOptimizeResult(null); setAppliedIds(new Set()); setExpandedQuestions(new Set()); setInterviewFollowupInput(""); setError(""); setDisplaySections([]); setLetterText(""); setLetterRefineInput(""); setLetterRefineLoading(false); setLetterChanges(""); setJobSearchQuery(""); setSelectedJds([]); setOfferCards([createCard(), createCard()]); setJdCards([createCard(), createCard()]); setShareToast(false);
                     if (s.key === "resume-optimize" && !expInput && prefs) {
                       if (prefs.experiences?.length) {
                         setExpInput(prefs.experiences.map((e) => `${e.duration ?? ""} ${e.company} ${e.role}\n${e.description ?? ""}\n成果: ${e.highlights.join("; ")}`).join("\n\n"));
@@ -331,7 +441,7 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
                     if (["resume-optimize", "cover-letter", "jd-match"].includes(s.key) && !jobInput && prefs?.targetRoles?.length) {
                       setJobInput(prefs.targetRoles.join("、"));
                     }
-                    if (s.key === "interview" && prefs) {
+                    if (s.key === "interview") {
                       runInterviewDirect();
                     }
                   }}
@@ -349,6 +459,7 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
               <div className="card p-5 space-y-4">
                 <h3 className="text-sm font-bold text-gray-900">{SKILLS.find((s) => s.key === active)?.label}</h3>
 
+                {prefs ? (
                 <div className="p-3 rounded-lg bg-brand-50/60 border border-brand-100 flex items-start gap-3">
                   <div className="shrink-0 w-8 h-8 rounded-full bg-brand-500 text-white flex items-center justify-center text-sm font-bold">AI</div>
                   <div className="flex-1 min-w-0">
@@ -363,6 +474,16 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
                   </div>
                   <a href="/profile/" className="shrink-0 text-[11px] text-brand-600 hover:text-brand-700 underline">修改</a>
                 </div>
+                ) : (
+                <div className="p-3 rounded-lg bg-amber-50/60 border border-amber-100 flex items-start gap-3">
+                  <div className="shrink-0 w-8 h-8 rounded-full bg-amber-400 text-white flex items-center justify-center text-sm font-bold">!</div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-xs font-medium text-amber-700 mb-1">未设置画像</div>
+                    <div className="text-[11px] text-amber-600">设置画像后，AI 结果将更加个性化和精准</div>
+                  </div>
+                  <a href="/profile/" className="shrink-0 text-[11px] text-amber-600 hover:text-amber-700 underline">去设置</a>
+                </div>
+                )}
 
                 {(active === "resume-optimize" || active === "cover-letter" || active === "jd-match") && (
                   <div className="space-y-2">
@@ -425,41 +546,47 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
                 )}
 
                 {active === "offer" && (
-                  <div>
-                    <label className="text-xs text-gray-500 mb-1 block">待对比的 Offer（每个 Offer 用空行分隔）</label>
-                    <textarea
-                      value={offersInput}
-                      onChange={(e) => setOffersInput(e.target.value)}
-                      placeholder="Offer 1: 字节跳动 AI产品经理, 月薪25K, 北京, 期权...\n\nOffer 2: 腾讯 产品策划, 月薪22K, 深圳, 年终奖..."
-                      rows={6}
-                      className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm resize-none focus:outline-none focus:border-brand-500"
-                    />
+                  <div className="space-y-3">
+                    <label className="text-xs text-gray-500 block">待对比的 Offer</label>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {offerCards.map((card, i) => (
+                        <StructuredInputCard key={card.id} card={card} index={i} label="Offer"
+                          onChange={(id, field, value) => setOfferCards((prev) => prev.map((c) => c.id === id ? { ...c, [field]: value } : c))}
+                          onRemove={(id) => setOfferCards((prev) => prev.filter((c) => c.id !== id))}
+                          canRemove={offerCards.length > 2} />
+                      ))}
+                    </div>
+                    {offerCards.length < 5 && (
+                      <button onClick={() => setOfferCards((prev) => [...prev, createCard()])}
+                        className="w-full py-2 rounded-lg border border-dashed border-gray-300 text-xs text-gray-500 hover:border-brand-400 hover:text-brand-600 transition">
+                        + 添加 Offer
+                      </button>
+                    )}
                   </div>
                 )}
 
                 {active === "jd-compare" && (
                   <div className="space-y-3">
-                    <label className="text-xs text-gray-500 block">搜索并添加要对比的岗位（至少 2 个）</label>
+                    <label className="text-xs text-gray-500 block">待对比的岗位（手动填写或搜索导入）</label>
                     <div className="relative">
-                      <input
-                        value={jobSearchQuery}
-                        onChange={(e) => setJobSearchQuery(e.target.value)}
-                        placeholder="搜索公司、岗位名、城市..."
-                        className="w-full pl-8 pr-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:border-brand-500"
-                      />
+                      <input value={jobSearchQuery} onChange={(e) => setJobSearchQuery(e.target.value)}
+                        placeholder="搜索公司/岗位名导入到卡片..."
+                        className="w-full pl-8 pr-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:border-brand-500" />
                       <svg className="absolute left-2.5 top-2.5 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
                     </div>
                     {searchedJobs.length > 0 && (
                       <div className="max-h-[200px] overflow-y-auto rounded-lg border border-gray-200 divide-y divide-gray-50">
-                        {searchedJobs.filter((j) => !selectedJds.some((s) => s.id === j.id)).map((j) => (
-                          <button
-                            key={j.id}
-                            onClick={() => {
-                              setSelectedJds((prev) => [...prev, j]);
-                              setJobSearchQuery("");
-                            }}
-                            className="w-full px-3 py-2 text-left hover:bg-brand-50/50 transition flex items-center justify-between gap-2"
-                          >
+                        {searchedJobs.map((j) => (
+                          <button key={j.id} onClick={() => {
+                            const emptyIdx = jdCards.findIndex((c) => !c.company && !c.position);
+                            const filled = { company: j.company, position: j.title, department: "", salary: j.salary ?? "", notes: j.aiTags?.skills.slice(0, 5).join(", ") ?? "" };
+                            if (emptyIdx >= 0) {
+                              setJdCards((prev) => prev.map((c, i) => i === emptyIdx ? { ...c, ...filled } : c));
+                            } else if (jdCards.length < 5) {
+                              setJdCards((prev) => [...prev, { ...createCard(), ...filled }]);
+                            }
+                            setJobSearchQuery("");
+                          }} className="w-full px-3 py-2 text-left hover:bg-brand-50/50 transition flex items-center justify-between gap-2">
                             <div className="min-w-0">
                               <div className="text-xs font-medium text-gray-900 truncate">{j.company} · {j.title}</div>
                               <div className="flex items-center gap-1.5 mt-0.5">
@@ -469,37 +596,24 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
                                 ))}
                               </div>
                             </div>
-                            <span className="shrink-0 text-[10px] text-brand-600 font-medium">+ 添加</span>
+                            <span className="shrink-0 text-[10px] text-brand-600 font-medium">导入</span>
                           </button>
                         ))}
                       </div>
                     )}
-
-                    {selectedJds.length > 0 && (
-                      <div className="space-y-2">
-                        <div className="text-xs text-gray-500">已选 {selectedJds.length} 个岗位</div>
-                        {selectedJds.map((j, i) => (
-                          <div key={j.id} className="flex items-center gap-2 p-2.5 rounded-lg border border-gray-200 bg-white">
-                            <span className="shrink-0 w-5 h-5 rounded-full bg-brand-50 text-brand-600 text-[10px] font-bold flex items-center justify-center">{i + 1}</span>
-                            <div className="flex-1 min-w-0">
-                              <div className="text-xs font-medium text-gray-900 truncate">{j.company} · {j.title}</div>
-                              <div className="text-[10px] text-gray-400 truncate">{j.location.join(", ")}{j.aiTags?.skills.length ? ` · ${j.aiTags.skills.slice(0, 4).join(", ")}` : ""}</div>
-                            </div>
-                            <button
-                              onClick={() => setSelectedJds((prev) => prev.filter((s) => s.id !== j.id))}
-                              className="shrink-0 w-5 h-5 rounded-full hover:bg-red-50 text-gray-400 hover:text-red-500 flex items-center justify-center transition text-xs"
-                            >
-                              x
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-
-                    {selectedJds.length === 0 && !jobSearchQuery && (
-                      <div className="py-6 text-center text-xs text-gray-400 border border-dashed border-gray-200 rounded-lg">
-                        在上方搜索框中输入关键词，添加要对比的岗位
-                      </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {jdCards.map((card, i) => (
+                        <StructuredInputCard key={card.id} card={card} index={i} label="岗位"
+                          onChange={(id, field, value) => setJdCards((prev) => prev.map((c) => c.id === id ? { ...c, [field]: value } : c))}
+                          onRemove={(id) => setJdCards((prev) => prev.filter((c) => c.id !== id))}
+                          canRemove={jdCards.length > 2} />
+                      ))}
+                    </div>
+                    {jdCards.length < 5 && (
+                      <button onClick={() => setJdCards((prev) => [...prev, createCard()])}
+                        className="w-full py-2 rounded-lg border border-dashed border-gray-300 text-xs text-gray-500 hover:border-brand-400 hover:text-brand-600 transition">
+                        + 添加岗位
+                      </button>
                     )}
                   </div>
                 )}
@@ -522,7 +636,7 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
                 {loading && !interviewResult && (
                   <div className="card p-12 text-center">
                     <div className="text-brand-600 font-medium text-sm">AI 正在根据你的画像生成面试题...</div>
-                    <div className="text-[11px] text-gray-400 mt-2">{[prefs?.school, prefs?.major, ...(prefs?.targetRoles ?? []).slice(0, 2)].filter(Boolean).join(" · ")}</div>
+                    <div className="text-[11px] text-gray-400 mt-2">{[prefs?.school, prefs?.major, ...(prefs?.targetRoles ?? []).slice(0, 2)].filter(Boolean).join(" · ") || "通用面试题"}</div>
                   </div>
                 )}
 
@@ -918,6 +1032,13 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
                 </div>
                 <div className="text-xs text-gray-500"><strong>风险提示：</strong>{offerResult.risks}</div>
                 <div className="text-xs text-gray-500"><strong>谈薪建议：</strong>{offerResult.negotiation}</div>
+                <button onClick={() => {
+                  navigator.clipboard.writeText(formatForXiaohongshu(offerResult, offerCards));
+                  setShareToast(true); setTimeout(() => setShareToast(false), 2000);
+                }} className="w-full py-2 rounded-lg text-xs font-medium text-red-600 border border-red-200 bg-red-50 hover:bg-red-100 transition flex items-center justify-center gap-1.5">
+                  📕 分享到小红书（复制文案）
+                </button>
+                {shareToast && <div className="text-xs text-green-600 text-center">已复制到剪贴板，去小红书粘贴发布吧</div>}
               </div>
             )}
 
@@ -1029,6 +1150,13 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
                   <div className="text-xs text-brand-600">{jdCompareResult.strategy}</div>
                 </div>
                 <div className="text-xs text-gray-500"><strong>时间规划：</strong>{jdCompareResult.timeline}</div>
+                <button onClick={() => {
+                  navigator.clipboard.writeText(formatForXiaohongshu(jdCompareResult, jdCards));
+                  setShareToast(true); setTimeout(() => setShareToast(false), 2000);
+                }} className="w-full py-2 rounded-lg text-xs font-medium text-red-600 border border-red-200 bg-red-50 hover:bg-red-100 transition flex items-center justify-center gap-1.5">
+                  📕 分享到小红书（复制文案）
+                </button>
+                {shareToast && <div className="text-xs text-green-600 text-center">已复制到剪贴板，去小红书粘贴发布吧</div>}
               </div>
             )}
           </>

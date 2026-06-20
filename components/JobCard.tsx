@@ -131,9 +131,11 @@ export default function JobCard({
         </div>
 
         {/* Description */}
-        {job.description && (
-          <p className="text-[12px] text-gray-600 line-clamp-2 leading-relaxed">{job.description}</p>
-        )}
+        <div className="min-h-[36px]">
+          {job.description && (
+            <p className="text-[12px] text-gray-600 line-clamp-2 leading-relaxed">{job.description}</p>
+          )}
+        </div>
 
         {/* Time info */}
         <div className="bg-gray-50/80 rounded-lg px-3 py-2 space-y-1 text-[11px]">
@@ -162,7 +164,7 @@ export default function JobCard({
         </div>
 
         {/* Meta: location + requirements */}
-        <div className="flex flex-wrap gap-1.5">
+        <div className="flex flex-wrap gap-1.5 max-h-[44px] overflow-hidden">
           {job.location.map((loc) => (
             <span key={loc} className="text-[10px] px-2 py-0.5 rounded-md bg-gray-100 text-gray-600">
               {loc}
@@ -178,9 +180,10 @@ export default function JobCard({
           )}
         </div>
 
+        <div className="mt-auto space-y-3">
         {/* AI Match section with progress bar */}
         {(matchResult || job.aiTags) && (
-          <div className="px-3 py-2 rounded-lg bg-brand-50/50 border border-brand-100/50">
+          <div className="px-3 py-2 rounded-lg bg-brand-50/50 border border-brand-100/50 min-h-[72px]">
             {matchResult && matchResult.score > 0 ? (
               <div>
                 <div className="flex items-center justify-between text-[11px] mb-1.5">
@@ -193,20 +196,20 @@ export default function JobCard({
                     style={{ width: `${Math.round(matchResult.score * 100)}%` }}
                   />
                 </div>
-                <div className="text-[11px] text-brand-700 font-medium">
+                <div className="text-[11px] text-brand-700 font-medium line-clamp-1">
                   {matchResult.reasons.slice(0, 3).join(" · ")}
                 </div>
                 {job.aiTags?.summary && (
-                  <div className="text-[10px] text-gray-500 mt-0.5">{job.aiTags.summary}</div>
+                  <div className="text-[10px] text-gray-500 mt-0.5 line-clamp-1">{job.aiTags.summary}</div>
                 )}
               </div>
             ) : job.aiTags ? (
               <div className="flex items-start gap-2">
                 <span className="shrink-0 text-[11px] font-medium text-brand-500 mt-0.5">AI</span>
                 <div className="min-w-0">
-                  <div className="text-[11px] text-gray-600">{job.aiTags.summary}</div>
+                  <div className="text-[11px] text-gray-600 line-clamp-2">{job.aiTags.summary}</div>
                   {job.aiTags.skills.length > 0 && (
-                    <div className="text-[10px] text-gray-400 mt-0.5">需要: {job.aiTags.skills.slice(0, 4).join(", ")}</div>
+                    <div className="text-[10px] text-gray-400 mt-0.5 line-clamp-1">需要: {job.aiTags.skills.slice(0, 4).join(", ")}</div>
                   )}
                 </div>
               </div>
@@ -215,7 +218,7 @@ export default function JobCard({
         )}
 
         {/* Footer */}
-        <div className="flex items-center justify-between pt-2 mt-auto border-t border-black/5">
+        <div className="flex items-center justify-between pt-2 border-t border-black/5">
           <div className="flex-1 min-w-0">
             {trackingStatus && (
               <select
@@ -237,6 +240,7 @@ export default function JobCard({
           >
             投递 →
           </a>
+        </div>
         </div>
       </div>
     </article>
