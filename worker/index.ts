@@ -178,8 +178,8 @@ const RESUME_OPTIMIZE_PROMPT = `你是简历优化专家。根据候选人背景
 - section 字段标明该建议属于简历哪个段落（如"实习经历"/"技能"/"教育背景"）
 - improved 必须包含具体技术细节、时间范围、数据规模、量化百分比
 - tags 是该建议涉及的维度（如 "关键词+2"/"匹配度+5"/"ATS优化"/"STAR法则"）
-- resumeOriginal 是基于候选人原始信息整理的简历（保留原文措辞）
-- resume 是优化后的简历，每段经历包含：公司名·岗位·时间段，然后逐条 STAR 描述
+- resumeOriginal 是可选的，如果 token 不足可以省略（前端有 fallback）
+- resume 是必须的，一定要返回优化后的完整简历
 - 实习经历的 content 格式：公司 | 岗位 | 部门 | 时间\\n- 具体成果1\\n- 具体成果2（多段经历之间用空行分隔）
 - directionAdvice 基于目标岗位方向给出技能建议和常见错误
 - 生成 6-10 条 suggestions，覆盖经历/技能/教育/评价等多个段落
@@ -433,7 +433,7 @@ export default {
       const job = body.job as string ?? "";
       const experiences = body.experiences as string ?? "";
       return callDeepSeek(env, cors, RESUME_OPTIMIZE_PROMPT,
-        `候选人画像：\n${profile}\n\n目标岗位 JD：\n${job}\n\n现有经历描述：\n${experiences}`, 6000);
+        `候选人画像：\n${profile}\n\n目标岗位 JD：\n${job}\n\n现有经历描述：\n${experiences}`, 8000);
     }
 
     // 求职信生成

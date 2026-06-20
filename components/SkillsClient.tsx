@@ -49,6 +49,29 @@ function profileToText(p: Prefs): string {
   return parts.join("\n");
 }
 
+function buildSectionsFromPrefs(p: Prefs): { title: string; content: string }[] {
+  const sections: { title: string; content: string }[] = [];
+  if (p.targetRoles?.length) sections.push({ title: "求职意向", content: p.targetRoles.join(" / ") });
+  if (p.school || p.major || p.degree) sections.push({ title: "教育背景", content: [p.school, p.major, p.degree].filter(Boolean).join(" · ") });
+  if (p.skills?.length) sections.push({ title: "核心技能", content: p.skills.join(" / ") });
+  if (p.experiences?.length) {
+    const text = p.experiences.map((e) => {
+      const header = [e.company, e.role, e.department].filter(Boolean).join(" · ");
+      const lines = [header];
+      if (e.duration) lines.push(e.duration);
+      if (e.highlights.length) lines.push(...e.highlights.map((h) => `- ${h}`));
+      if (e.description) lines.push(e.description);
+      return lines.join("\n");
+    }).join("\n\n");
+    sections.push({ title: "实习经历", content: text });
+  } else if (p.experience?.length) {
+    sections.push({ title: "经历", content: p.experience.join("\n") });
+  }
+  if (p.strengths?.length) sections.push({ title: "个人优势", content: p.strengths.join("、") });
+  if (p.summary) sections.push({ title: "自我评价", content: p.summary });
+  return sections;
+}
+
 function exportPDF(sections: { title: string; content: string }[], name: string) {
   const html = sections
     .map(
@@ -127,9 +150,12 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
   }, []);
 
   useEffect(() => {
-    if (optimizeResult?.resumeOriginal?.sections) {
-      setDisplaySections(optimizeResult.resumeOriginal.sections.map((s) => ({ ...s })));
-    }
+    if (!optimizeResult) return;
+    const sections =
+      optimizeResult.resumeOriginal?.sections ??
+      optimizeResult.resume?.sections ??
+      (prefs ? buildSectionsFromPrefs(prefs) : []);
+    if (sections.length) setDisplaySections(sections.map((s) => ({ ...s })));
   }, [optimizeResult]);
 
   useEffect(() => {
@@ -237,6 +263,9 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
         if (s.content.includes(suggestion.original)) {
           return { ...s, content: s.content.replace(suggestion.original, suggestion.improved) };
         }
+        if (s.title === suggestion.section || s.title.includes(suggestion.section) || suggestion.section.includes(s.title)) {
+          return { ...s, content: s.content + "\n" + suggestion.improved };
+        }
         return s;
       })
     );
@@ -245,7 +274,11 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
 
   function applyAll() {
     if (!optimizeResult) return;
-    setDisplaySections(optimizeResult.resume.sections.map((s) => ({ ...s })));
+    if (optimizeResult.resume?.sections?.length) {
+      setDisplaySections(optimizeResult.resume.sections.map((s) => ({ ...s })));
+    } else {
+      optimizeResult.suggestions.forEach((s) => applySuggestion(s));
+    }
     setAppliedIds(new Set(optimizeResult.suggestions.map((s) => s.id)));
   }
 
@@ -624,9 +657,11 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
                       <button
                         onClick={() => {
                           setAppliedIds(new Set());
-                          if (optimizeResult.resumeOriginal?.sections) {
-                            setDisplaySections(optimizeResult.resumeOriginal.sections.map((s) => ({ ...s })));
-                          }
+                          const sections =
+                            optimizeResult.resumeOriginal?.sections ??
+                            optimizeResult.resume?.sections ??
+                            (prefs ? buildSectionsFromPrefs(prefs) : []);
+                          if (sections.length) setDisplaySections(sections.map((s) => ({ ...s })));
                         }}
                         className="px-3 py-1.5 rounded-lg text-xs font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 transition"
                       >
@@ -769,12 +804,17 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
                           </button>
                         </div>
                       </div>
-                      {displaySections.map((s, i) => (
+                      {displaySections.length > 0 ? displaySections.map((s, i) => (
                         <div key={i} className={`px-5 py-3 ${i > 0 ? "border-t border-gray-100" : ""}`}>
                           <div className="text-xs font-bold text-gray-800 mb-1.5">{s.title}</div>
                           <div className="text-xs text-gray-600 whitespace-pre-line leading-relaxed">{s.content}</div>
                         </div>
-                      ))}
+                      )) : (
+                        <div className="px-5 py-12 text-center">
+                          <div className="text-sm text-gray-400 mb-2">简历预览加载中...</div>
+                          <div className="text-[11px] text-gray-300">如长时间无内容，请点击"一键全部应用"或重新生成</div>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
