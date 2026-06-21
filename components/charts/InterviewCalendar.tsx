@@ -40,7 +40,7 @@ export function InterviewCalendar({ heatmap }: CalendarProps) {
 
   if (totalActivity === 0) {
     return (
-      <div className="flex items-center justify-center h-36 text-sm text-slate-400">
+      <div className="flex items-center justify-center h-32 text-xs text-gray-400">
         暂无求职活动记录
       </div>
     );
@@ -48,35 +48,36 @@ export function InterviewCalendar({ heatmap }: CalendarProps) {
 
   return (
     <div>
-      <div className="flex items-end gap-1.5 h-28">
+      <div className="flex items-end gap-1 h-24">
         {weeks.map((week, i) => {
           const pct = (week.count / maxCount) * 100;
+          const isRecent = i >= 10;
           return (
-            <div key={i} className="flex-1 flex flex-col items-center justify-end h-full gap-1">
+            <div key={i} className="flex-1 flex flex-col items-center justify-end h-full gap-0.5">
               {week.count > 0 && (
-                <span className="text-xs font-medium text-brand-600 dark:text-brand-400">
+                <span className="text-[10px] font-bold text-brand-600 tabular-nums">
                   {week.count}
                 </span>
               )}
               <div
-                className="w-full rounded-t-md bg-brand-400 dark:bg-brand-500 transition-all min-w-[12px]"
-                style={{ height: week.count > 0 ? `${Math.max(pct, 8)}%` : "2px", opacity: week.count > 0 ? 1 : 0.2 }}
+                className={`w-full rounded-t transition-all min-w-[8px] ${isRecent ? "bg-brand-500" : "bg-brand-400"}`}
+                style={{ height: week.count > 0 ? `${Math.max(pct, 10)}%` : "2px", opacity: week.count > 0 ? (isRecent ? 1 : 0.75) : 0.15 }}
                 title={`${week.label}: ${week.count} 次活动`}
               />
             </div>
           );
         })}
       </div>
-      <div className="flex gap-1.5 mt-1">
+      <div className="flex gap-1 mt-1">
         {weeks.map((week, i) => (
           <div key={i} className="flex-1 text-center">
-            <span className="text-[10px] text-slate-400 leading-none">{week.label}</span>
+            {i % 2 === 0 && <span className="text-[9px] text-gray-400 leading-none">{week.label}</span>}
           </div>
         ))}
       </div>
-      <div className="text-right mt-2">
-        <span className="text-xs text-slate-500 dark:text-slate-400">
-          近 12 周共 <strong className="text-slate-700 dark:text-slate-200">{totalActivity}</strong> 次活动
+      <div className="text-right mt-1.5">
+        <span className="text-[11px] text-gray-500">
+          近 12 周共 <strong className="text-gray-800">{totalActivity}</strong> 次活动
         </span>
       </div>
     </div>

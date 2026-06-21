@@ -121,6 +121,13 @@ export default function InterviewForm({ initial, trackedJobs, onSave, onCancel }
           result: (["通过", "待定", "挂了"].includes(parsed.result ?? "") ? parsed.result : "") as InterviewRound["result"],
         };
         setRounds((prev) => [...prev, newRound]);
+
+        const interviewKeywords = ["面", "笔试", "群面", "终面", "HR"];
+        const roundText = parsed.round ?? "";
+        const isInterviewing = interviewKeywords.some((kw) => roundText.includes(kw));
+        if (isInterviewing && status === "已投递") {
+          setStatus("进行中");
+        }
       }
     } catch (e) {
       setAiError((e as Error).message);

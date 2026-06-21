@@ -31,6 +31,16 @@ jobs:
           DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
         run: npm run crawl
         continue-on-error: true
+        timeout-minutes: 10
+
+      - name: Retry crawl on failure
+        if: failure()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+        run: npm run crawl -- --only=seed,greenhouse,repo
+        continue-on-error: true
+        timeout-minutes: 8
 
       - name: Crawl summary
         if: always()

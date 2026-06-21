@@ -116,9 +116,36 @@ interface OfferCard {
   notes: string;
 }
 
+interface ExperienceCard {
+  id: number;
+  company: string;
+  department: string;
+  position: string;
+  description: string;
+}
+
 let _nextCardId = 1;
 function createCard(): OfferCard {
   return { id: _nextCardId++, company: "", department: "", position: "", salary: "", notes: "" };
+}
+
+let _nextExpId = 1;
+function createExpCard(): ExperienceCard {
+  return { id: _nextExpId++, company: "", department: "", position: "", description: "" };
+}
+
+function serializeExpCards(cards: ExperienceCard[]): string {
+  return cards
+    .filter((c) => c.company || c.position || c.description)
+    .map((c, i) => {
+      const lines = [`经历 ${i + 1}:`];
+      if (c.company) lines.push(`公司: ${c.company}`);
+      if (c.department) lines.push(`业务线/部门: ${c.department}`);
+      if (c.position) lines.push(`职位: ${c.position}`);
+      if (c.description) lines.push(`工作内容: ${c.description}`);
+      return lines.join("\n");
+    })
+    .join("\n---\n");
 }
 
 function serializeCards(cards: OfferCard[]): string {
@@ -212,6 +239,47 @@ function StructuredInputCard({ card, index, onChange, onRemove, canRemove, label
   );
 }
 
+function ExperienceInputCard({ card, index, onChange, onRemove, canRemove }: {
+  card: ExperienceCard; index: number;
+  onChange: (id: number, field: keyof ExperienceCard, value: string) => void;
+  onRemove: (id: number) => void; canRemove: boolean;
+}) {
+  return (
+    <div className="p-4 rounded-lg border border-gray-200 bg-white space-y-2.5 relative">
+      {canRemove && (
+        <button onClick={() => onRemove(card.id)}
+          className="absolute top-2 right-2 w-6 h-6 rounded-full hover:bg-red-50 text-gray-400 hover:text-red-500 flex items-center justify-center transition text-xs">
+          ×
+        </button>
+      )}
+      <div className="text-xs font-bold text-gray-700">经历 {index + 1}</div>
+      <div className="grid grid-cols-3 gap-2">
+        <div>
+          <label className="text-[10px] text-gray-400 block mb-0.5">公司</label>
+          <input value={card.company} onChange={(e) => onChange(card.id, "company", e.target.value)}
+            placeholder="如：字节跳动" className="w-full px-2 py-1.5 rounded-md border border-gray-200 text-xs focus:outline-none focus:border-brand-500" />
+        </div>
+        <div>
+          <label className="text-[10px] text-gray-400 block mb-0.5">业务/部门</label>
+          <input value={card.department} onChange={(e) => onChange(card.id, "department", e.target.value)}
+            placeholder="如：抖音电商" className="w-full px-2 py-1.5 rounded-md border border-gray-200 text-xs focus:outline-none focus:border-brand-500" />
+        </div>
+        <div>
+          <label className="text-[10px] text-gray-400 block mb-0.5">职位</label>
+          <input value={card.position} onChange={(e) => onChange(card.id, "position", e.target.value)}
+            placeholder="如：产品运营" className="w-full px-2 py-1.5 rounded-md border border-gray-200 text-xs focus:outline-none focus:border-brand-500" />
+        </div>
+      </div>
+      <div>
+        <label className="text-[10px] text-gray-400 block mb-0.5">具体工作内容</label>
+        <textarea value={card.description} onChange={(e) => onChange(card.id, "description", e.target.value)}
+          placeholder="如：负责抖音电商活动策划，用户增长10%..." rows={3}
+          className="w-full px-2 py-1.5 rounded-md border border-gray-200 text-xs resize-none focus:outline-none focus:border-brand-500" />
+      </div>
+    </div>
+  );
+}
+
 export default function SkillsClient({ jobs }: { jobs: Job[] }) {
   const [prefs, setPrefs] = useState<Prefs | null>(null);
   const [loggedIn, setLoggedIn] = useState(false);
@@ -220,7 +288,7 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
   const [error, setError] = useState("");
 
   const [jobInput, setJobInput] = useState("");
-  const [expInput, setExpInput] = useState("");
+  const [expCards, setExpCards] = useState<ExperienceCard[]>(() => [createExpCard()]);
   const [offersInput, setOffersInput] = useState("");
   const [selectedJds, setSelectedJds] = useState<Job[]>([]);
   const [offerCards, setOfferCards] = useState<OfferCard[]>(() => [createCard(), createCard()]);
@@ -284,7 +352,7 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
         const r = await generateInterview(profile, jobInput);
         setInterviewResult(r.questions);
       } else if (active === "resume-optimize") {
-        const r = await optimizeResume(profile, jobInput, expInput);
+        const r = await optimizeResume(profile, jobInput, serializeExpCards(expCards));
         setOptimizeResult(r);
         setAppliedIds(new Set());
       } else if (active === "cover-letter") {
@@ -431,11 +499,17 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
                   onClick={() => {
                     setActive(s.key);
                     setInterviewResult(null); setLetterResult(null); setOfferResult(null); setJdMatchResult(null); setJdCompareResult(null); setOptimizeResult(null); setAppliedIds(new Set()); setExpandedQuestions(new Set()); setInterviewFollowupInput(""); setError(""); setDisplaySections([]); setLetterText(""); setLetterRefineInput(""); setLetterRefineLoading(false); setLetterChanges(""); setJobSearchQuery(""); setSelectedJds([]); setOfferCards([createCard(), createCard()]); setJdCards([createCard(), createCard()]); setShareToast(false);
-                    if (s.key === "resume-optimize" && !expInput && prefs) {
+                    if (s.key === "resume-optimize" && prefs) {
                       if (prefs.experiences?.length) {
-                        setExpInput(prefs.experiences.map((e) => `${e.duration ?? ""} ${e.company} ${e.role}\n${e.description ?? ""}\n成果: ${e.highlights.join("; ")}`).join("\n\n"));
-                      } else if (prefs.experience?.length) {
-                        setExpInput(prefs.experience.join("\n"));
+                        setExpCards(prefs.experiences.map((e) => ({
+                          id: _nextExpId++,
+                          company: e.company ?? "",
+                          department: e.department ?? "",
+                          position: e.role ?? "",
+                          description: [e.description, e.highlights?.length ? `成果: ${e.highlights.join("; ")}` : ""].filter(Boolean).join("\n"),
+                        })));
+                      } else {
+                        setExpCards([createExpCard()]);
                       }
                     }
                     if (["resume-optimize", "cover-letter", "jd-match"].includes(s.key) && !jobInput && prefs?.targetRoles?.length) {
@@ -533,15 +607,22 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
                 )}
 
                 {active === "resume-optimize" && (
-                  <div>
-                    <label className="text-xs text-gray-500 mb-1 block">你的经历描述（每段经历用换行分隔）</label>
-                    <textarea
-                      value={expInput}
-                      onChange={(e) => setExpInput(e.target.value)}
-                      placeholder="如：\n2025.6-2025.9 字节跳动 产品运营实习\n- 负责抖音电商活动策划\n- 用户增长10%..."
-                      rows={5}
-                      className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm resize-none focus:outline-none focus:border-brand-500"
-                    />
+                  <div className="space-y-3">
+                    <label className="text-xs text-gray-500 block">你的经历（每段经历一张卡片）</label>
+                    <div className="space-y-3">
+                      {expCards.map((card, i) => (
+                        <ExperienceInputCard key={card.id} card={card} index={i}
+                          onChange={(id, field, value) => setExpCards((prev) => prev.map((c) => c.id === id ? { ...c, [field]: value } : c))}
+                          onRemove={(id) => setExpCards((prev) => prev.filter((c) => c.id !== id))}
+                          canRemove={expCards.length > 1} />
+                      ))}
+                    </div>
+                    {expCards.length < 6 && (
+                      <button onClick={() => setExpCards((prev) => [...prev, createExpCard()])}
+                        className="w-full py-2 rounded-lg border border-dashed border-gray-300 text-xs text-gray-500 hover:border-brand-400 hover:text-brand-600 transition">
+                        + 添加经历
+                      </button>
+                    )}
                   </div>
                 )}
 
@@ -1020,25 +1101,42 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
             {offerResult && (
               <div className="card p-5 space-y-4">
                 <h3 className="text-sm font-bold text-gray-900">Offer 对比分析</h3>
-                {offerResult.comparison.map((c) => (
-                  <div key={c.dimension} className="p-3 rounded-lg border border-gray-100">
-                    <div className="text-xs font-bold text-gray-700 mb-1">{c.dimension}</div>
-                    <div className="text-xs text-gray-600">{c.analysis}</div>
+                {offerCards.filter((c) => c.company || c.position).map((card, cardIdx) => (
+                  <div key={card.id} className="rounded-xl border border-gray-200 overflow-hidden">
+                    <div className="px-4 py-2.5 bg-gray-50 border-b border-gray-100 flex items-center gap-2">
+                      <span className="w-6 h-6 rounded-full bg-brand-500 text-white text-xs font-bold flex items-center justify-center">{cardIdx + 1}</span>
+                      <span className="text-sm font-bold text-gray-900">{card.company}</span>
+                      {card.department && <span className="text-xs text-gray-500">{card.department}</span>}
+                      <span className="text-xs text-gray-500">{card.position}</span>
+                      {card.salary && <span className="text-xs text-brand-600 ml-auto">{card.salary}</span>}
+                    </div>
+                    <div className="p-4 space-y-2">
+                      {offerResult.comparison.map((c) => (
+                        <div key={c.dimension} className="flex gap-2 text-xs">
+                          <span className="shrink-0 font-semibold text-gray-600 w-20 text-right">{c.dimension}</span>
+                          <span className="text-gray-700 leading-relaxed">{c.analysis.split(/[；;]/).filter((seg) => {
+                            const name = card.company.slice(0, 2);
+                            return seg.includes(name) || seg.includes(`Offer ${cardIdx + 1}`) || seg.includes(`offer${cardIdx + 1}`);
+                          }).join("；") || c.analysis}</span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 ))}
-                <div className="p-4 rounded-lg bg-brand-50">
+                <div className="p-4 rounded-xl bg-brand-50 border border-brand-100">
                   <div className="text-sm font-bold text-brand-700 mb-1">推荐：{offerResult.recommendation}</div>
-                  <div className="text-xs text-brand-600">{offerResult.reason}</div>
+                  <div className="text-xs text-brand-600 leading-relaxed">{offerResult.reason}</div>
                 </div>
-                <div className="text-xs text-gray-500"><strong>风险提示：</strong>{offerResult.risks}</div>
-                <div className="text-xs text-gray-500"><strong>谈薪建议：</strong>{offerResult.negotiation}</div>
+                {offerResult.risks && <div className="text-xs text-gray-600 bg-amber-50 rounded-lg p-3 border border-amber-100"><strong className="text-amber-700">风险提示：</strong>{offerResult.risks}</div>}
+                {offerResult.negotiation && <div className="text-xs text-gray-600 bg-blue-50 rounded-lg p-3 border border-blue-100"><strong className="text-blue-700">谈薪建议：</strong>{offerResult.negotiation}</div>}
                 <button onClick={() => {
                   navigator.clipboard.writeText(formatForXiaohongshu(offerResult, offerCards));
                   setShareToast(true); setTimeout(() => setShareToast(false), 2000);
+                  window.open("https://www.xiaohongshu.com/explore", "_blank");
                 }} className="w-full py-2 rounded-lg text-xs font-medium text-red-600 border border-red-200 bg-red-50 hover:bg-red-100 transition flex items-center justify-center gap-1.5">
-                  📕 分享到小红书（复制文案）
+                  📕 分享到小红书（复制文案并跳转）
                 </button>
-                {shareToast && <div className="text-xs text-green-600 text-center">已复制到剪贴板，去小红书粘贴发布吧</div>}
+                {shareToast && <div className="text-xs text-green-600 text-center">已复制到剪贴板，正在跳转小红书...</div>}
               </div>
             )}
 
@@ -1153,10 +1251,11 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
                 <button onClick={() => {
                   navigator.clipboard.writeText(formatForXiaohongshu(jdCompareResult, jdCards));
                   setShareToast(true); setTimeout(() => setShareToast(false), 2000);
+                  window.open("https://www.xiaohongshu.com/explore", "_blank");
                 }} className="w-full py-2 rounded-lg text-xs font-medium text-red-600 border border-red-200 bg-red-50 hover:bg-red-100 transition flex items-center justify-center gap-1.5">
-                  📕 分享到小红书（复制文案）
+                  📕 分享到小红书（复制文案并跳转）
                 </button>
-                {shareToast && <div className="text-xs text-green-600 text-center">已复制到剪贴板，去小红书粘贴发布吧</div>}
+                {shareToast && <div className="text-xs text-green-600 text-center">已复制到剪贴板，正在跳转小红书...</div>}
               </div>
             )}
           </>

@@ -356,7 +356,7 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
           <>
             {/* Unified status chip bar */}
             {activeItems.length > 0 && (
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-2.5">
                 {(["applied", "written", "interview", "hr", "offer", "rejected"] as TrackingStatus[]).map((key) => {
                   const cfg = STATUS_CONFIG[key];
                   const count = counts[key] ?? 0;
@@ -365,17 +365,17 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
                     <button
                       key={key}
                       onClick={() => { setStatusFilter(statusFilter === key ? null : key); setTimelineExpanded(false); }}
-                      className={`px-3.5 py-2.5 rounded-xl flex items-center gap-2 transition border ${cfg.light} ${statusFilter === key ? "ring-2 ring-brand-400 border-transparent shadow-sm" : "border-gray-200/60 hover:border-gray-300"}`}
+                      className={`px-4 py-3 rounded-2xl flex items-center gap-2.5 transition border backdrop-blur-sm ${cfg.light} ${statusFilter === key ? "ring-2 ring-brand-400 border-transparent shadow-md scale-[1.02]" : "border-gray-200/60 hover:border-gray-300 hover:shadow-sm"}`}
                     >
-                      <span className={`w-2.5 h-2.5 rounded-full ${cfg.bg}`} />
-                      <span className="text-lg font-bold text-gray-900">{count}</span>
-                      <span className="text-sm text-gray-600">{cfg.label}</span>
+                      <span className={`w-3 h-3 rounded-full ${cfg.bg} shadow-sm`} />
+                      <span className="text-xl font-extrabold text-gray-900 tabular-nums">{count}</span>
+                      <span className="text-sm text-gray-600 font-medium">{cfg.label}</span>
                     </button>
                   );
                 })}
-                <div className="px-3.5 py-2.5 rounded-xl flex items-center gap-2 border border-gray-200/60 bg-white">
-                  <span className="text-lg font-bold text-gray-900">{activeItems.length}</span>
-                  <span className="text-sm text-gray-600">总计</span>
+                <div className="px-4 py-3 rounded-2xl flex items-center gap-2.5 border border-gray-200/60 bg-gradient-to-r from-gray-50 to-white">
+                  <span className="text-xl font-extrabold text-gray-900 tabular-nums">{activeItems.length}</span>
+                  <span className="text-sm text-gray-600 font-medium">总计</span>
                 </div>
               </div>
             )}
@@ -619,90 +619,90 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
                 </button>
 
                 {overviewOpen && (
-                  <div className="mt-5 grid grid-cols-1 lg:grid-cols-2 gap-4 animate-fadeIn">
+                  <div className="mt-5 grid grid-cols-1 lg:grid-cols-2 gap-5 animate-fadeIn">
                   {/* 左上：漏斗 */}
-                  <div className="card p-6">
-                    <h3 className="text-base font-semibold text-gray-700 mb-5">投递转化漏斗</h3>
+                  <div className="card p-5 rounded-2xl shadow-sm border border-gray-100">
+                    <h3 className="text-sm font-bold text-gray-700 mb-4">投递转化漏斗</h3>
                     <FunnelChart data={stats.conversionFunnel} />
                   </div>
 
                   {/* 右上：AI 分析 */}
-                  <div className="card p-6">
-                    <div className="flex items-center justify-between mb-5">
-                      <h3 className="text-base font-semibold text-gray-700">AI 投递分析</h3>
+                  <div className="card p-5 rounded-2xl shadow-sm border border-gray-100">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-sm font-bold text-gray-700">AI 投递分析</h3>
                       {aiAnalysis && (
-                        <button onClick={handleAnalyze} className="text-xs text-brand-600 hover:text-brand-700">重新分析</button>
+                        <button onClick={handleAnalyze} className="text-[11px] text-brand-600 hover:text-brand-700 font-medium">重新分析</button>
                       )}
                     </div>
                     {aiLoading ? (
-                      <div className="flex flex-col items-center justify-center h-48 gap-3">
-                        <div className="w-8 h-8 border-2 border-brand-500/30 border-t-brand-500 rounded-full animate-spin" />
-                        <span className="text-sm text-gray-400">AI 分析中...</span>
+                      <div className="flex flex-col items-center justify-center h-44 gap-3">
+                        <div className="w-7 h-7 border-2 border-brand-500/30 border-t-brand-500 rounded-full animate-spin" />
+                        <span className="text-xs text-gray-400">AI 分析中...</span>
                       </div>
                     ) : aiError ? (
-                      <div className="flex flex-col items-center justify-center h-48 gap-3">
-                        <span className="text-sm text-red-500">{aiError}</span>
-                        <button onClick={handleAnalyze} className="text-xs text-brand-600 hover:text-brand-700">重试</button>
+                      <div className="flex flex-col items-center justify-center h-44 gap-3">
+                        <span className="text-xs text-red-500">{aiError}</span>
+                        <button onClick={handleAnalyze} className="text-[11px] text-brand-600 hover:text-brand-700">重试</button>
                       </div>
                     ) : aiAnalysis ? (
-                      <div className="space-y-4 text-sm">
-                        <p className="font-semibold text-gray-900">{aiAnalysis.summary}</p>
+                      <div className="space-y-3">
+                        <p className="text-sm font-bold text-gray-900 leading-snug">{aiAnalysis.summary}</p>
                         <div>
-                          <div className="text-xs font-medium text-gray-500 mb-1.5">数据洞察</div>
-                          <ul className="space-y-1">
+                          <div className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5">数据洞察</div>
+                          <ul className="space-y-1.5">
                             {aiAnalysis.insights.map((item, i) => (
-                              <li key={i} className="text-gray-700 flex gap-2"><span className="text-brand-500 shrink-0">•</span>{item}</li>
+                              <li key={i} className="text-[13px] text-gray-700 leading-relaxed flex gap-2"><span className="text-brand-500 shrink-0 mt-0.5">•</span><span>{item}</span></li>
                             ))}
                           </ul>
                         </div>
                         <div>
-                          <div className="text-xs font-medium text-gray-500 mb-1.5">行动建议</div>
-                          <ul className="space-y-1">
+                          <div className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5">行动建议</div>
+                          <ul className="space-y-1.5">
                             {aiAnalysis.suggestions.map((item, i) => (
-                              <li key={i} className="text-gray-700 flex gap-2"><span className="text-green-500 shrink-0">•</span>{item}</li>
+                              <li key={i} className="text-[13px] text-gray-700 leading-relaxed flex gap-2"><span className="text-green-500 shrink-0 mt-0.5">•</span><span>{item}</span></li>
                             ))}
                           </ul>
                         </div>
                         {aiAnalysis.riskWarnings.length > 0 && (
-                          <div>
-                            <div className="text-xs font-medium text-red-500 mb-1.5">风险提醒</div>
+                          <div className="bg-red-50/60 rounded-lg p-3">
+                            <div className="text-[11px] font-semibold text-red-600 uppercase tracking-wider mb-1.5">风险提醒</div>
                             <ul className="space-y-1">
                               {aiAnalysis.riskWarnings.map((item, i) => (
-                                <li key={i} className="text-red-600 flex gap-2"><span className="shrink-0">⚠</span>{item}</li>
+                                <li key={i} className="text-[13px] text-red-700 leading-relaxed flex gap-2"><span className="shrink-0">⚠</span><span>{item}</span></li>
                               ))}
                             </ul>
                           </div>
                         )}
-                        <div className="pt-3 border-t border-gray-100">
-                          <div className="text-xs font-medium text-gray-500 mb-1.5">下周计划</div>
-                          <p className="text-gray-700">{aiAnalysis.weeklyPlan}</p>
+                        <div className="pt-2.5 border-t border-gray-100">
+                          <div className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5">下周计划</div>
+                          <p className="text-[13px] text-gray-700 leading-relaxed">{aiAnalysis.weeklyPlan}</p>
                         </div>
                       </div>
                     ) : (
-                      <div className="flex flex-col items-center justify-center h-48 gap-3">
-                        <div className="w-12 h-12 rounded-full bg-brand-50 flex items-center justify-center">
-                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#5b4cff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <div className="flex flex-col items-center justify-center h-44 gap-3">
+                        <div className="w-11 h-11 rounded-full bg-brand-50 flex items-center justify-center">
+                          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#5b4cff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                             <path d="M12 2a7 7 0 0 1 7 7c0 2.4-1.2 4.5-3 5.7V17a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1v-2.3C6.2 13.5 5 11.4 5 9a7 7 0 0 1 7-7z" />
                             <line x1="9" y1="21" x2="15" y2="21" />
                           </svg>
                         </div>
-                        <button onClick={handleAnalyze} className="px-4 py-2 rounded-lg bg-brand-600 text-white text-sm font-medium hover:bg-brand-700 transition">
+                        <button onClick={handleAnalyze} className="px-4 py-2 rounded-lg bg-brand-600 text-white text-xs font-semibold hover:bg-brand-700 transition shadow-sm">
                           生成 AI 分析
                         </button>
-                        <p className="text-xs text-gray-400">基于你的求职数据生成个性化分析</p>
+                        <p className="text-[11px] text-gray-400">基于你的求职数据生成个性化分析</p>
                       </div>
                     )}
                   </div>
 
                   {/* 左下：热力图 */}
-                  <div className="card p-6">
-                    <h3 className="text-base font-semibold text-gray-700 mb-5">求职活动热力</h3>
+                  <div className="card p-5 rounded-2xl shadow-sm border border-gray-100">
+                    <h3 className="text-sm font-bold text-gray-700 mb-4">求职活动热力</h3>
                     <InterviewCalendar heatmap={stats.interviewHeatmap} />
                   </div>
 
                   {/* 右下：趋势 */}
-                  <div className="card p-6">
-                    <h3 className="text-base font-semibold text-gray-700 mb-5">近 30 天趋势</h3>
+                  <div className="card p-5 rounded-2xl shadow-sm border border-gray-100">
+                    <h3 className="text-sm font-bold text-gray-700 mb-4">近 30 天趋势</h3>
                     <TrendChart data={stats.dailyTrend} />
                   </div>
                 </div>

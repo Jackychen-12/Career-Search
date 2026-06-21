@@ -8,42 +8,76 @@ export default function CallbackPage() {
   const [errMsg, setErrMsg] = useState("");
 
   useEffect(() => {
+    let cancelled = false;
+
+    async function handleAuth() {
+      const params = new URLSearchParams(window.location.search);
+      const code = params.get("code");
+
+      if (code) {
+        try {
+          const { error } = await supabase.auth.exchangeCodeForSession(code);
+          if (cancelled) return;
+          if (error) {
+            setStatus("error");
+            setErrMsg(error.message);
+            return;
+          }
+          setStatus("success");
+          setTimeout(() => { window.location.href = "/"; }, 800);
+          return;
+        } catch (e) {
+          if (cancelled) return;
+          setStatus("error");
+          setErrMsg((e as Error).message);
+          return;
+        }
+      }
+
+      const hash = window.location.hash;
+      if (hash) {
+        const hashParams = new URLSearchParams(hash.slice(1));
+        if (hashParams.get("error")) {
+          if (!cancelled) {
+            setStatus("error");
+            setErrMsg(hashParams.get("error_description") || "认证失败");
+          }
+          return;
+        }
+        if (hashParams.get("access_token")) {
+          return;
+        }
+      }
+
+      if (!cancelled) {
+        setStatus("error");
+        setErrMsg("缺少认证参数");
+      }
+    }
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      if (event === "SIGNED_IN") {
+      if (event === "SIGNED_IN" && !cancelled) {
         setStatus("success");
-        setTimeout(() => {
-          window.location.href = "/";
-        }, 800);
+        setTimeout(() => { window.location.href = "/"; }, 800);
       }
     });
 
-    const hash = window.location.hash;
-    if (hash) {
-      const params = new URLSearchParams(hash.slice(1));
-      if (params.get("error")) {
-        setStatus("error");
-        setErrMsg(params.get("error_description") || "认证失败");
-        return;
-      }
-    }
-
-    if (!hash && !window.location.search.includes("code=")) {
-      setStatus("error");
-      setErrMsg("缺少认证参数");
-      return;
-    }
+    handleAuth();
 
     const timeout = setTimeout(() => {
-      setStatus((prev) => {
-        if (prev === "loading") {
-          setErrMsg("登录超时，链接可能已过期");
-          return "error";
-        }
-        return prev;
-      });
-    }, 10000);
+      if (!cancelled) {
+        setStatus((prev) => {
+          if (prev === "loading") {
+            setErrMsg("登录超时，链接可能已过期，请重新发送验证邮件");
+            return "error";
+          }
+          return prev;
+        });
+      }
+    }, 15000);
 
     return () => {
+      cancelled = true;
       clearTimeout(timeout);
       subscription.unsubscribe();
     };
@@ -51,8 +85,13 @@ export default function CallbackPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center">
-      <div className="card p-8 text-center">
-        {status === "loading" && <p className="text-gray-600">正在登录...</p>}
+      <div className="card p-8 text-center max-w-sm">
+        {status === "loading" && (
+          <div className="space-y-3">
+            <div className="w-8 h-8 mx-auto border-2 border-brand-500/30 border-t-brand-500 rounded-full animate-spin" />
+            <p className="text-gray-600 text-sm">正在登录...</p>
+          </div>
+        )}
         {status === "success" && <p className="text-brand-600 font-medium">登录成功，正在跳转...</p>}
         {status === "error" && (
           <div className="space-y-3">
