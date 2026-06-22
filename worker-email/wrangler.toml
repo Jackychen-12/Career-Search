@@ -1,0 +1,8 @@
+name = "career-search-email"
+main = "index.ts"
+compatibility_date = "2024-09-01"
+
+# Secrets (set via `wrangler secret put`):
+#   SUPABASE_URL
+#   SUPABASE_SERVICE_KEY
+#   DEEPSEEK_API_KEY

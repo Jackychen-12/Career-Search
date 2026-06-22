@@ -9,6 +9,7 @@ import { syncTrackingToInterview, syncInterviewToTracking, interviewToTrackingSt
 import { computeDashboardStats } from "@/lib/dashboardStats";
 import { analyzeProgress, type ProgressAnalyzeResult } from "@/lib/skills";
 import { getSession } from "@/lib/auth";
+import { getOrCreateInbox, loadPendingEmailRecords, confirmEmailRecord, dismissEmailRecord, ACTION_LABELS, type EmailRecord } from "@/lib/emailInbox";
 import type { Job } from "@/lib/types";
 import InterviewForm from "./InterviewForm";
 import type { TrackedJobOption } from "./InterviewForm";
@@ -86,6 +87,13 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
   const [overviewOpen, setOverviewOpen] = useState(true);
   const [timelineExpanded, setTimelineExpanded] = useState(false);
   const [collapsedCols, setCollapsedCols] = useState<Set<TrackingStatus>>(new Set());
+  const [showEmailSetup, setShowEmailSetup] = useState(false);
+  const [inboxAddress, setInboxAddress] = useState<string | null>(null);
+  const [inboxLoading, setInboxLoading] = useState(false);
+  const [emailRecords, setEmailRecords] = useState<EmailRecord[]>([]);
+  const [emailBannerOpen, setEmailBannerOpen] = useState(true);
+  const [copiedInbox, setCopiedInbox] = useState(false);
+  const [emailGuide, setEmailGuide] = useState<string | null>(null);
 
   useEffect(() => {
     getSession().then((s) => {
@@ -96,6 +104,7 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
           setInterviews(i);
           setLoaded(true);
         });
+        loadPendingEmailRecords().then(setEmailRecords);
       } else {
         setLoaded(true);
       }
@@ -269,6 +278,46 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
     XLSX.writeFile(wb, "求职记录.xlsx");
   }
 
+  async function openEmailSetup() {
+    setShowEmailSetup(true);
+    if (!inboxAddress) {
+      setInboxLoading(true);
+      const addr = await getOrCreateInbox();
+      setInboxAddress(addr);
+      setInboxLoading(false);
+    }
+  }
+
+  async function handleConfirmEmail(record: EmailRecord) {
+    const actionMap: Record<string, TrackingStatus> = {
+      applied: "applied",
+      interview_invite: "interview",
+      written_test: "written",
+      offer: "offer",
+      rejection: "rejected",
+    };
+    const status = actionMap[record.parsed_action] ?? "applied";
+    const company = record.parsed_company || "未知公司";
+    const position = record.parsed_position || "未知岗位";
+
+    await saveInterview({
+      company,
+      position,
+      status: record.parsed_action === "applied" ? "已投递" : record.parsed_action === "interview_invite" ? "进行中" : record.parsed_action === "offer" ? "已拿offer" : record.parsed_action === "rejection" ? "已拒" : "已投递",
+      rounds: [],
+      notes: `来源：邮件自动解析\n主题：${record.subject}`,
+    });
+    await confirmEmailRecord(record.id);
+    setEmailRecords((prev) => prev.filter((r) => r.id !== record.id));
+    const freshInterviews = await loadInterviews();
+    setInterviews(freshInterviews);
+  }
+
+  async function handleDismissEmail(id: string) {
+    await dismissEmailRecord(id);
+    setEmailRecords((prev) => prev.filter((r) => r.id !== id));
+  }
+
   async function handleAnalyze() {
     setAiLoading(true);
     setAiError("");
@@ -340,6 +389,15 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
             )}
             {mainTab === "all" && (
               <button
+                onClick={openEmailSetup}
+                className="px-3 py-1.5 rounded-lg border border-gray-200 text-sm text-gray-600 hover:text-brand-600 hover:border-brand-300 transition flex items-center gap-1.5"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                邮件同步
+              </button>
+            )}
+            {mainTab === "all" && (
+              <button
                 onClick={() => { setEditRecord(undefined); setShowForm(true); }}
                 className="px-3.5 py-1.5 rounded-lg bg-brand-600 text-white text-sm font-medium hover:bg-brand-700 transition"
               >
@@ -351,6 +409,148 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
       </header>
 
       <main className="max-w-6xl mx-auto px-4 sm:px-6 py-6 space-y-6">
+        {/* ═══ 邮件同步设置面板 ═══ */}
+        {showEmailSetup && (
+          <div className="card p-5 rounded-2xl border border-brand-100 bg-brand-50/30 space-y-4 animate-fadeIn">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5b4cff" strokeWidth="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                <h3 className="text-sm font-bold text-gray-800">邮件自动同步</h3>
+              </div>
+              <button onClick={() => setShowEmailSetup(false)} className="text-gray-400 hover:text-gray-600 text-lg leading-none">&times;</button>
+            </div>
+
+            {inboxLoading ? (
+              <div className="flex items-center gap-2 py-3">
+                <div className="w-4 h-4 border-2 border-brand-500/30 border-t-brand-500 rounded-full animate-spin" />
+                <span className="text-sm text-gray-500">正在生成专属地址...</span>
+              </div>
+            ) : inboxAddress ? (
+              <>
+                <div>
+                  <p className="text-xs text-gray-500 mb-1.5">你的专属转发地址：</p>
+                  <div className="flex items-center gap-2">
+                    <code className="flex-1 px-3 py-2 bg-white rounded-lg border border-gray-200 text-sm font-mono text-gray-800 select-all">{inboxAddress}</code>
+                    <button
+                      onClick={() => { navigator.clipboard.writeText(inboxAddress); setCopiedInbox(true); setTimeout(() => setCopiedInbox(false), 2000); }}
+                      className="px-3 py-2 rounded-lg bg-brand-600 text-white text-xs font-medium hover:bg-brand-700 transition shrink-0"
+                    >
+                      {copiedInbox ? "已复制" : "复制"}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <p className="text-xs font-semibold text-gray-600">设置方法：</p>
+                  <ol className="text-xs text-gray-500 space-y-1 list-decimal list-inside">
+                    <li>打开你常用邮箱的设置（QQ邮箱/163/Outlook）</li>
+                    <li>找到「自动转发」或「邮件规则/过滤器」</li>
+                    <li>添加规则：主题包含"投递"、"申请"、"面试"等关键词的邮件 → 转发到上方地址</li>
+                  </ol>
+                  <p className="text-xs text-gray-400">转发的求职邮件会自动被 AI 解析为投递/面试记录。</p>
+                </div>
+
+                <div className="flex gap-2">
+                  {(["QQ邮箱", "163邮箱", "Outlook"] as const).map((provider) => (
+                    <button
+                      key={provider}
+                      onClick={() => setEmailGuide(emailGuide === provider ? null : provider)}
+                      className={`px-2.5 py-1 rounded-md text-xs transition ${emailGuide === provider ? "bg-brand-600 text-white" : "bg-white border border-gray-200 text-gray-600 hover:border-brand-300"}`}
+                    >
+                      {provider}教程
+                    </button>
+                  ))}
+                </div>
+
+                {emailGuide === "QQ邮箱" && (
+                  <div className="bg-white rounded-lg p-3 text-xs text-gray-600 space-y-1 border border-gray-100">
+                    <p className="font-semibold text-gray-700">QQ邮箱设置自动转发：</p>
+                    <p>1. 登录 mail.qq.com → 设置 → 收发信规则</p>
+                    <p>2. 点击「创建收信规则」</p>
+                    <p>3. 条件：主题包含 "投递" 或 "申请" 或 "面试"</p>
+                    <p>4. 操作：转发到 <code className="bg-gray-100 px-1 rounded">{inboxAddress}</code></p>
+                    <p>5. 保存规则</p>
+                  </div>
+                )}
+                {emailGuide === "163邮箱" && (
+                  <div className="bg-white rounded-lg p-3 text-xs text-gray-600 space-y-1 border border-gray-100">
+                    <p className="font-semibold text-gray-700">163邮箱设置自动转发：</p>
+                    <p>1. 登录 mail.163.com → 设置 → 邮箱设置</p>
+                    <p>2. 找到「转发和 POP/IMAP/SMTP」</p>
+                    <p>3. 开启转发，设置转发地址为 <code className="bg-gray-100 px-1 rounded">{inboxAddress}</code></p>
+                    <p>4. 或使用「来信分类」设置过滤规则只转发求职相关邮件</p>
+                  </div>
+                )}
+                {emailGuide === "Outlook" && (
+                  <div className="bg-white rounded-lg p-3 text-xs text-gray-600 space-y-1 border border-gray-100">
+                    <p className="font-semibold text-gray-700">Outlook 设置自动转发：</p>
+                    <p>1. 打开 outlook.com → 设置 → 邮件 → 规则</p>
+                    <p>2. 添加新规则：条件选择"主题包含"</p>
+                    <p>3. 输入关键词：投递、申请、面试、offer</p>
+                    <p>4. 操作：转发到 <code className="bg-gray-100 px-1 rounded">{inboxAddress}</code></p>
+                    <p>5. 保存</p>
+                  </div>
+                )}
+              </>
+            ) : (
+              <p className="text-sm text-red-500">生成转发地址失败，请稍后重试</p>
+            )}
+          </div>
+        )}
+
+        {/* ═══ 邮件待确认记录 ═══ */}
+        {emailRecords.length > 0 && emailBannerOpen && (
+          <div className="card rounded-2xl border border-amber-200 bg-amber-50/50 overflow-hidden">
+            <button
+              onClick={() => setEmailBannerOpen(!emailBannerOpen)}
+              className="w-full px-4 py-3 flex items-center justify-between"
+            >
+              <div className="flex items-center gap-2">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#d97706" strokeWidth="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                <span className="text-sm font-semibold text-amber-800">收到 {emailRecords.length} 封新的求职邮件</span>
+              </div>
+              <span className="text-xs text-amber-600">点击确认添加为记录</span>
+            </button>
+            <div className="border-t border-amber-200/60 divide-y divide-amber-100">
+              {emailRecords.map((record) => {
+                const actionInfo = ACTION_LABELS[record.parsed_action] || ACTION_LABELS.other;
+                return (
+                  <div key={record.id} className="px-4 py-3 flex items-center justify-between gap-3">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium text-gray-900 truncate">{record.parsed_company || "未知公司"}</span>
+                        <span className="text-xs text-gray-400">·</span>
+                        <span className="text-xs text-gray-600 truncate">{record.parsed_position || "未知岗位"}</span>
+                      </div>
+                      <div className="flex items-center gap-2 mt-0.5">
+                        <span className={`text-[11px] px-1.5 py-0.5 rounded-full font-medium ${record.parsed_action === "offer" ? "bg-green-100 text-green-700" : record.parsed_action === "rejection" ? "bg-red-100 text-red-700" : record.parsed_action === "interview_invite" ? "bg-amber-100 text-amber-700" : "bg-blue-100 text-blue-700"}`}>
+                          {actionInfo.label}
+                        </span>
+                        {record.parsed_date && <span className="text-[11px] text-gray-400">{record.parsed_date}</span>}
+                        <span className="text-[11px] text-gray-300 truncate">{record.subject}</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <button
+                        onClick={() => handleConfirmEmail(record)}
+                        className="px-3 py-1.5 rounded-lg bg-brand-600 text-white text-xs font-medium hover:bg-brand-700 transition"
+                      >
+                        确认添加
+                      </button>
+                      <button
+                        onClick={() => handleDismissEmail(record.id)}
+                        className="px-2.5 py-1.5 rounded-lg text-xs text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition"
+                      >
+                        忽略
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
         {/* ═══ Tab: 全部记录 ═══ */}
         {mainTab === "all" && (
           <>
