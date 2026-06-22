@@ -18,12 +18,16 @@ export async function signInWithGitHub() {
   if (error) throw new Error(error.message);
 }
 
-export async function sendMagicLink(email: string) {
-  const { error } = await supabase.auth.signInWithOtp({
+export async function sendOtpCode(email: string) {
+  const { error } = await supabase.auth.signInWithOtp({ email });
+  if (error) throw new Error(error.message);
+}
+
+export async function verifyOtpCode(email: string, token: string) {
+  const { error } = await supabase.auth.verifyOtp({
     email,
-    options: {
-      emailRedirectTo: window.location.origin + "/callback",
-    },
+    token,
+    type: "email",
   });
   if (error) throw new Error(error.message);
 }

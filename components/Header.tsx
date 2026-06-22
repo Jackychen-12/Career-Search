@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { signInWithGitHub, sendMagicLink, signOut, getUser, type GhUser } from "@/lib/auth";
+import { signInWithGitHub, sendOtpCode, verifyOtpCode, signOut, getUser, type GhUser } from "@/lib/auth";
 import { hasPrefs } from "@/lib/ranking";
 import { loadPrefs, savePrefs } from "@/lib/prefs";
 
@@ -112,6 +112,8 @@ export default function Header({
   const [loginLoading, setLoginLoading] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
   const [cooldown, setCooldown] = useState(0);
+  const [otpCode, setOtpCode] = useState("");
+  const [verifying, setVerifying] = useState(false);
 
   useEffect(() => {
     getUser().then((u) => {
@@ -148,13 +150,30 @@ export default function Header({
     }
     setLoginLoading(true);
     try {
-      await sendMagicLink(loginEmail);
+      await sendOtpCode(loginEmail);
       setEmailSent(true);
       setCooldown(60);
     } catch (e) {
       setLoginErr((e as Error).message);
     } finally {
       setLoginLoading(false);
+    }
+  }
+
+  async function handleVerifyCode() {
+    if (otpCode.length !== 6) {
+      setLoginErr("请输入 6 位验证码");
+      return;
+    }
+    setLoginErr("");
+    setVerifying(true);
+    try {
+      await verifyOtpCode(loginEmail, otpCode);
+      setShowLogin(false);
+    } catch (e) {
+      setLoginErr((e as Error).message);
+    } finally {
+      setVerifying(false);
     }
   }
 
@@ -171,6 +190,7 @@ export default function Header({
     setLoginErr("");
     setLoginEmail("");
     setEmailSent(false);
+    setOtpCode("");
     setShowLogin(true);
   }
 
@@ -256,14 +276,33 @@ export default function Header({
 
             {emailSent ? (
               <div className="text-center space-y-3 py-2">
-                <div className="w-12 h-12 mx-auto rounded-full bg-green-50 flex items-center justify-center">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="20 6 9 17 4 12" />
+                <div className="w-12 h-12 mx-auto rounded-full bg-brand-50 flex items-center justify-center">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-brand-500">
+                    <rect x="2" y="4" width="20" height="16" rx="2" />
+                    <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
                   </svg>
                 </div>
-                <p className="text-sm text-gray-700">验证邮件已发送至</p>
+                <p className="text-sm text-gray-700">验证码已发送至</p>
                 <p className="text-sm font-semibold text-gray-900">{loginEmail}</p>
-                <p className="text-xs text-gray-400">请查收邮箱并点击链接完成登录</p>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  maxLength={6}
+                  value={otpCode}
+                  onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                  onKeyDown={(e) => e.key === "Enter" && otpCode.length === 6 && handleVerifyCode()}
+                  placeholder="输入 6 位验证码"
+                  className="w-full px-3 py-2.5 rounded-lg border border-gray-200 text-center text-lg tracking-[0.5em] font-mono focus:outline-none focus:ring-2 focus:ring-brand-400/30 focus:border-brand-400"
+                  autoFocus
+                />
+                {loginErr && <p className="text-xs text-red-500">{loginErr}</p>}
+                <button
+                  onClick={handleVerifyCode}
+                  disabled={verifying || otpCode.length !== 6}
+                  className="w-full py-2.5 rounded-lg bg-brand-600 text-white text-sm font-medium hover:bg-brand-700 disabled:opacity-50 transition"
+                >
+                  {verifying ? "验证中..." : "验证登录"}
+                </button>
                 <p className="text-xs text-amber-500">如未收到，请检查垃圾箱/Spam 文件夹</p>
                 <div className="flex items-center justify-center gap-3">
                   <button
@@ -275,7 +314,7 @@ export default function Header({
                   </button>
                   <span className="text-gray-300">|</span>
                   <button
-                    onClick={() => { setEmailSent(false); setLoginEmail(""); }}
+                    onClick={() => { setEmailSent(false); setLoginEmail(""); setOtpCode(""); setLoginErr(""); }}
                     className="text-xs text-brand-600 hover:text-brand-700"
                   >
                     使用其他邮箱
@@ -298,9 +337,9 @@ export default function Header({
                   disabled={loginLoading || !loginEmail}
                   className="w-full py-2.5 rounded-lg bg-brand-600 text-white text-sm font-medium hover:bg-brand-700 disabled:opacity-50 transition"
                 >
-                  {loginLoading ? "发送中..." : "发送验证邮件"}
+                  {loginLoading ? "发送中..." : "发送验证码"}
                 </button>
-                <p className="text-center text-[11px] text-gray-400">无需注册，输入邮箱即可收到登录链接</p>
+                <p className="text-center text-[11px] text-gray-400">无需注册，输入邮箱即可收到验证码</p>
               </div>
             )}
 
