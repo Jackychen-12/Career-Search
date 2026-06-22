@@ -17,7 +17,7 @@ export interface EmailRecord {
   created_at: string;
 }
 
-const DOMAIN = "career.chenkeyu12.com";
+const DOMAIN = "chenkeyu12.com";
 
 function generateCode(): string {
   const chars = "abcdefghijkmnpqrstuvwxyz23456789";
