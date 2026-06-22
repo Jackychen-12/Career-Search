@@ -186,7 +186,7 @@ export default function Header({
   ];
 
   return (
-    <header className="sticky top-0 z-40 backdrop-blur-xl bg-white/70 border-b border-gray-200/50 shadow-sm">
+    <><header className="sticky top-0 z-40 backdrop-blur-xl bg-white/70 border-b border-gray-200/50 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
         <a href="/" className="flex items-center gap-2.5 group">
           <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-brand-400 to-brand-600 grid place-items-center shadow-sm group-hover:shadow-md transition">
@@ -247,8 +247,8 @@ export default function Header({
           )}
         </div>
       )}
+    </header>
 
-      {/* Login modal */}
       {showLogin && (
         <div className="fixed inset-0 z-50 bg-black/30 backdrop-blur-sm flex items-center justify-center" onClick={() => setShowLogin(false)}>
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm mx-4 p-6 space-y-4" onClick={(e) => e.stopPropagation()}>
@@ -321,6 +321,6 @@ export default function Header({
           </div>
         </div>
       )}
-    </header>
+    </>
   );
 }
