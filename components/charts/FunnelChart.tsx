@@ -7,15 +7,9 @@ interface FunnelProps {
 const COLORS = ["#5b4cff", "#6b5eff", "#7c6fff", "#8d80ff", "#9e91ff", "#22c55e"];
 
 export function FunnelChart({ data }: FunnelProps) {
-  if (!data.length || data[0].count === 0) {
-    return (
-      <div className="flex items-center justify-center h-40 text-xs text-gray-400">
-        暂无投递数据
-      </div>
-    );
-  }
+  if (!data.length) return null;
 
-  const maxCount = data[0].count;
+  const maxCount = Math.max(data[0].count, 1);
 
   return (
     <div className="space-y-2.5">

@@ -177,3 +177,12 @@ export function compareJds(profile: string, jobs: string) {
 export function getDirectionTemplate(profile: string, direction: string) {
   return callSkill<DirectionTemplateResult>("/api/skill/direction-template", { profile, direction });
 }
+
+export interface ResumeRefineResult {
+  sections: { title: string; content: string }[];
+  changes: string;
+}
+
+export function refineResume(profile: string, job: string, resume: string, instruction: string) {
+  return callSkill<ResumeRefineResult>("/api/skill/resume-refine", { profile, job, resume, instruction });
+}

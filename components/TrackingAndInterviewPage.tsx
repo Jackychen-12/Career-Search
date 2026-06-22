@@ -201,7 +201,7 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
   const stats = useMemo(() => computeDashboardStats(tracking, interviews), [tracking, interviews]);
 
   useEffect(() => {
-    if (overviewOpen && !aiAnalysis && !aiLoading && loggedIn && activeItems.length > 0) {
+    if (overviewOpen && !aiAnalysis && !aiLoading && loggedIn && (activeItems.length > 0 || Object.keys(tracking).length > 0)) {
       handleAnalyze();
     }
   }, [overviewOpen, loggedIn, activeItems.length]);
@@ -335,7 +335,7 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
             </div>
           </div>
           <div className="flex items-center gap-3">
-            {mainTab === "all" && activeItems.length > 0 && (
+            {mainTab === "all" && (activeItems.length > 0 || Object.keys(tracking).length > 0) && (
               <button onClick={exportExcel} className="text-[13px] text-gray-500 hover:text-gray-700">导出 Excel</button>
             )}
             {mainTab === "all" && (
@@ -599,7 +599,7 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
             )}
 
             {/* ═══ 数据概览 ═══ */}
-            {activeItems.length > 0 && (
+            {(activeItems.length > 0 || Object.keys(tracking).length > 0 || interviews.length > 0) && (
               <div className="border-t border-gray-200/60 pt-6">
                 <button
                   onClick={() => setOverviewOpen(!overviewOpen)}

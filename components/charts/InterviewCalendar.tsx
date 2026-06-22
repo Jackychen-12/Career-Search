@@ -38,14 +38,6 @@ export function InterviewCalendar({ heatmap }: CalendarProps) {
   const totalActivity = Object.values(heatmap).reduce((s, v) => s + v, 0);
   const maxCount = Math.max(...weeks.map((w) => w.count), 1);
 
-  if (totalActivity === 0) {
-    return (
-      <div className="flex items-center justify-center h-32 text-xs text-gray-400">
-        暂无求职活动记录
-      </div>
-    );
-  }
-
   return (
     <div>
       <div className="flex items-end gap-1 h-24">

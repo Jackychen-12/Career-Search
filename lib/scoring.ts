@@ -63,10 +63,9 @@ export function detectRegion(location: string[], explicit?: Region): Region {
 export function detectJobType(title: string, fallback?: JobType): JobType {
   const t = title.toLowerCase();
   if (/暑期|summer|暑假/.test(title) || /summer/.test(t)) return "暑期实习";
-  if (/秋招|秋季|autumn|fall|校园招聘/.test(title)) return "秋招";
-  if (/(日常实习|long.?term intern|daily)/i.test(title)) return "日常实习";
+  if (/秋招|秋季|autumn|fall|校园招聘|校招|提前批|campus|graduate|应届|全职/.test(title)) return "秋招";
+  if (/(日常实习|长期实习|long.?term intern|daily)/i.test(title)) return "日常实习";
   if (/实习|intern/i.test(t)) return fallback ?? "日常实习";
-  if (/校招|campus|graduate|应届|全职/.test(title)) return "校招";
   return fallback ?? "秋招";
 }
 

@@ -9,21 +9,19 @@ interface TrendProps {
 export function TrendChart({ data }: TrendProps) {
   const hasData = data.some((d) => d.applied > 0 || d.interview > 0);
 
-  if (!hasData) {
-    return (
-      <div className="flex items-center justify-center h-48 text-sm text-slate-400">
-        近 30 天暂无活动数据
-      </div>
-    );
-  }
-
   const formatted = data.map((d) => ({
     ...d,
     label: d.date.slice(5),
   }));
 
   return (
-    <ResponsiveContainer width="100%" height={220}>
+    <div className="relative">
+      {!hasData && (
+        <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
+          <span className="text-xs text-gray-400 bg-white/80 px-3 py-1 rounded-full">近 30 天暂无活动数据</span>
+        </div>
+      )}
+      <ResponsiveContainer width="100%" height={220}>
       <AreaChart data={formatted} margin={{ top: 5, right: 10, left: -15, bottom: 0 }}>
         <defs>
           <linearGradient id="gradApplied" x1="0" y1="0" x2="0" y2="1">
@@ -86,5 +84,6 @@ export function TrendChart({ data }: TrendProps) {
         />
       </AreaChart>
     </ResponsiveContainer>
+    </div>
   );
 }

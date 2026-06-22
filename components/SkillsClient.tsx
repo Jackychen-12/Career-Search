@@ -4,9 +4,10 @@ import { useEffect, useMemo, useState } from "react";
 import { loadPrefs } from "@/lib/prefs";
 import { hasPrefs } from "@/lib/ranking";
 import { getSession } from "@/lib/auth";
-import { generateInterview, followupInterview, generateCoverLetter, refineCoverLetter, compareOffers, analyzeJdMatch, compareJds, optimizeResume } from "@/lib/skills";
+import { generateInterview, followupInterview, generateCoverLetter, refineCoverLetter, compareOffers, analyzeJdMatch, compareJds, optimizeResume, refineResume } from "@/lib/skills";
 import type { InterviewQuestion, CoverLetterResult, OfferCompareResult, JdMatchResult, JdCompareResult, ResumeOptimizeResult } from "@/lib/skills";
 import type { Job, Prefs } from "@/lib/types";
+import { extractPdfText, parseResumeWithAI } from "@/lib/resumeParser";
 
 type Skill = "interview" | "resume-optimize" | "cover-letter" | "offer" | "jd-match" | "jd-compare";
 
@@ -309,6 +310,10 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
   const [letterRefineInput, setLetterRefineInput] = useState("");
   const [letterRefineLoading, setLetterRefineLoading] = useState(false);
   const [letterChanges, setLetterChanges] = useState("");
+  const [resumeUploading, setResumeUploading] = useState(false);
+  const [resumeRefineInput, setResumeRefineInput] = useState("");
+  const [resumeRefineLoading, setResumeRefineLoading] = useState(false);
+  const [resumeRefineChanges, setResumeRefineChanges] = useState("");
   const [jobSearchQuery, setJobSearchQuery] = useState("");
 
   const searchedJobs = useMemo(() => {
@@ -433,6 +438,64 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
       setError((e as Error).message);
     }
     setLetterRefineLoading(false);
+  }
+
+  async function handleResumeUpload(file: File) {
+    if (!file.name.toLowerCase().endsWith(".pdf")) {
+      setError("暂只支持 PDF 格式简历");
+      return;
+    }
+    setResumeUploading(true);
+    setError("");
+    try {
+      const text = await extractPdfText(file);
+      const parsed = await parseResumeWithAI(text);
+      if (parsed.experiences?.length) {
+        setExpCards(parsed.experiences.map((exp, i) => ({
+          id: Date.now() + i,
+          company: exp.company || "",
+          department: exp.department || "",
+          position: exp.role || "",
+          description: [
+            exp.duration ? `时间: ${exp.duration}` : "",
+            exp.highlights?.length ? exp.highlights.join("; ") : "",
+            exp.description || "",
+          ].filter(Boolean).join("\n"),
+        })));
+      } else if (parsed.experience?.length) {
+        setExpCards(parsed.experience.map((text, i) => ({
+          id: Date.now() + i,
+          company: "",
+          department: "",
+          position: "",
+          description: text,
+        })));
+      }
+    } catch (e) {
+      setError((e as Error).message);
+    }
+    setResumeUploading(false);
+  }
+
+  async function runResumeRefine(instruction?: string) {
+    if (!displaySections.length) return;
+    const refineInstruction = instruction || resumeRefineInput.trim();
+    if (!refineInstruction) return;
+    setResumeRefineLoading(true);
+    setError("");
+    const profile = profileToText(prefs);
+    const resumeText = displaySections.map((s) => `【${s.title}】\n${s.content}`).join("\n\n");
+    try {
+      const r = await refineResume(profile, jobInput, resumeText, refineInstruction);
+      if (r.sections?.length) {
+        setDisplaySections(r.sections.map((s) => ({ ...s })));
+      }
+      setResumeRefineChanges(r.changes || "");
+      setResumeRefineInput("");
+    } catch (e) {
+      setError((e as Error).message);
+    }
+    setResumeRefineLoading(false);
   }
 
   function applySuggestion(suggestion: { section: string; original: string; improved: string; id: number }) {
@@ -609,6 +672,21 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
                 {active === "resume-optimize" && (
                   <div className="space-y-3">
                     <label className="text-xs text-gray-500 block">你的经历（每段经历一张卡片）</label>
+                    <label className={`flex items-center justify-center gap-2 py-3 rounded-lg border border-dashed cursor-pointer transition ${resumeUploading ? "border-brand-400 bg-brand-50" : "border-gray-300 hover:border-brand-400 hover:bg-brand-50/50"}`}>
+                      <input type="file" accept=".pdf" className="hidden" disabled={resumeUploading}
+                        onChange={(e) => { const f = e.target.files?.[0]; if (f) handleResumeUpload(f); e.target.value = ""; }} />
+                      {resumeUploading ? (
+                        <>
+                          <div className="w-4 h-4 border-2 border-brand-500/30 border-t-brand-500 rounded-full animate-spin" />
+                          <span className="text-xs text-brand-600 font-medium">解析中...</span>
+                        </>
+                      ) : (
+                        <>
+                          <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" /></svg>
+                          <span className="text-xs text-gray-500">上传 PDF 简历自动解析经历</span>
+                        </>
+                      )}
+                    </label>
                     <div className="space-y-3">
                       {expCards.map((card, i) => (
                         <ExperienceInputCard key={card.id} card={card} index={i}
@@ -1002,7 +1080,12 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
                       {displaySections.length > 0 ? displaySections.map((s, i) => (
                         <div key={i} className={`px-5 py-3 ${i > 0 ? "border-t border-gray-100" : ""}`}>
                           <div className="text-xs font-bold text-gray-800 mb-1.5">{s.title}</div>
-                          <div className="text-xs text-gray-600 whitespace-pre-line leading-relaxed">{s.content}</div>
+                          <textarea
+                            value={s.content}
+                            onChange={(e) => setDisplaySections((prev) => prev.map((sec, idx) => idx === i ? { ...sec, content: e.target.value } : sec))}
+                            rows={Math.max(3, s.content.split("\n").length + 1)}
+                            className="w-full text-xs text-gray-600 leading-relaxed resize-y border border-transparent rounded px-1 py-0.5 hover:border-gray-200 focus:border-brand-300 focus:outline-none focus:ring-1 focus:ring-brand-200 transition"
+                          />
                         </div>
                       )) : (
                         <div className="px-5 py-12 text-center">
@@ -1011,6 +1094,41 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
                         </div>
                       )}
                     </div>
+
+                    {displaySections.length > 0 && (
+                      <div className="mt-4 border border-gray-200 rounded-lg p-4 space-y-3">
+                        <h4 className="text-xs font-bold text-gray-700">AI 修改</h4>
+                        <textarea
+                          value={resumeRefineInput}
+                          onChange={(e) => setResumeRefineInput(e.target.value)}
+                          placeholder="如：突出量化成果 / 加强技术描述 / 更简洁 / 优化排版..."
+                          rows={2}
+                          className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm resize-none focus:outline-none focus:border-brand-500"
+                        />
+                        {resumeRefineChanges && (
+                          <div className="px-3 py-2 rounded-lg bg-green-50 border border-green-100 text-xs text-green-700">
+                            本次修改：{resumeRefineChanges}
+                          </div>
+                        )}
+                        <div className="flex flex-wrap gap-1.5">
+                          <span className="text-[10px] text-gray-400">快速修改：</span>
+                          {["更专业", "更简洁", "突出量化成果", "加强技术描述", "突出领导力", "优化排版"].map((t) => (
+                            <button key={t} onClick={() => runResumeRefine(t)}
+                              disabled={resumeRefineLoading}
+                              className="text-[10px] px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 hover:bg-brand-50 hover:text-brand-600 transition disabled:opacity-50">
+                              {t}
+                            </button>
+                          ))}
+                        </div>
+                        <button
+                          onClick={() => runResumeRefine()}
+                          disabled={resumeRefineLoading || !resumeRefineInput.trim()}
+                          className="w-full py-2.5 rounded-lg text-sm font-semibold text-white bg-brand-500 hover:bg-brand-600 disabled:opacity-50 shadow-sm transition"
+                        >
+                          {resumeRefineLoading ? "AI 修改中..." : "AI 修改"}
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
 
