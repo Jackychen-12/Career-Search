@@ -1,5 +1,6 @@
-import { TrackingData, TrackingStatus } from "./tracker";
+import { TrackingData, TrackingStatus, TrackingEntry } from "./tracker";
 import { InterviewRecord } from "./interviews";
+import { interviewToTrackingStatus } from "./sync";
 
 export interface DashboardStats {
   total: number;
@@ -27,7 +28,19 @@ export function computeDashboardStats(
   tracking: TrackingData,
   interviews: InterviewRecord[]
 ): DashboardStats {
-  const entries = Object.values(tracking);
+  const trackingEntries = Object.values(tracking);
+  const trackingJobIds = new Set(Object.keys(tracking));
+
+  const standaloneEntries: TrackingEntry[] = interviews
+    .filter((iv) => !iv.relatedJobId || !trackingJobIds.has(iv.relatedJobId))
+    .map((iv) => ({
+      status: interviewToTrackingStatus(iv.status, iv.rounds),
+      updatedAt: iv.updatedAt,
+      appliedAt: iv.createdAt?.slice(0, 10),
+      interviewAt: iv.rounds[0]?.date,
+    }));
+
+  const entries = [...trackingEntries, ...standaloneEntries];
   const total = entries.length;
 
   const byStatus: Record<TrackingStatus, number> = {
