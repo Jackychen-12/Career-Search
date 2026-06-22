@@ -11,7 +11,7 @@ export async function signInWithGitHub() {
   const { error } = await supabase.auth.signInWithOAuth({
     provider: "github",
     options: {
-      redirectTo: window.location.origin + "/callback/",
+      redirectTo: window.location.origin + "/callback",
       scopes: "gist",
     },
   });
@@ -22,7 +22,7 @@ export async function sendMagicLink(email: string) {
   const { error } = await supabase.auth.signInWithOtp({
     email,
     options: {
-      emailRedirectTo: window.location.origin + "/callback/",
+      emailRedirectTo: window.location.origin + "/callback",
     },
   });
   if (error) throw new Error(error.message);

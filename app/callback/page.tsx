@@ -11,6 +11,13 @@ export default function CallbackPage() {
     let cancelled = false;
 
     async function handleAuth() {
+      const { data: { session: existing } } = await supabase.auth.getSession();
+      if (existing && !cancelled) {
+        setStatus("success");
+        setTimeout(() => { window.location.href = "/"; }, 600);
+        return;
+      }
+
       const params = new URLSearchParams(window.location.search);
       const code = params.get("code");
 
@@ -19,12 +26,17 @@ export default function CallbackPage() {
           const { error } = await supabase.auth.exchangeCodeForSession(code);
           if (cancelled) return;
           if (error) {
+            if (error.message.includes("code verifier")) {
+              setStatus("error");
+              setErrMsg("请在发送验证邮件的同一浏览器中打开链接");
+              return;
+            }
             setStatus("error");
             setErrMsg(error.message);
             return;
           }
           setStatus("success");
-          setTimeout(() => { window.location.href = "/"; }, 800);
+          setTimeout(() => { window.location.href = "/"; }, 600);
           return;
         } catch (e) {
           if (cancelled) return;
@@ -37,6 +49,7 @@ export default function CallbackPage() {
       const hash = window.location.hash;
       if (hash) {
         const hashParams = new URLSearchParams(hash.slice(1));
+
         if (hashParams.get("error")) {
           if (!cancelled) {
             setStatus("error");
@@ -44,7 +57,29 @@ export default function CallbackPage() {
           }
           return;
         }
-        if (hashParams.get("access_token")) {
+
+        const accessToken = hashParams.get("access_token");
+        const refreshToken = hashParams.get("refresh_token");
+        if (accessToken) {
+          try {
+            const { error } = await supabase.auth.setSession({
+              access_token: accessToken,
+              refresh_token: refreshToken || "",
+            });
+            if (cancelled) return;
+            if (error) {
+              setStatus("error");
+              setErrMsg(error.message);
+              return;
+            }
+            setStatus("success");
+            setTimeout(() => { window.location.href = "/"; }, 600);
+          } catch (e) {
+            if (!cancelled) {
+              setStatus("error");
+              setErrMsg((e as Error).message);
+            }
+          }
           return;
         }
       }
@@ -58,7 +93,7 @@ export default function CallbackPage() {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
       if (event === "SIGNED_IN" && !cancelled) {
         setStatus("success");
-        setTimeout(() => { window.location.href = "/"; }, 800);
+        setTimeout(() => { window.location.href = "/"; }, 600);
       }
     });
 
@@ -74,7 +109,7 @@ export default function CallbackPage() {
           return prev;
         });
       }
-    }, 15000);
+    }, 20000);
 
     return () => {
       cancelled = true;
