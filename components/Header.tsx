@@ -161,8 +161,8 @@ export default function Header({
   }
 
   async function handleVerifyCode() {
-    if (otpCode.length !== 6) {
-      setLoginErr("请输入 6 位验证码");
+    if (!otpCode.trim()) {
+      setLoginErr("请输入验证码");
       return;
     }
     setLoginErr("");
@@ -287,18 +287,17 @@ export default function Header({
                 <input
                   type="text"
                   inputMode="numeric"
-                  maxLength={6}
                   value={otpCode}
-                  onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
-                  onKeyDown={(e) => e.key === "Enter" && otpCode.length === 6 && handleVerifyCode()}
-                  placeholder="输入 6 位验证码"
-                  className="w-full px-3 py-2.5 rounded-lg border border-gray-200 text-center text-lg tracking-[0.5em] font-mono focus:outline-none focus:ring-2 focus:ring-brand-400/30 focus:border-brand-400"
+                  onChange={(e) => setOtpCode(e.target.value.replace(/[^0-9]/g, ""))}
+                  onKeyDown={(e) => e.key === "Enter" && otpCode.trim() && handleVerifyCode()}
+                  placeholder="请输入验证码"
+                  className="w-full px-4 py-3 rounded-lg border border-gray-200 text-center text-xl tracking-[0.3em] font-mono focus:outline-none focus:ring-2 focus:ring-brand-400/30 focus:border-brand-400"
                   autoFocus
                 />
                 {loginErr && <p className="text-xs text-red-500">{loginErr}</p>}
                 <button
                   onClick={handleVerifyCode}
-                  disabled={verifying || otpCode.length !== 6}
+                  disabled={verifying || !otpCode.trim()}
                   className="w-full py-2.5 rounded-lg bg-brand-600 text-white text-sm font-medium hover:bg-brand-700 disabled:opacity-50 transition"
                 >
                   {verifying ? "验证中..." : "验证登录"}
