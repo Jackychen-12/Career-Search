@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { signInWithGitHub, sendOtpCode, verifyOtpCode, signOut, getUser, type GhUser } from "@/lib/auth";
 import { hasPrefs } from "@/lib/ranking";
-import { loadPrefs, savePrefs } from "@/lib/prefs";
+import { loadPrefs, loadPrefsFromCloud, savePrefs } from "@/lib/prefs";
 
 function NotifyBell() {
   const [open, setOpen] = useState(false);
@@ -116,10 +116,15 @@ export default function Header({
   const [verifying, setVerifying] = useState(false);
 
   useEffect(() => {
-    getUser().then((u) => {
+    getUser().then(async (u) => {
       setUser(u);
       setLoggedIn(!!u);
-      setHasProfile(hasPrefs(loadPrefs()));
+      if (u) {
+        const p = await loadPrefsFromCloud();
+        setHasProfile(hasPrefs(p));
+      } else {
+        setHasProfile(false);
+      }
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event) => {
@@ -127,9 +132,12 @@ export default function Header({
         const u = await getUser();
         setUser(u);
         setLoggedIn(!!u);
+        const p = await loadPrefsFromCloud();
+        setHasProfile(hasPrefs(p));
       } else if (event === "SIGNED_OUT") {
         setUser(null);
         setLoggedIn(false);
+        setHasProfile(false);
       }
     });
 

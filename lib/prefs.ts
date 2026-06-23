@@ -65,3 +65,40 @@ async function syncPrefsToCloud(p: Prefs) {
     updated_at: new Date().toISOString(),
   });
 }
+
+export async function loadPrefsFromCloud(): Promise<Prefs> {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return EMPTY_PREFS;
+
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("id", user.id)
+    .single();
+
+  if (error || !data) return EMPTY_PREFS;
+
+  const p: Prefs = {
+    categories: data.categories ?? [],
+    jobTypes: data.job_types ?? [],
+    cities: data.cities ?? [],
+    school: data.school ?? undefined,
+    major: data.major ?? undefined,
+    degree: data.degree ?? undefined,
+    skills: data.skills ?? [],
+    targetRoles: data.target_roles ?? [],
+    resumeKeywords: data.resume_keywords ?? [],
+    experiences: data.experiences ?? [],
+    strengths: data.strengths ?? [],
+    weaknesses: data.weaknesses ?? [],
+    summary: data.summary ?? undefined,
+    notifyEmail: data.notify_email ?? undefined,
+    notifyEnabled: data.notify_enabled ?? false,
+  };
+
+  if (typeof window !== "undefined") {
+    try { window.localStorage.setItem(KEY, JSON.stringify(p)); } catch {}
+  }
+
+  return p;
+}

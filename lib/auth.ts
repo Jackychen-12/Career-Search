@@ -34,6 +34,11 @@ export async function verifyOtpCode(email: string, token: string) {
 
 export async function signOut() {
   await supabase.auth.signOut();
+  if (typeof window !== "undefined") {
+    window.localStorage.removeItem("career-search:prefs:v1");
+    window.localStorage.removeItem("career-search:tracking");
+    window.localStorage.removeItem("career-search:interviews");
+  }
 }
 
 export async function getSession() {
