@@ -16,3 +16,12 @@ export const supabase = createClient(resolvedUrl, SUPABASE_ANON_KEY, {
     persistSession: true,
   },
 });
+
+export const supabaseOtp = createClient(resolvedUrl, SUPABASE_ANON_KEY, {
+  auth: {
+    flowType: "implicit",
+    detectSessionInUrl: false,
+    autoRefreshToken: true,
+    persistSession: true,
+  },
+});

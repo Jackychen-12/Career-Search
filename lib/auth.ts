@@ -1,4 +1,4 @@
-import { supabase } from "./supabase";
+import { supabase, supabaseOtp } from "./supabase";
 
 export interface GhUser {
   login: string;
@@ -19,12 +19,12 @@ export async function signInWithGitHub() {
 }
 
 export async function sendOtpCode(email: string) {
-  const { error } = await supabase.auth.signInWithOtp({ email });
+  const { error } = await supabaseOtp.auth.signInWithOtp({ email });
   if (error) throw new Error(error.message);
 }
 
 export async function verifyOtpCode(email: string, token: string) {
-  const { error } = await supabase.auth.verifyOtp({
+  const { error } = await supabaseOtp.auth.verifyOtp({
     email,
     token,
     type: "email",
