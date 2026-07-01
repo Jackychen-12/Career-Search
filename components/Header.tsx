@@ -152,13 +152,14 @@ export default function Header({
 
   async function handleEmailAuth() {
     setLoginErr("");
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(loginEmail)) {
+    const email = loginEmail.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       setLoginErr("请输入有效的邮箱地址");
       return;
     }
     setLoginLoading(true);
     try {
-      await sendOtpCode(loginEmail);
+      await sendOtpCode(email);
       setEmailSent(true);
       setCooldown(60);
     } catch (e) {
