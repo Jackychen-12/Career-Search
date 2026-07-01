@@ -1,4 +1,4 @@
-import { supabase, supabaseOtp } from "./supabase";
+import { supabase } from "./supabase";
 
 export interface GhUser {
   login: string;
@@ -15,21 +15,21 @@ export async function signInWithGitHub() {
       scopes: "gist",
     },
   });
-  if (error) throw new Error(error.message);
+  if (error) throw new Error(error.message || "GitHub 登录失败");
 }
 
 export async function sendOtpCode(email: string) {
-  const { error } = await supabaseOtp.auth.signInWithOtp({ email });
-  if (error) throw new Error(error.message);
+  const { error } = await supabase.auth.signInWithOtp({ email });
+  if (error) throw new Error(error.message || "验证码发送失败，请检查邮箱地址或稍后重试");
 }
 
 export async function verifyOtpCode(email: string, token: string) {
-  const { error } = await supabaseOtp.auth.verifyOtp({
+  const { error } = await supabase.auth.verifyOtp({
     email,
     token,
     type: "email",
   });
-  if (error) throw new Error(error.message);
+  if (error) throw new Error(error.message || "验证码无效或已过期，请重新获取");
 }
 
 export async function signOut() {

@@ -10,17 +10,8 @@ const resolvedUrl =
 
 export const supabase = createClient(resolvedUrl, SUPABASE_ANON_KEY, {
   auth: {
-    flowType: "pkce",
-    detectSessionInUrl: false,
-    autoRefreshToken: true,
-    persistSession: true,
-  },
-});
-
-export const supabaseOtp = createClient(resolvedUrl, SUPABASE_ANON_KEY, {
-  auth: {
     flowType: "implicit",
-    detectSessionInUrl: false,
+    detectSessionInUrl: true,
     autoRefreshToken: true,
     persistSession: true,
   },
