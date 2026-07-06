@@ -23,13 +23,16 @@ jobs:
           node-version: 20
           cache: npm
 
-      - run: npm ci
+      - name: Install tsx globally (survives npm ci crash)
+        run: npm install -g tsx
+
+      - run: npm ci || echo "npm ci failed, continuing with global tsx"
 
       - name: Crawl job sources + AI tags
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
-        run: npx tsx scripts/crawl.ts
+        run: tsx scripts/crawl.ts
         continue-on-error: true
         timeout-minutes: 10
 
@@ -38,7 +41,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
-        run: npx tsx scripts/crawl.ts -- --only=seed,greenhouse,repo
+        run: tsx scripts/crawl.ts -- --only=seed,greenhouse,repo
         continue-on-error: true
         timeout-minutes: 8
 
@@ -65,7 +68,7 @@ jobs:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
-        run: npx tsx scripts/notify.ts || echo "notification skipped"
+        run: tsx scripts/notify.ts || echo "notification skipped"
 
       - name: Commit refreshed data
         run: |
