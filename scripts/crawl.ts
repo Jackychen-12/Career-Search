@@ -27,6 +27,7 @@ import { bytedance } from "./sources/official/bytedance";
 import { meituan } from "./sources/official/meituan";
 import { openSourceRepos } from "./sources/opensourceRepo";
 import { seed } from "./sources/seed";
+import { shixiseng } from "./sources/shixiseng";
 import type { SourceAdapter } from "./sources/types";
 
 function selectAdapters(only: string[]): SourceAdapter[] {
@@ -34,8 +35,10 @@ function selectAdapters(only: string[]): SourceAdapter[] {
   if (SOURCES_CONFIG.seed) universe.push(seed);
   if (SOURCES_CONFIG.ats) universe.push(greenhouse, lever, ashby);
   if (SOURCES_CONFIG.openSourceRepos) universe.push(openSourceRepos);
-  if (SOURCES_CONFIG.official) universe.push(bytedance, meituan, campusApis);
+  // bytedance & meituan official APIs are down; campusApis covers fallbacks
+  if (SOURCES_CONFIG.official) universe.push(campusApis);
   universe.push(nowcoder);
+  universe.push(shixiseng);
 
   if (only.length > 0) {
     return universe.filter((a) => only.some((o) => a.id === o || a.id.startsWith(o)));
