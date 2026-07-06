@@ -2,14 +2,14 @@
   "name": "career-search",
   "version": "1.0.0",
   "private": true,
-  "description": "Career-Search \u2014 \u6691\u671f\u5b9e\u4e60 + \u79cb\u62db\u4fe1\u606f\u805a\u5408\u5e73\u53f0\uff08\u7eaf\u9759\u6001 / \u96f6\u6210\u672c / Fork \u5373\u7528\uff09",
+  "description": "Career-Search — 暑期实习 + 秋招信息聚合平台（纯静态 / 零成本 / Fork 即用）",
   "scripts": {
     "dev": "next dev",
     "prebuild": "cp node_modules/pdfjs-dist/build/pdf.worker.min.mjs public/pdf.worker.min.mjs",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "crawl": "tsx scripts/crawl.ts",
+    "crawl": "npx tsx scripts/crawl.ts",
     "crawl:boss": "tsx scripts/crawl-boss.ts",
     "test": "jest",
     "test:e2e": "playwright test"
