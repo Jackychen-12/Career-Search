@@ -1,16 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Sparkles, AlertTriangle, TrendingUp, Target, Calendar, ChevronDown, ChevronUp, RefreshCw } from "lucide-react";
-
-interface CoachData {
-  urgent: { title: string; reason: string; action: string; daysLeft?: number }[];
-  insights: { metric: string; value: string; trend: string; suggestion: string }[];
-  recommended: { company: string; title: string; matchScore: number; reason: string }[];
-  funnel: { applied: number; written: number; interview: number; offer: number };
-  weeklyPlan: string;
-  oneLineSummary: string;
-}
+import { Sparkles, AlertTriangle, TrendingUp, Target, Calendar, ChevronDown, RefreshCw } from "lucide-react";
+import { fetchCoachAdvice, type CoachAdviceResult } from "@/lib/skills";
 
 interface CoachPanelProps {
   trackingSummary: string;
@@ -23,7 +15,7 @@ const CACHE_KEY = "coach_cache";
 const CACHE_TTL = 24 * 60 * 60 * 1000;
 
 export default function CoachPanel({ trackingSummary, interviewSummary, profileSummary, newJobsSummary }: CoachPanelProps) {
-  const [data, setData] = useState<CoachData | null>(null);
+  const [data, setData] = useState<CoachAdviceResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [collapsed, setCollapsed] = useState(false);
@@ -46,23 +38,17 @@ export default function CoachPanel({ trackingSummary, interviewSummary, profileS
     setLoading(true);
     setError("");
     try {
-      const res = await fetch("/ai/api/coach", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${(await import("@/lib/supabase")).supabase.auth.getSession().then(s => s.data.session?.access_token || "")}` },
-        body: JSON.stringify({
-          profile: profileSummary,
-          tracking: trackingSummary,
-          interviews: interviewSummary,
-          newJobs: newJobsSummary,
-          today: new Date().toISOString().slice(0, 10),
-        }),
+      const result = await fetchCoachAdvice({
+        profile: profileSummary,
+        tracking: trackingSummary,
+        interviews: interviewSummary,
+        newJobs: newJobsSummary,
+        today: new Date().toISOString().slice(0, 10),
       });
-      if (!res.ok) throw new Error("AI Coach 暂时不可用");
-      const result = await res.json();
       setData(result);
       localStorage.setItem(CACHE_KEY, JSON.stringify({ data: result, ts: Date.now() }));
     } catch (e) {
-      setError((e as Error).message);
+      setError((e as Error).message || "AI Coach 暂时不可用");
     } finally {
       setLoading(false);
     }
@@ -105,7 +91,6 @@ export default function CoachPanel({ trackingSummary, interviewSummary, profileS
 
       {data && (
         <div className="space-y-3">
-          {/* Urgent items */}
           {data.urgent.length > 0 && (
             <div>
               <div className="flex items-center gap-1 text-xs font-semibold text-orange-600 mb-1.5">
@@ -121,7 +106,6 @@ export default function CoachPanel({ trackingSummary, interviewSummary, profileS
             </div>
           )}
 
-          {/* Funnel */}
           {(data.funnel.applied > 0 || data.funnel.interview > 0) && (
             <div>
               <div className="flex items-center gap-1 text-xs font-semibold text-gray-500 mb-1.5">
@@ -139,7 +123,6 @@ export default function CoachPanel({ trackingSummary, interviewSummary, profileS
             </div>
           )}
 
-          {/* Insights */}
           {data.insights.length > 0 && (
             <div>
               <div className="flex items-center gap-1 text-xs font-semibold text-gray-500 mb-1.5">
@@ -154,7 +137,6 @@ export default function CoachPanel({ trackingSummary, interviewSummary, profileS
             </div>
           )}
 
-          {/* Recommended */}
           {data.recommended.length > 0 && (
             <div>
               <div className="flex items-center gap-1 text-xs font-semibold text-gray-500 mb-1.5">
@@ -172,7 +154,6 @@ export default function CoachPanel({ trackingSummary, interviewSummary, profileS
             </div>
           )}
 
-          {/* Weekly plan */}
           {data.weeklyPlan && (
             <div>
               <div className="flex items-center gap-1 text-xs font-semibold text-gray-500 mb-1.5">
