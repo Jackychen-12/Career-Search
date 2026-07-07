@@ -401,22 +401,7 @@ export default {
     const path = url.pathname;
 
     if (request.method !== "POST") {
-  
-    // AI 求职教练
-    if (path === "/api/coach") {
-      const profile = body.profile as string ?? "";
-      const tracking = body.tracking as string ?? "";
-      const interviews = body.interviews as string ?? "";
-      const newJobs = body.newJobs as string ?? "";
-      const today = body.today as string ?? new Date().toISOString().slice(0, 10);
-      if (profile.length < 10 && tracking.length < 5) {
-        return Response.json({ error: "请先建立画像或添加投递记录" }, { status: 400, headers: cors });
-      }
-      return callDeepSeek(env, cors, COACH_PROMPT,
-        `当前日期：${today}\n\n候选人画像：\n${profile}\n\n投递记录：\n${tracking}\n\n面试记录：\n${interviews}\n\n近期新岗位：\n${newJobs}`, 3000);
-    }
-
-    return new Response("Not Found", { status: 404, headers: cors });
+      return new Response("Not Found", { status: 404, headers: cors });
     }
 
     const authenticated = await verifySupabaseJwt(request, env);
