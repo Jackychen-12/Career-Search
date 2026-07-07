@@ -25,6 +25,7 @@ import { bytedance } from "./sources/official/bytedance";
 // import { kuaishou } from "./sources/official/kuaishou";
 // import { xiaohongshu } from "./sources/official/xiaohongshu";
 import { meituan } from "./sources/official/meituan";
+import { baidu } from "./sources/official/baidu";
 import { openSourceRepos } from "./sources/opensourceRepo";
 import { seed } from "./sources/seed";
 import { shixiseng } from "./sources/shixiseng";
@@ -36,7 +37,7 @@ function selectAdapters(only: string[]): SourceAdapter[] {
   if (SOURCES_CONFIG.ats) universe.push(greenhouse, lever, ashby);
   if (SOURCES_CONFIG.openSourceRepos) universe.push(openSourceRepos);
   // bytedance & meituan official APIs are down; campusApis covers fallbacks
-  if (SOURCES_CONFIG.official) universe.push(campusApis);
+  if (SOURCES_CONFIG.official) universe.push(baidu, campusApis);
   universe.push(nowcoder);
   universe.push(shixiseng);
 
