@@ -12,6 +12,7 @@ import { getSession } from "@/lib/auth";
 import { getOrCreateInbox, loadPendingEmailRecords, confirmEmailRecord, dismissEmailRecord, ACTION_LABELS, type EmailRecord } from "@/lib/emailInbox";
 import type { Job } from "@/lib/types";
 import InterviewForm from "./InterviewForm";
+import CoachPanel from "./CoachPanel";
 import type { TrackedJobOption } from "./InterviewForm";
 
 const FunnelChart = dynamic(() => import("./charts/FunnelChart").then((m) => ({ default: m.FunnelChart })), { ssr: false });
@@ -208,6 +209,17 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
   }, [tracking, interviews, jobs]);
 
   const stats = useMemo(() => computeDashboardStats(tracking, interviews), [tracking, interviews]);
+
+  const coachSummaries = useMemo(() => {
+    const trackingLines = activeItems.map(i => `${i.company} ${i.title} [${STATUS_CONFIG[i.status].label}]`).join("\n");
+    const interviewLines = interviews.map(iv => {
+      const rounds = iv.rounds.map(r => `${r.round}${r.date ? " " + r.date : ""}`).join(", ");
+      return `${iv.company} ${iv.position} - ${iv.status} (${rounds})`;
+    }).join("\n");
+    const profileLine = "求职方向: AI 产品经理 / 产品策划";
+    const recentJobs = jobs.slice(0, 20).map(j => `${j.company} ${j.title}`).join("\n");
+    return { tracking: trackingLines, interviews: interviewLines, profile: profileLine, newJobs: recentJobs };
+  }, [activeItems, interviews, jobs]);
 
   useEffect(() => {
     if (overviewOpen && !aiAnalysis && !aiLoading && loggedIn && (activeItems.length > 0 || Object.keys(tracking).length > 0)) {
@@ -549,6 +561,17 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
               })}
             </div>
           </div>
+        )}
+
+
+        {/* ═══ AI Coach ═══ */}
+        {loggedIn && (activeItems.length > 0 || interviews.length > 0) && (
+          <CoachPanel
+            trackingSummary={coachSummaries.tracking}
+            interviewSummary={coachSummaries.interviews}
+            profileSummary={coachSummaries.profile}
+            newJobsSummary={coachSummaries.newJobs}
+          />
         )}
 
         {/* ═══ Tab: 全部记录 ═══ */}
