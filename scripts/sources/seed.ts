@@ -146,17 +146,17 @@ export const SEED_JOBS: RawJob[] = [
   { origin: "seed", company: "三一重工", companyTier: 1, title: "27届提前批校园招聘", category: "实体", jobType: "秋招", location: ["长沙", "上海", "北京"], requirements: "应届毕业生", deadline: "2026-09-30", description: "工程机械龙头——智能制造/电气/液压/数字化研发方向。", applyUrl: "https://www.sany.com.cn/", tags: ["提前批", "重工", "校招"] },
   { origin: "seed", company: "歌尔股份", companyTier: 2, title: "27届提前批校园招聘", category: "实体", jobType: "秋招", location: ["潍坊", "青岛", "深圳"], requirements: "应届毕业生", deadline: "2026-09-25", description: "VR/AR/TWS声学——硬件/算法/光学/结构研发方向。", applyUrl: "https://www.goertek.com/", tags: ["提前批", "XR", "校招"] },
 
-  // ── 2027 秋招新增 ──
-  { company: "京东方", title: "2027届「先锋京英计划」校园招聘", category: "实体", jobType: "秋招", location: ["北京", "成都", "合肥", "重庆"], region: "大陆", applyUrl: "https://campus.boe.com", tags: ["大厂", "2027届"], postedAt: "2026-07-02" },
-  { company: "大疆", title: "2027 拓疆者校园招聘", category: "实体", jobType: "秋招", location: ["深圳"], region: "大陆", applyUrl: "https://we.dji.com/campus", tags: ["大厂", "2027届"], postedAt: "2026-06-26" },
-  { company: "vivo", title: "2027届蓝极星计划校园招聘", category: "实体", jobType: "秋招", location: ["东莞", "深圳", "北京", "杭州"], region: "大陆", applyUrl: "https://hr.vivo.com/campus", tags: ["大厂", "2027届"], postedAt: "2026-07-01" },
-  { company: "科大讯飞", title: "2027届校园招聘", category: "互联网", jobType: "秋招", location: ["合肥", "北京", "上海"], region: "大陆", applyUrl: "https://campus.iflytek.com", tags: ["AI", "2027届"], postedAt: "2026-07-02" },
-  { company: "哔哩哔哩", title: "b-up顶尖技术人才项目", category: "互联网", jobType: "秋招", location: ["上海", "北京"], region: "大陆", applyUrl: "https://campus.bilibili.com", tags: ["大厂", "2027届"], postedAt: "2026-06-30" },
-  { company: "三一集团", title: "2027届星辰计划管培生", category: "实体", jobType: "秋招", location: ["长沙", "北京", "上海"], region: "大陆", applyUrl: "https://campus.sany.com.cn", tags: ["管培生", "2027届"], postedAt: "2026-06-30" },
-  { company: "宇树科技", title: "2027届校园招聘（AI/机器人）", category: "互联网", jobType: "秋招", location: ["杭州"], region: "大陆", applyUrl: "https://www.unitree.com/career", tags: ["机器人", "2027届"], postedAt: "2026-05-19" },
-  { company: "宇通集团", title: "2027届提前批校园招聘", category: "实体", jobType: "秋招", location: ["郑州"], region: "大陆", applyUrl: "https://campus.yutong.com", tags: ["2027届"], postedAt: "2026-07-01" },
-  { company: "方太", title: "2027届暑期提前批实习招聘", category: "快消", jobType: "暑期实习", location: ["宁波", "上海"], region: "大陆", applyUrl: "https://campus.fotile.com", tags: ["2027届"], postedAt: "2026-06-30" },
-  { company: "牧原集团", title: "2027届提前批校园招聘", category: "实体", jobType: "秋招", location: ["南阳", "全国"], region: "大陆", applyUrl: "https://zhaopin.muyuanfoods.com", tags: ["2027届"], postedAt: "2026-07-02" },
+  // ── 2027 秋招提前批（7月最新）──
+  { origin: "seed", company: "京东方", companyTier: 2, title: "2027届「先锋京英计划」校园招聘", category: "实体", jobType: "秋招", location: ["北京", "成都", "合肥", "重庆"], region: "大陆", applyUrl: "https://campus.boe.com", tags: ["2027届"], postedAt: "2026-07-02" },
+  { origin: "seed", company: "大疆", companyTier: 1, title: "2027 拓疆者校园招聘", category: "实体", jobType: "秋招", location: ["深圳"], region: "大陆", applyUrl: "https://we.dji.com/campus", tags: ["大厂", "2027届"], postedAt: "2026-06-26" },
+  { origin: "seed", company: "vivo", companyTier: 2, title: "2027届蓝极星计划校园招聘", category: "实体", jobType: "秋招", location: ["东莞", "深圳", "北京", "杭州"], region: "大陆", applyUrl: "https://hr.vivo.com/campus", tags: ["2027届"], postedAt: "2026-07-01" },
+  { origin: "seed", company: "科大讯飞", companyTier: 1, title: "2027届校园招聘", category: "互联网", jobType: "秋招", location: ["合肥", "北京", "上海"], region: "大陆", applyUrl: "https://campus.iflytek.com", tags: ["AI", "2027届"], postedAt: "2026-07-02" },
+  { origin: "seed", company: "哔哩哔哩", companyTier: 2, title: "b-up 2027顶尖技术人才项目", category: "互联网", jobType: "秋招", location: ["上海", "北京"], region: "大陆", applyUrl: "https://campus.bilibili.com", tags: ["大厂", "2027届"], postedAt: "2026-06-30" },
+  { origin: "seed", company: "三一集团", companyTier: 2, title: "2027届星辰计划管培生", category: "实体", jobType: "秋招", location: ["长沙", "北京", "上海"], region: "大陆", applyUrl: "https://campus.sany.com.cn", tags: ["管培生", "2027届"], postedAt: "2026-06-30" },
+  { origin: "seed", company: "宇树科技", companyTier: 2, title: "2027届校园招聘（AI/机器人）", category: "互联网", jobType: "秋招", location: ["杭州"], region: "大陆", applyUrl: "https://www.unitree.com/career", tags: ["机器人", "2027届"], postedAt: "2026-05-19" },
+  { origin: "seed", company: "宇通集团", companyTier: 2, title: "2027届提前批校园招聘", category: "实体", jobType: "秋招", location: ["郑州"], region: "大陆", applyUrl: "https://campus.yutong.com", tags: ["2027届"], postedAt: "2026-07-01" },
+  { origin: "seed", company: "方太", companyTier: 2, title: "2027届暑期提前批实习招聘", category: "快消", jobType: "暑期实习", location: ["宁波", "上海"], region: "大陆", applyUrl: "https://campus.fotile.com", tags: ["2027届"], postedAt: "2026-06-30" },
+  { origin: "seed", company: "牧原集团", companyTier: 2, title: "2027届提前批校园招聘", category: "实体", jobType: "秋招", location: ["南阳", "全国"], region: "大陆", applyUrl: "https://zhaopin.muyuanfoods.com", tags: ["2027届"], postedAt: "2026-07-02" },
 ];
 
 export const seed: SourceAdapter = {
