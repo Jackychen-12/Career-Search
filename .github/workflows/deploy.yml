@@ -31,7 +31,6 @@ jobs:
       - name: Crawl job sources + AI tags
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
         run: tsx scripts/crawl.ts
         continue-on-error: true
         timeout-minutes: 10
@@ -40,7 +39,6 @@ jobs:
         if: failure()
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
         run: tsx scripts/crawl.ts -- --only=seed,greenhouse,repo
         continue-on-error: true
         timeout-minutes: 8
