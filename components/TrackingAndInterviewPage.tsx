@@ -565,7 +565,7 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
 
 
         {/* ═══ AI Coach ═══ */}
-        {loggedIn && (activeItems.length > 0 || interviews.length > 0) && (
+        {loggedIn && (
           <CoachPanel
             trackingSummary={coachSummaries.tracking}
             interviewSummary={coachSummaries.interviews}
