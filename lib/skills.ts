@@ -186,3 +186,16 @@ export interface ResumeRefineResult {
 export function refineResume(profile: string, job: string, resume: string, instruction: string) {
   return callSkill<ResumeRefineResult>("/api/skill/resume-refine", { profile, job, resume, instruction });
 }
+
+export interface CoachAdviceResult {
+  urgent: { title: string; reason: string; action: string; daysLeft?: number }[];
+  insights: { metric: string; value: string; trend: string; suggestion: string }[];
+  recommended: { company: string; title: string; matchScore: number; reason: string }[];
+  funnel: { applied: number; written: number; interview: number; offer: number };
+  weeklyPlan: string;
+  oneLineSummary: string;
+}
+
+export function fetchCoachAdvice(payload: { profile: string; tracking: string; interviews: string; newJobs: string; today: string }) {
+  return callSkill<CoachAdviceResult>("/api/coach", payload);
+}
