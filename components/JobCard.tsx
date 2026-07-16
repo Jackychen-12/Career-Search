@@ -42,6 +42,125 @@ function daysSince(iso: string | null, now: Date): string | null {
   return `${Math.floor(diff / 30)}月前`;
 }
 
+/** Always-visible smart analysis panel — generates insights from whatever data is available. */
+function SmartAnalysis({ job, matchResult }: { job: Job; matchResult?: MatchResult }) {
+  // Build keyword highlights from title + description
+  const HIGHLIGHT_KEYWORDS: Record<string, string> = {
+    "AI": "AI", "人工智能": "AI", "大模型": "大模型", "LLM": "LLM", "NLP": "NLP", "AIGC": "AIGC",
+    "产品经理": "产品", "产品设计": "产品", "产品运营": "运营", "商业分析": "商分",
+    "数据分析": "数据", "数据驱动": "数据", "算法": "算法", "研发": "研发",
+    "投行": "投行", "投资银行": "投行", "资管": "资管", "金融": "金融", "风控": "风控",
+    "研究": "研究", "策略": "策略", "运营": "运营", "市场": "市场", "销售": "销售",
+    "管培": "管培", "管理培训": "管培", "实习": "实习",
+    "Python": "Python", "Java": "Java", "SQL": "SQL", "TypeScript": "TS",
+    "React": "React", "机器学习": "ML", "深度学习": "DL",
+    "全栈": "全栈", "前端": "前端", "后端": "后端",
+    "供应链": "供应链", "咨询": "咨询", "审计": "审计",
+  };
+
+  const text = [job.title, job.description ?? ""].join(" ");
+  const matched = new Set<string>();
+  for (const [keyword, label] of Object.entries(HIGHLIGHT_KEYWORDS)) {
+    if (text.includes(keyword)) matched.add(label);
+  }
+  const skillTags = Array.from(matched).slice(0, 6);
+
+  // Build analysis dimensions
+  const dimensions: { label: string; value: string; color: string }[] = [];
+
+  // Company tier
+  if (job.companyTier === 1) {
+    dimensions.push({ label: "公司", value: "头部企业", color: "text-amber-600" });
+  } else if (job.companyTier === 2) {
+    dimensions.push({ label: "公司", value: "知名企业", color: "text-blue-600" });
+  }
+
+  // Category + industry
+  dimensions.push({ label: "行业", value: job.category, color: "text-gray-700" });
+
+  // Job type
+  dimensions.push({ label: "类型", value: job.jobType, color: "text-gray-700" });
+
+  // Salary assessment
+  if (job.salary) {
+    dimensions.push({ label: "薪资", value: job.salary, color: "text-green-700" });
+  }
+
+  // Location count
+  if (job.location.length > 2) {
+    dimensions.push({ label: "城市", value: `${job.location.length}个城市可选`, color: "text-gray-600" });
+  }
+
+  // Has matchResult
+  const hasMatch = matchResult && matchResult.score > 0;
+  const matchPct = hasMatch ? Math.round(matchResult!.score * 100) : 0;
+
+  // Build-time aiMatch score as fallback
+  const aiMatchPct = Math.round((job.scores.aiMatch ?? 0) * 100);
+  const displayPct = hasMatch ? matchPct : aiMatchPct;
+  const displayReasons = hasMatch
+    ? matchResult!.reasons.slice(0, 3)
+    : aiMatchPct > 0
+      ? (skillTags.length > 0 ? [`技能相关: ${skillTags.slice(0, 3).join(", ")}`] : [])
+      : [];
+
+  return (
+    <div className="px-3 py-2.5 rounded-lg bg-gradient-to-br from-gray-50 to-brand-50/30 border border-gray-100">
+      {/* Match score bar — always show */}
+      <div className="flex items-center justify-between text-[11px] mb-1.5">
+        <span className="text-gray-500 font-medium">岗位分析</span>
+        <span className={`font-bold ${displayPct >= 50 ? "text-green-600" : displayPct >= 20 ? "text-brand-600" : "text-gray-500"}`}>
+          匹配 {displayPct}%
+        </span>
+      </div>
+      <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden mb-2">
+        <div
+          className={`h-full rounded-full transition-all ${
+            displayPct >= 50
+              ? "bg-gradient-to-r from-green-400 to-green-500"
+              : displayPct >= 20
+                ? "bg-gradient-to-r from-brand-400 to-brand-500"
+                : "bg-gradient-to-r from-gray-300 to-gray-400"
+          }`}
+          style={{ width: `${Math.max(displayPct, 3)}%` }}
+        />
+      </div>
+
+      {/* Match reasons or fallback dimensions */}
+      {displayReasons.length > 0 ? (
+        <div className="text-[10px] text-brand-700 font-medium line-clamp-1 mb-1.5">
+          {displayReasons.join(" · ")}
+        </div>
+      ) : (
+        <div className="flex flex-wrap gap-x-3 gap-y-0.5 mb-1.5">
+          {dimensions.slice(0, 4).map((d) => (
+            <span key={d.label} className="text-[10px]">
+              <span className="text-gray-400">{d.label}</span>{" "}
+              <span className={`font-medium ${d.color}`}>{d.value}</span>
+            </span>
+          ))}
+        </div>
+      )}
+
+      {/* Skill tags — always show if available */}
+      {skillTags.length > 0 && (
+        <div className="flex flex-wrap gap-1">
+          {skillTags.map((s) => (
+            <span key={s} className="text-[9px] px-1.5 py-0.5 rounded bg-white border border-gray-200 text-gray-600">
+              {s}
+            </span>
+          ))}
+        </div>
+      )}
+
+      {/* AI summary if available */}
+      {job.aiTags?.summary && (
+        <p className="text-[10px] text-gray-500 mt-1.5 line-clamp-1 leading-relaxed">{job.aiTags.summary}</p>
+      )}
+    </div>
+  );
+}
+
 export default function JobCard({
   job,
   now,
@@ -193,32 +312,8 @@ export default function JobCard({
         </div>
 
         <div className="mt-auto space-y-2.5 pt-1">
-        {/* AI Match section */}
-        {matchResult && matchResult.score > 0 && (
-          <div className="px-3 py-2 rounded-lg bg-brand-50/60 border border-brand-100/50">
-            <div className="flex items-center justify-between text-[11px] mb-1">
-              <span className="text-gray-500 font-medium">匹配度</span>
-              <span className="font-bold text-brand-600">{Math.round(matchResult.score * 100)}%</span>
-            </div>
-            <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden mb-1.5">
-              <div
-                className="h-full bg-gradient-to-r from-brand-400 to-brand-500 rounded-full transition-all"
-                style={{ width: `${Math.round(matchResult.score * 100)}%` }}
-              />
-            </div>
-            <div className="text-[10px] text-brand-700 font-medium line-clamp-1">
-              {matchResult.reasons.slice(0, 3).join(" · ")}
-            </div>
-          </div>
-        )}
-
-        {/* AI summary (only if no match result) */}
-        {!(matchResult && matchResult.score > 0) && job.aiTags?.summary && (
-          <div className="flex items-start gap-2 px-3 py-2 rounded-lg bg-gray-50/80">
-            <span className="shrink-0 text-[10px] font-semibold text-brand-500 bg-brand-50 px-1.5 py-0.5 rounded">AI</span>
-            <p className="text-[11px] text-gray-600 line-clamp-2 leading-relaxed">{job.aiTags.summary}</p>
-          </div>
-        )}
+        {/* Smart Analysis — always visible */}
+        <SmartAnalysis job={job} matchResult={matchResult} />
 
         {/* Footer */}
         <div className="flex items-center justify-between pt-2 border-t border-black/5">
