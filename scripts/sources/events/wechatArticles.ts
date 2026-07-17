@@ -1,14 +1,17 @@
 import type { WechatArticle } from "../../../lib/eventTypes";
 import { getText } from "../../lib/fetchUtil";
 
+const GRAD_YEAR = new Date().getFullYear() + 1;
+const GRAD_SHORT = GRAD_YEAR % 100;
+const CUR_YEAR = new Date().getFullYear();
 const QUERIES = [
-  "27届校园招聘 秋招",
-  "2027届 秋招 网申",
-  "名企校招 宣讲会 2026",
-  "央企 校园招聘 2027",
-  "互联网大厂 秋招 2027届",
-  "管培生 校园招聘 2027",
-  "金融 校招 秋招 2027",
+  `${GRAD_SHORT}届校园招聘 秋招`,
+  `${GRAD_YEAR}届 秋招 网申`,
+  `名企校招 宣讲会 ${CUR_YEAR}`,
+  `央企 校园招聘 ${GRAD_YEAR}`,
+  `互联网大厂 秋招 ${GRAD_YEAR}届`,
+  `管培生 校园招聘 ${GRAD_YEAR}`,
+  `金融 校招 秋招 ${GRAD_YEAR}`,
 ];
 
 function parseArticles(html: string): WechatArticle[] {

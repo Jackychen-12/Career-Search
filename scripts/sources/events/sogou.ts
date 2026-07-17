@@ -2,19 +2,21 @@ import type { CampusEvent } from "../../../lib/eventTypes";
 import { getText } from "../../lib/fetchUtil";
 
 const SEARCH_URL = "https://weixin.sogou.com/weixin";
+const GRAD_YEAR = new Date().getFullYear() + 1;
+const CUR_YEAR = new Date().getFullYear();
 const QUERIES = [
-  "校园宣讲会 2027届",
-  "2027届校园招聘 宣讲",
-  "秋招宣讲会 名企 2026",
-  "央企 校园招聘 宣讲 2027",
-  "互联网 校招 宣讲会 2027",
+  `校园宣讲会 ${GRAD_YEAR}届`,
+  `${GRAD_YEAR}届校园招聘 宣讲`,
+  `秋招宣讲会 名企 ${CUR_YEAR}`,
+  `央企 校园招聘 宣讲 ${GRAD_YEAR}`,
+  `互联网 校招 宣讲会 ${GRAD_YEAR}`,
 ];
 
 function parseDate(text: string): string {
   const match = text.match(/(\d{4})[-.\/年](\d{1,2})[-.\/月](\d{1,2})/);
   if (match) return `${match[1]}-${match[2].padStart(2, "0")}-${match[3].padStart(2, "0")}`;
   const recent = text.match(/(\d{1,2})[-.\/月](\d{1,2})/);
-  if (recent) return `2026-${recent[1].padStart(2, "0")}-${recent[2].padStart(2, "0")}`;
+  if (recent) return `${new Date().getFullYear()}-${recent[1].padStart(2, "0")}-${recent[2].padStart(2, "0")}`;
   return "";
 }
 
