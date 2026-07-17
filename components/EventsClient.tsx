@@ -35,6 +35,14 @@ const INDUSTRY_COLORS: Record<string, { bg: string; text: string; bar: string }>
   "其他": { bg: "bg-gray-50", text: "text-gray-600", bar: "from-gray-300 to-gray-400" },
 };
 
+const TYPE_COLORS: Record<string, string> = {
+  "宣讲会": "bg-teal-50 text-teal-700",
+  "网申": "bg-indigo-50 text-indigo-700",
+  "笔试": "bg-amber-50 text-amber-700",
+  "面试": "bg-rose-50 text-rose-700",
+  "其他": "bg-gray-100 text-gray-600",
+};
+
 const AVATAR_COLORS = [
   "bg-indigo-500", "bg-amber-500", "bg-rose-500", "bg-teal-500",
   "bg-violet-500", "bg-blue-500", "bg-green-500", "bg-orange-500",
@@ -54,31 +62,20 @@ function daysFromNow(dateStr: string): number {
   return Math.ceil((d.getTime() - now.getTime()) / 86400000);
 }
 
-function getWeekLabel(dateStr: string): string {
-  const days = daysFromNow(dateStr);
-  if (days < 0) return "past";
-  if (days <= 7) return "本周";
-  if (days <= 14) return "下周";
-  return "更远";
-}
-
-const TYPE_COLORS: Record<string, string> = {
-  "宣讲会": "bg-teal-50 text-teal-700",
-  "网申": "bg-indigo-50 text-indigo-700",
-  "笔试": "bg-amber-50 text-amber-700",
-  "面试": "bg-rose-50 text-rose-700",
-  "其他": "bg-gray-100 text-gray-600",
-};
-
-const INDUSTRIES = ["全部", "互联网", "金融", "央企", "外企", "新能源", "科技"];
+type Tab = "events" | "articles";
+const ARTICLES_PER_PAGE = 8;
 
 export default function EventsClient({ events, articles = [] }: { events: CampusEvent[]; articles?: WechatArticle[] }) {
-  const [industryFilter, setIndustryFilter] = useState("全部");
+  const [tab, setTab] = useState<Tab>("events");
+  const [source, setSource] = useState<"all" | "清华" | "北大" | "微信">("all");
   const [keyword, setKeyword] = useState("");
+  const [typeFilter, setTypeFilter] = useState<CampusEvent["type"] | "all">("all");
   const [showPast, setShowPast] = useState(false);
+  const [articlePage, setArticlePage] = useState(1);
 
   const filteredEvents = events.filter((e) => {
-    if (industryFilter !== "全部" && getIndustry(e.company) !== industryFilter) return false;
+    if (source !== "all" && e.source !== source) return false;
+    if (typeFilter !== "all" && e.type !== typeFilter) return false;
     if (keyword.trim()) {
       const k = keyword.trim().toLowerCase();
       return e.company.toLowerCase().includes(k) || e.title.toLowerCase().includes(k);
@@ -87,57 +84,47 @@ export default function EventsClient({ events, articles = [] }: { events: Campus
   });
 
   const filteredArticles = articles.filter((a) => {
-    if (keyword.trim()) {
-      const k = keyword.trim().toLowerCase();
-      return a.title.toLowerCase().includes(k) || a.account.toLowerCase().includes(k) || (a.summary ?? "").toLowerCase().includes(k);
-    }
-    return true;
+    if (!keyword.trim()) return true;
+    const k = keyword.trim().toLowerCase();
+    return a.title.toLowerCase().includes(k) || a.account.toLowerCase().includes(k) || (a.summary ?? "").toLowerCase().includes(k);
   });
 
-  const upcoming = filteredEvents.filter((e) => daysFromNow(e.date) >= 0);
-  const past = filteredEvents.filter((e) => daysFromNow(e.date) < 0);
+  const today = new Date().toISOString().slice(0, 10);
+  const upcoming = filteredEvents.filter((e) => e.date >= today);
+  const past = filteredEvents.filter((e) => e.date < today);
 
-  const thisWeek = upcoming.filter((e) => getWeekLabel(e.date) === "本周");
-  const nextWeek = upcoming.filter((e) => getWeekLabel(e.date) === "下周");
-  const later = upcoming.filter((e) => getWeekLabel(e.date) === "更远");
-
-  const uniqueCompanies = new Set(events.map((e) => e.company)).size;
+  const articleTotalPages = Math.max(1, Math.ceil(filteredArticles.length / ARTICLES_PER_PAGE));
+  const clampedPage = Math.min(articlePage, articleTotalPages);
+  const pagedArticles = filteredArticles.slice((clampedPage - 1) * ARTICLES_PER_PAGE, clampedPage * ARTICLES_PER_PAGE);
 
   return (
     <div className="min-h-screen bg-gray-50/50">
-      {/* Header */}
       <header className="sticky top-0 z-40 backdrop-blur-xl bg-white/80 border-b border-black/5 shadow-sm">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <a href="/" className="text-sm font-bold text-gray-900 hover:text-gray-600 transition flex items-center gap-1.5">
+            <a href="/" className="text-[15px] font-bold text-gray-900 hover:text-gray-600 transition flex items-center gap-1.5">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="text-gray-500"><path d="M15 18l-6-6 6-6" /></svg>
               Career Search
             </a>
-            <span className="text-gray-200">|</span>
-            <span className="text-sm font-semibold text-gray-800">校招情报</span>
+            <span className="text-gray-300">·</span>
+            <span className="text-[15px] font-semibold text-gray-700">宣讲 & 资讯</span>
           </div>
-          <span className="text-[11px] text-gray-400 hidden sm:block">数据更新于 {new Date().toLocaleDateString("zh-CN")}</span>
+          <span className="text-xs text-gray-400">{events.length} 活动 · {articles.length} 文章</span>
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto px-4 sm:px-6 py-5 space-y-5">
-        {/* Stats Bar */}
-        <div className="grid grid-cols-3 gap-3">
-          <div className="card px-4 py-3 text-center">
-            <div className="text-2xl font-bold text-indigo-600">{events.length}</div>
-            <div className="text-[11px] text-gray-500 mt-0.5">校招活动</div>
-          </div>
-          <div className="card px-4 py-3 text-center">
-            <div className="text-2xl font-bold text-indigo-600">{uniqueCompanies}</div>
-            <div className="text-[11px] text-gray-500 mt-0.5">招聘企业</div>
-          </div>
-          <div className="card px-4 py-3 text-center">
-            <div className="text-2xl font-bold text-teal-600">{articles.length}</div>
-            <div className="text-[11px] text-gray-500 mt-0.5">校招资讯</div>
-          </div>
+      <main className="max-w-5xl mx-auto px-4 sm:px-6 py-6 space-y-5">
+        {/* Tabs */}
+        <div className="flex gap-0.5 p-0.5 bg-gray-100 rounded-lg w-fit">
+          <button onClick={() => { setTab("events"); setArticlePage(1); }} className={`px-4 py-1.5 rounded-md text-sm font-medium transition ${tab === "events" ? "bg-white text-gray-900 shadow-sm" : "text-gray-500"}`}>
+            宣讲活动（{events.length}）
+          </button>
+          <button onClick={() => { setTab("articles"); setArticlePage(1); }} className={`px-4 py-1.5 rounded-md text-sm font-medium transition ${tab === "articles" ? "bg-white text-gray-900 shadow-sm" : "text-gray-500"}`}>
+            公众号推送（{articles.length}）
+          </button>
         </div>
 
-        {/* Search + Industry Filter */}
+        {/* Search + Filters */}
         <div className="card p-4 space-y-3">
           <div className="relative">
             <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -145,196 +132,161 @@ export default function EventsClient({ events, articles = [] }: { events: Campus
             </svg>
             <input
               value={keyword}
-              onChange={(e) => setKeyword(e.target.value)}
-              placeholder="搜索公司、活动、文章..."
+              onChange={(e) => { setKeyword(e.target.value); setArticlePage(1); }}
+              placeholder={tab === "events" ? "搜索公司、活动名称..." : "搜索文章标题、公众号..."}
               className="w-full h-9 pl-9 pr-3 rounded-full border border-gray-200/80 bg-white/80 text-sm focus:outline-none focus:ring-2 focus:ring-gray-300/50 focus:border-gray-400 transition"
             />
           </div>
-          <div className="flex items-center gap-1.5 flex-wrap">
-            <span className="text-[11px] text-gray-400 mr-1">行业</span>
-            {INDUSTRIES.map((ind) => (
-              <button
-                key={ind}
-                onClick={() => setIndustryFilter(ind)}
-                className={`px-3 py-1 rounded-full text-[12px] font-medium transition ${
-                  industryFilter === ind
-                    ? "bg-gray-800 text-white shadow-sm"
-                    : "text-gray-600 hover:bg-gray-100"
-                }`}
-              >
-                {ind}
-              </button>
-            ))}
+          {tab === "events" && (
+            <div className="flex items-center justify-between flex-wrap gap-2">
+              <div className="flex items-center gap-1.5">
+                <span className="text-xs text-gray-400">来源</span>
+                {(["all", "微信", "清华", "北大"] as const).map((s) => (
+                  <button key={s} onClick={() => setSource(s)} className={`px-3 py-1 rounded-full text-[12px] font-medium transition ${source === s ? "bg-gray-800 text-white shadow-sm" : "text-gray-600 hover:bg-gray-100"}`}>
+                    {s === "all" ? "全部" : s}
+                  </button>
+                ))}
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="text-xs text-gray-400">类型</span>
+                {(["all", "宣讲会", "网申", "笔试", "面试", "其他"] as const).map((t) => (
+                  <button key={t} onClick={() => setTypeFilter(t)} className={`px-3 py-1 rounded-full text-[12px] font-medium transition ${typeFilter === t ? "bg-gray-800 text-white shadow-sm" : "text-gray-600 hover:bg-gray-100"}`}>
+                    {t === "all" ? "全部" : t}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+          <div className="text-xs text-gray-400">
+            {tab === "events" ? `${filteredEvents.length} 条活动` : `${filteredArticles.length} 篇文章`}
           </div>
         </div>
 
-        {/* Main Content: Two-Column Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-5">
-          {/* Left: Events */}
-          <div className="space-y-5">
-            {filteredEvents.length === 0 && (
-              <div className="card p-12 text-center">
-                <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-gray-100 flex items-center justify-center text-gray-300">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4M8 2v4M3 10h18" /></svg>
-                </div>
-                <p className="text-sm text-gray-500">暂无符合条件的校招活动</p>
+        {/* Events tab */}
+        {tab === "events" && (
+          filteredEvents.length === 0 ? (
+            <div className="card p-12 text-center">
+              <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-gray-100 flex items-center justify-center text-gray-300">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4M8 2v4M3 10h18" /></svg>
               </div>
-            )}
-
-            {/* This Week */}
-            {thisWeek.length > 0 && (
-              <EventSection
-                title="本周"
-                count={thisWeek.length}
-                events={thisWeek}
-                accentColor="bg-teal-500"
-                highlight
-              />
-            )}
-
-            {/* Next Week */}
-            {nextWeek.length > 0 && (
-              <EventSection
-                title="下周"
-                count={nextWeek.length}
-                events={nextWeek}
-                accentColor="bg-indigo-400"
-              />
-            )}
-
-            {/* Later */}
-            {later.length > 0 && (
-              <EventSection
-                title="更远"
-                count={later.length}
-                events={later}
-                accentColor="bg-gray-400"
-              />
-            )}
-
-            {/* Past Events — Collapsible */}
-            {past.length > 0 && (
-              <section>
-                <button
-                  onClick={() => setShowPast(!showPast)}
-                  className="flex items-center gap-2 text-sm font-semibold text-gray-500 hover:text-gray-700 transition mb-3"
-                >
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"
-                    className={`transition-transform ${showPast ? "rotate-90" : ""}`}
-                  ><path d="M9 18l6-6-6-6" /></svg>
-                  <span className="w-1 h-4 rounded-full bg-gray-300" />
-                  已结束（{past.length}）
-                </button>
-                {showPast && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 opacity-60">
-                    {past.map((e) => <EventCard key={e.id} event={e} />)}
-                  </div>
-                )}
-              </section>
-            )}
-          </div>
-
-          {/* Right: Articles Sidebar */}
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-sm font-bold text-gray-800 flex items-center gap-2">
-                <span className="w-1 h-4 rounded-full bg-teal-500" />
-                校招资讯（{filteredArticles.length}）
-              </h2>
+              <p className="text-sm text-gray-500">暂无符合条件的宣讲活动</p>
             </div>
+          ) : (
+            <div className="space-y-5">
+              {upcoming.length > 0 && (
+                <section>
+                  <h2 className="text-base font-bold text-gray-900 mb-3 flex items-center gap-2">
+                    <span className="w-1 h-4 rounded-full bg-teal-500" /> 即将举行（{upcoming.length}）
+                  </h2>
+                  <div className="space-y-2">{upcoming.map((e) => <EventCard key={e.id} event={e} isUpcoming />)}</div>
+                </section>
+              )}
+              {past.length > 0 && (
+                <section>
+                  <button
+                    onClick={() => setShowPast(!showPast)}
+                    className="flex items-center gap-2 text-base font-bold text-gray-500 hover:text-gray-700 transition mb-3"
+                  >
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"
+                      className={`transition-transform ${showPast ? "rotate-90" : ""}`}
+                    ><path d="M9 18l6-6-6-6" /></svg>
+                    <span className="w-1 h-4 rounded-full bg-gray-300" />
+                    已结束（{past.length}）
+                  </button>
+                  {showPast && (
+                    <div className="space-y-2 opacity-60">{past.map((e) => <EventCard key={e.id} event={e} />)}</div>
+                  )}
+                </section>
+              )}
+            </div>
+          )
+        )}
 
-            {filteredArticles.length === 0 ? (
-              <div className="card p-8 text-center">
-                <div className="w-10 h-10 mx-auto mb-2 rounded-full bg-gray-100 flex items-center justify-center text-gray-300">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /></svg>
-                </div>
-                <p className="text-xs text-gray-500">暂无校招资讯</p>
+        {/* Articles tab */}
+        {tab === "articles" && (
+          filteredArticles.length === 0 ? (
+            <div className="card p-12 text-center">
+              <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-gray-100 flex items-center justify-center text-gray-300">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /></svg>
               </div>
-            ) : (
-              <div className="space-y-2.5">
-                {filteredArticles.map((a) => (
+              <p className="text-sm text-gray-500">暂无校招公众号文章</p>
+            </div>
+          ) : (
+            <>
+              <div className="space-y-2">
+                {pagedArticles.map((a) => (
                   <ArticleCard key={a.id} article={a} />
                 ))}
               </div>
-            )}
-          </div>
-        </div>
+              {articleTotalPages > 1 && (
+                <nav className="flex items-center justify-center gap-1.5 mt-4">
+                  <button
+                    onClick={() => setArticlePage((p) => Math.max(1, p - 1))}
+                    disabled={clampedPage <= 1}
+                    className={`px-3 h-8 rounded-md text-xs border transition ${clampedPage <= 1 ? "border-gray-200 text-gray-300 cursor-not-allowed" : "border-gray-200 text-gray-600 hover:border-gray-400 hover:text-gray-800 bg-white"}`}
+                  >
+                    ‹ 上一页
+                  </button>
+                  {Array.from({ length: articleTotalPages }, (_, i) => i + 1).map((p) => (
+                    <button
+                      key={p}
+                      onClick={() => setArticlePage(p)}
+                      className={`min-w-[34px] h-8 px-2 rounded-md text-xs border transition ${p === clampedPage ? "border-gray-800 bg-gray-800 text-white font-medium" : "border-gray-200 text-gray-600 hover:border-gray-400 hover:text-gray-800 bg-white"}`}
+                    >
+                      {p}
+                    </button>
+                  ))}
+                  <button
+                    onClick={() => setArticlePage((p) => Math.min(articleTotalPages, p + 1))}
+                    disabled={clampedPage >= articleTotalPages}
+                    className={`px-3 h-8 rounded-md text-xs border transition ${clampedPage >= articleTotalPages ? "border-gray-200 text-gray-300 cursor-not-allowed" : "border-gray-200 text-gray-600 hover:border-gray-400 hover:text-gray-800 bg-white"}`}
+                  >
+                    下一页 ›
+                  </button>
+                </nav>
+              )}
+            </>
+          )
+        )}
       </main>
     </div>
   );
 }
 
-function EventSection({ title, count, events, accentColor, highlight }: {
-  title: string;
-  count: number;
-  events: CampusEvent[];
-  accentColor: string;
-  highlight?: boolean;
-}) {
-  return (
-    <section>
-      <h2 className={`text-sm font-bold mb-3 flex items-center gap-2 ${highlight ? "text-gray-900" : "text-gray-700"}`}>
-        <span className={`w-1 h-4 rounded-full ${accentColor}`} />
-        {title}（{count}）
-      </h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        {events.map((e) => <EventCard key={e.id} event={e} highlight={highlight} />)}
-      </div>
-    </section>
-  );
-}
-
-function EventCard({ event, highlight }: { event: CampusEvent; highlight?: boolean }) {
+function EventCard({ event, isUpcoming }: { event: CampusEvent; isUpcoming?: boolean }) {
   const industry = getIndustry(event.company);
   const colors = INDUSTRY_COLORS[industry] ?? INDUSTRY_COLORS["其他"];
   const days = daysFromNow(event.date);
-  const isUrgent = days >= 0 && days <= 3;
+  const isUrgent = isUpcoming && days >= 0 && days <= 3;
 
   return (
-    <a
-      href={event.url}
-      target="_blank"
-      rel="noreferrer"
-      className={`card p-0 overflow-hidden hover:border-gray-300 hover:shadow-md transition block ${
-        highlight ? "ring-1 ring-gray-200" : ""
-      }`}
-    >
-      <div className={`h-1 bg-gradient-to-r ${colors.bar}`} />
-      <div className="p-3.5 space-y-2">
-        {/* Row 1: Company + Industry + Type */}
-        <div className="flex items-center gap-1.5 flex-wrap">
-          <span className="text-[13px] font-bold text-gray-900 truncate max-w-[140px]">{event.company}</span>
-          <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${colors.bg} ${colors.text}`}>
-            {industry}
-          </span>
-          <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${TYPE_COLORS[event.type] ?? TYPE_COLORS["其他"]}`}>
-            {event.type}
-          </span>
+    <a href={event.url} target="_blank" rel="noreferrer" className="card p-0 overflow-hidden flex hover:border-gray-300 hover:shadow-md transition block">
+      <div className={`w-1 shrink-0 bg-gradient-to-b ${colors.bar}`} />
+      <div className="flex items-center gap-4 px-4 py-3 flex-1 min-w-0">
+        <div className={`shrink-0 w-14 h-14 rounded-lg flex flex-col items-center justify-center ${isUpcoming ? "bg-gray-50" : "bg-gray-50"}`}>
+          <span className={`text-lg font-bold ${isUpcoming ? "text-gray-900" : "text-gray-400"}`}>{event.date.slice(8, 10)}</span>
+          <span className="text-[10px] text-gray-500">{event.date.slice(5, 7)}月</span>
         </div>
-
-        {/* Row 2: Title */}
-        <div className="text-[12px] text-gray-600 line-clamp-1 leading-snug">{event.title}</div>
-
-        {/* Row 3: Date + Time + Location + Source */}
-        <div className="flex items-center gap-2 text-[11px] text-gray-500 flex-wrap">
-          <span className="flex items-center gap-0.5">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4M8 2v4M3 10h18" /></svg>
-            {event.date.slice(5).replace("-", "/")}
-          </span>
-          {event.time && <span>{event.time}</span>}
-          {event.location && (
-            <span className="truncate max-w-[120px] flex items-center gap-0.5">
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" /></svg>
-              {event.location}
-            </span>
-          )}
-          <span className="text-gray-300">·</span>
-          <span className="text-gray-400">{event.source}</span>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-[14px] font-semibold text-gray-900 truncate">{event.company}</span>
+            <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${colors.bg} ${colors.text}`}>{industry}</span>
+            <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${TYPE_COLORS[event.type] ?? TYPE_COLORS["其他"]}`}>{event.type}</span>
+          </div>
+          <div className="text-xs text-gray-600 mt-1 line-clamp-1">{event.title}</div>
+          <div className="flex items-center gap-3 text-[11px] text-gray-500 mt-1 flex-wrap">
+            {event.time && <span>{event.time}</span>}
+            {event.location && (
+              <span className="truncate max-w-[160px] flex items-center gap-0.5">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" /></svg>
+                {event.location}
+              </span>
+            )}
+            <span className="text-gray-400">· {event.source}</span>
+          </div>
         </div>
-
-        {/* Row 4: Countdown badge */}
-        {days >= 0 && (
-          <div className="flex items-center">
+        <div className="shrink-0 flex flex-col items-end gap-1">
+          {isUpcoming && days >= 0 && (
             <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${
               isUrgent
                 ? "bg-red-50 text-red-600 animate-pulse"
@@ -342,10 +294,11 @@ function EventCard({ event, highlight }: { event: CampusEvent; highlight?: boole
                   ? "bg-amber-50 text-amber-600"
                   : "bg-gray-50 text-gray-500"
             }`}>
-              {days === 0 ? "今天" : days === 1 ? "明天" : `还有${days}天`}
+              {days === 0 ? "今天" : days === 1 ? "明天" : `${days}天后`}
             </span>
-          </div>
-        )}
+          )}
+          <span className="text-gray-300 text-sm">→</span>
+        </div>
       </div>
     </a>
   );
@@ -362,19 +315,20 @@ function ArticleCard({ article }: { article: WechatArticle }) {
       href={article.url}
       target="_blank"
       rel="noreferrer"
-      className="card px-3.5 py-3 flex items-start gap-3 hover:border-gray-300 hover:shadow-sm transition block"
+      className="card px-4 py-3 flex items-start gap-4 hover:border-gray-300 hover:shadow-sm transition block"
     >
-      <div className={`shrink-0 w-9 h-9 rounded-lg ${bgColor} flex items-center justify-center text-white text-sm font-bold`}>
+      <div className={`shrink-0 w-10 h-10 rounded-lg ${bgColor} flex items-center justify-center text-white text-lg font-bold`}>
         {firstChar}
       </div>
       <div className="flex-1 min-w-0">
-        <div className="text-[13px] font-medium text-gray-900 line-clamp-2 leading-snug">{article.title}</div>
-        {article.summary && <p className="text-[11px] text-gray-500 mt-1 line-clamp-2 leading-relaxed">{article.summary}</p>}
-        <div className="flex items-center gap-2 text-[10px] text-gray-400 mt-1.5">
+        <div className="text-[14px] font-medium text-gray-900 line-clamp-2">{article.title}</div>
+        {article.summary && <p className="text-xs text-gray-500 mt-1 line-clamp-2">{article.summary}</p>}
+        <div className="flex items-center gap-3 text-[11px] text-gray-400 mt-1.5">
           <span className="font-medium text-gray-500">{article.account}</span>
           <span>{dateLabel}</span>
         </div>
       </div>
+      <span className="shrink-0 text-gray-300 text-sm mt-1">→</span>
     </a>
   );
 }
