@@ -8,7 +8,6 @@ import Header from "./Header";
 import JobCard from "./JobCard";
 import Pagination from "./Pagination";
 import Sidebar from "./Sidebar";
-import StatBar from "./StatBar";
 
 const CalendarView = dynamic(() => import("./CalendarView"), { loading: () => <SkeletonGrid /> });
 const ComparePanel = dynamic(() => import("./ComparePanel"));
@@ -146,8 +145,6 @@ export default function HomeClient({
       <Header total={jobs.length} onOpenPrefs={() => setPrefsOpen(true)} onOpenWeekly={() => setWeeklyOpen(true)} />
 
       <main className="max-w-7xl mx-auto px-4 py-6 space-y-5">
-        {/* Stats + Filters (top, full width) */}
-        <StatBar jobs={jobs} now={now} newJobIds={newJobIds} prefs={prefs} tracking={tracking} />
         <FilterBar
           state={filter}
           onChange={patch}
@@ -219,7 +216,7 @@ export default function HomeClient({
                 }}
               />
             </section>
-            <Sidebar jobs={jobs} now={now} onOpenWeekly={() => setWeeklyOpen(true)} />
+            <Sidebar jobs={jobs} now={now} newJobIds={newJobIds} prefs={prefs} tracking={tracking} onOpenWeekly={() => setWeeklyOpen(true)} />
           </div>
         )}
       </main>

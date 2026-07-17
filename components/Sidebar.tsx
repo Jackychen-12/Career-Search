@@ -1,27 +1,40 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { daysUntil } from "@/lib/scoring";
-import { loadPrefs } from "@/lib/prefs";
 import { hasPrefs } from "@/lib/ranking";
 import { computeProfileMatchDetailed } from "@/lib/matchScore";
 import type { Job, Prefs } from "@/lib/types";
+import type { TrackingData } from "@/lib/tracker";
 
-export default function Sidebar({ jobs, now, onOpenWeekly }: { jobs: Job[]; now: number; onOpenWeekly?: () => void }) {
-  const [prefs, setPrefs] = useState<Prefs | null>(null);
-  useEffect(() => { const p = loadPrefs(); if (hasPrefs(p)) setPrefs(p); }, []);
+export default function Sidebar({
+  jobs,
+  now,
+  newJobIds,
+  prefs,
+  tracking,
+  onOpenWeekly,
+}: {
+  jobs: Job[];
+  now: number;
+  newJobIds: string[];
+  prefs: Prefs;
+  tracking: TrackingData;
+  onOpenWeekly?: () => void;
+}) {
+  const profileReady = hasPrefs(prefs);
+  const d = new Date(now);
+  const weekAgo = now - 7 * 24 * 60 * 60 * 1000;
 
   const weeklyTop = useMemo(() => {
-    if (!prefs) return [];
+    if (!profileReady) return [];
     return jobs
       .filter((j) => j.region !== "海外" && j.category !== "外企")
       .map((j) => ({ job: j, score: computeProfileMatchDetailed(j, prefs).score }))
       .filter((m) => m.score > 0.2)
       .sort((a, b) => b.score - a.score)
       .slice(0, 3);
-  }, [jobs, prefs]);
-
-  const d = new Date(now);
+  }, [jobs, prefs, profileReady]);
 
   const urgentJobs = jobs
     .filter((j) => {
@@ -39,6 +52,97 @@ export default function Sidebar({ jobs, now, onOpenWeekly }: { jobs: Job[]; now:
     .filter((j) => j.scores.aiMatch > 0.4)
     .sort((a, b) => b.scores.aiMatch - a.scores.aiMatch)
     .slice(0, 6);
+
+  // --- Stats (moved from StatBar) ---
+  const weeklyMatchCount = useMemo(() => {
+    if (!profileReady) return null;
+    return jobs.filter((j) => {
+      const seen = new Date(j.firstSeen).getTime();
+      if (seen < weekAgo) return false;
+      return computeProfileMatchDetailed(j, prefs).score >= 0.6;
+    }).length;
+  }, [jobs, prefs, weekAgo, profileReady]);
+
+  const trackedCompanyNewCount = useMemo(() => {
+    const trackedIds = Object.keys(tracking);
+    if (trackedIds.length === 0) return null;
+    const companies = new Set(
+      trackedIds.map((id) => jobs.find((j) => j.id === id)?.company).filter(Boolean),
+    );
+    if (companies.size === 0) return null;
+    const newSet = new Set(newJobIds);
+    return jobs.filter((j) => newSet.has(j.id) && companies.has(j.company)).length;
+  }, [jobs, tracking, newJobIds]);
+
+  const nearestDeadline = useMemo(() => {
+    const trackedIds = new Set(Object.keys(tracking));
+    const scope = trackedIds.size > 0 ? jobs.filter((j) => trackedIds.has(j.id)) : jobs;
+    let min: number | null = null;
+    for (const j of scope) {
+      const days = daysUntil(j.deadline, d);
+      if (days !== null && days >= 0 && (min === null || days < min)) min = days;
+    }
+    return min;
+  }, [jobs, tracking, d]);
+
+  const statItems = [
+    {
+      label: "本周高匹配",
+      value: weeklyMatchCount !== null ? String(weeklyMatchCount) : null,
+      fallback: "设置画像后显示",
+      color: weeklyMatchCount && weeklyMatchCount > 0 ? "text-green-600" : "text-gray-900",
+      iconBg: "bg-green-50",
+      iconColor: "text-green-500",
+      icon: (
+        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+          <polyline points="22 4 12 14.01 9 11.01" />
+        </svg>
+      ),
+    },
+    {
+      label: "关注公司新岗",
+      value: trackedCompanyNewCount !== null ? String(trackedCompanyNewCount) : null,
+      fallback: "收藏岗位后显示",
+      color: trackedCompanyNewCount && trackedCompanyNewCount > 0 ? "text-amber-600" : "text-gray-900",
+      iconBg: "bg-amber-50",
+      iconColor: "text-amber-500",
+      icon: (
+        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
+        </svg>
+      ),
+    },
+    {
+      label: "最近截止",
+      value: nearestDeadline !== null ? `${nearestDeadline} 天` : null,
+      fallback: "暂无截止",
+      color:
+        nearestDeadline !== null && nearestDeadline <= 3
+          ? "text-red-600"
+          : nearestDeadline !== null && nearestDeadline <= 7
+            ? "text-orange-500"
+            : "text-gray-900",
+      iconBg:
+        nearestDeadline !== null && nearestDeadline <= 3
+          ? "bg-red-50"
+          : nearestDeadline !== null && nearestDeadline <= 7
+            ? "bg-orange-50"
+            : "bg-gray-50",
+      iconColor:
+        nearestDeadline !== null && nearestDeadline <= 3
+          ? "text-red-500"
+          : nearestDeadline !== null && nearestDeadline <= 7
+            ? "text-orange-500"
+            : "text-gray-400",
+      icon: (
+        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <circle cx="12" cy="12" r="10" />
+          <polyline points="12 6 12 12 16 14" />
+        </svg>
+      ),
+    },
+  ];
 
   return (
     <aside className="space-y-4">
@@ -127,6 +231,31 @@ export default function Sidebar({ jobs, now, onOpenWeekly }: { jobs: Job[]; now:
         <button onClick={onOpenWeekly} className="w-full py-2 rounded-lg text-xs font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 transition">
           查看完整清单 →
         </button>
+      </div>
+
+      {/* 个人数据概览 */}
+      <div className="card p-4">
+        <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
+          <span className="w-1 h-4 bg-teal-500 rounded-full" />
+          数据概览
+        </h3>
+        <div className="space-y-2.5">
+          {statItems.map((s) => (
+            <div key={s.label} className="flex items-center gap-2.5">
+              <div className={`w-8 h-8 rounded-lg ${s.iconBg} flex items-center justify-center ${s.iconColor} shrink-0`}>
+                {s.icon}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="text-[11px] text-gray-500">{s.label}</div>
+                {s.value !== null ? (
+                  <div className={`text-[15px] font-bold leading-tight ${s.color}`}>{s.value}</div>
+                ) : (
+                  <div className="text-[11px] text-gray-400">{s.fallback}</div>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* 数据统计 */}
