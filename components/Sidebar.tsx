@@ -60,7 +60,7 @@ export default function Sidebar({ jobs, now, onOpenWeekly }: { jobs: Job[]; now:
                     {dl}天
                   </span>
                   <div className="min-w-0 flex-1">
-                    <a href={job.applyUrl} target="_blank" rel="noreferrer" className="text-gray-700 hover:text-brand-600 line-clamp-1 block text-[13px]">
+                    <a href={job.applyUrl} target="_blank" rel="noreferrer" className="text-gray-700 hover:text-gray-900 line-clamp-1 block text-[13px]">
                       {job.company} · {job.title}
                     </a>
                     <div className="text-[11px] text-gray-400 mt-0.5">
@@ -78,17 +78,17 @@ export default function Sidebar({ jobs, now, onOpenWeekly }: { jobs: Job[]; now:
       {topMatch.length > 0 && (
         <div className="card p-4">
           <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
-            <span className="w-1 h-4 bg-brand-500 rounded-full" />
+            <span className="w-1 h-4 bg-indigo-500 rounded-full" />
             AI 推荐
           </h3>
           <ol className="space-y-2">
             {topMatch.map((job, idx) => (
               <li key={job.id} className="flex gap-2 text-sm">
-                <span className={`shrink-0 w-5 text-center text-[11px] font-medium leading-5 rounded ${idx < 3 ? "bg-brand-500 text-white" : "bg-gray-100 text-gray-500"}`}>
+                <span className={`shrink-0 w-5 text-center text-[11px] font-medium leading-5 rounded ${idx < 3 ? "bg-indigo-500 text-white" : "bg-gray-100 text-gray-500"}`}>
                   {idx + 1}
                 </span>
                 <div className="min-w-0 flex-1">
-                  <a href={job.applyUrl} target="_blank" rel="noreferrer" className="text-gray-700 hover:text-brand-600 line-clamp-1 block text-[13px]">
+                  <a href={job.applyUrl} target="_blank" rel="noreferrer" className="text-gray-700 hover:text-gray-900 line-clamp-1 block text-[13px]">
                     {job.company} · {job.title}
                   </a>
                   <div className="text-[11px] text-gray-400 mt-0.5">
@@ -104,16 +104,16 @@ export default function Sidebar({ jobs, now, onOpenWeekly }: { jobs: Job[]; now:
       {/* 投递清单入口 + 预览 */}
       <div className="card p-4">
         <h3 className="text-sm font-semibold mb-2 flex items-center gap-2">
-          <span className="w-1 h-4 bg-brand-500 rounded-full" />
+          <span className="w-1 h-4 bg-violet-500 rounded-full" />
           本周建议投递
         </h3>
         {weeklyTop.length > 0 ? (
           <ol className="space-y-2 mb-3">
             {weeklyTop.map((m, i) => (
               <li key={m.job.id} className="flex gap-2 text-sm">
-                <span className={`shrink-0 w-5 text-center text-[11px] font-medium leading-5 rounded ${i === 0 ? "bg-brand-500 text-white" : "bg-gray-100 text-gray-500"}`}>{i + 1}</span>
+                <span className={`shrink-0 w-5 text-center text-[11px] font-medium leading-5 rounded ${i === 0 ? "bg-violet-500 text-white" : "bg-gray-100 text-gray-500"}`}>{i + 1}</span>
                 <div className="min-w-0 flex-1">
-                  <a href={`/job/${m.job.id}`} className="text-gray-700 hover:text-brand-600 line-clamp-1 block text-[13px]">
+                  <a href={`/job/${m.job.id}`} className="text-gray-700 hover:text-gray-900 line-clamp-1 block text-[13px]">
                     {m.job.company} · {m.job.title}
                   </a>
                   <div className="text-[11px] text-gray-400 mt-0.5">匹配 {Math.round(m.score * 100)}%</div>
@@ -124,7 +124,7 @@ export default function Sidebar({ jobs, now, onOpenWeekly }: { jobs: Job[]; now:
         ) : (
           <p className="text-xs text-gray-400 mb-3">设置画像后显示推荐</p>
         )}
-        <button onClick={onOpenWeekly} className="w-full py-2 rounded-lg text-xs font-medium text-brand-600 bg-brand-50 hover:bg-brand-100 transition">
+        <button onClick={onOpenWeekly} className="w-full py-2 rounded-lg text-xs font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 transition">
           查看完整清单 →
         </button>
       </div>

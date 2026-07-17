@@ -31,11 +31,11 @@ export const CITIES = [
 ];
 
 export const CATEGORY_COLORS: Record<Category, string> = {
-  互联网: "bg-indigo-50 text-indigo-700",
-  金融: "bg-amber-50 text-amber-700",
-  外企: "bg-indigo-50 text-indigo-600",
-  快消: "bg-rose-50 text-rose-700",
-  实体: "bg-slate-100 text-slate-600",
+  互联网: "bg-slate-100 text-slate-700",
+  金融: "bg-amber-100 text-amber-800",
+  外企: "bg-emerald-50 text-emerald-700",
+  快消: "bg-orange-50 text-orange-700",
+  实体: "bg-stone-100 text-stone-600",
   管培: "bg-violet-50 text-violet-700",
   其他: "bg-gray-100 text-gray-500",
 };

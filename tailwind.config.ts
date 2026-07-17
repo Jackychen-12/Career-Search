@@ -15,8 +15,8 @@ const config: Config = {
           700: "#3a2ecc",
         },
         nav: {
-          DEFAULT: "#5b4cff",
-          light: "#ededff",
+          DEFAULT: "#1f2937",
+          light: "#f3f4f6",
         },
       },
       fontFamily: {

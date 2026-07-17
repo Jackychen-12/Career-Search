@@ -20,15 +20,15 @@ const STATUS_OPTIONS: { value: TrackingStatus; label: string }[] = [
 const CATEGORY_BAR_COLORS: Record<string, string> = {
   互联网: "from-indigo-400 to-indigo-600",
   金融: "from-amber-400 to-amber-600",
-  外企: "from-blue-400 to-blue-600",
-  快消: "from-rose-400 to-rose-600",
+  外企: "from-emerald-400 to-emerald-600",
+  快消: "from-orange-400 to-orange-500",
   实体: "from-slate-400 to-slate-500",
   管培: "from-violet-400 to-violet-600",
   其他: "from-gray-300 to-gray-400",
 };
 
 const TIER_LABEL: Record<number, string> = { 1: "头部", 2: "", 3: "" };
-const TIER_COLOR: Record<number, string> = { 1: "text-amber-600 bg-amber-50", 2: "", 3: "" };
+const TIER_COLOR: Record<number, string> = { 1: "text-amber-700 bg-amber-100 ring-1 ring-amber-200", 2: "", 3: "" };
 
 function daysSince(iso: string | null, now: Date): string | null {
   if (!iso) return null;
@@ -105,21 +105,21 @@ function SmartAnalysis({ job, matchResult }: { job: Job; matchResult?: MatchResu
       : [];
 
   return (
-    <div className="px-3 py-2.5 rounded-lg bg-gradient-to-br from-gray-50 to-brand-50/30 border border-gray-100">
+    <div className="px-3 py-2.5 rounded-lg bg-gradient-to-br from-gray-50 to-gray-50/80 border border-gray-100">
       {/* Match score bar — always show */}
       <div className="flex items-center justify-between text-[11px] mb-1.5">
         <span className="text-gray-500 font-medium">岗位分析</span>
-        <span className={`font-bold ${displayPct >= 50 ? "text-green-600" : displayPct >= 20 ? "text-brand-600" : "text-gray-500"}`}>
+        <span className={`font-bold ${displayPct >= 70 ? "text-green-600" : displayPct >= 40 ? "text-amber-600" : "text-gray-500"}`}>
           匹配 {displayPct}%
         </span>
       </div>
       <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden mb-2">
         <div
           className={`h-full rounded-full transition-all ${
-            displayPct >= 50
+            displayPct >= 70
               ? "bg-gradient-to-r from-green-400 to-green-500"
-              : displayPct >= 20
-                ? "bg-gradient-to-r from-brand-400 to-brand-500"
+              : displayPct >= 40
+                ? "bg-gradient-to-r from-amber-400 to-amber-500"
                 : "bg-gradient-to-r from-gray-300 to-gray-400"
           }`}
           style={{ width: `${Math.max(displayPct, 3)}%` }}
@@ -128,7 +128,7 @@ function SmartAnalysis({ job, matchResult }: { job: Job; matchResult?: MatchResu
 
       {/* Match reasons or fallback dimensions */}
       {displayReasons.length > 0 ? (
-        <div className="text-[10px] text-brand-700 font-medium line-clamp-1 mb-1.5">
+        <div className="text-[10px] text-gray-700 font-medium line-clamp-1 mb-1.5">
           {displayReasons.join(" · ")}
         </div>
       ) : (
@@ -146,7 +146,7 @@ function SmartAnalysis({ job, matchResult }: { job: Job; matchResult?: MatchResu
       {skillTags.length > 0 && (
         <div className="flex flex-wrap gap-1">
           {skillTags.map((s) => (
-            <span key={s} className="text-[9px] px-1.5 py-0.5 rounded bg-white border border-gray-200 text-gray-600">
+            <span key={s} className="text-[9px] px-1.5 py-0.5 rounded bg-gray-100 border border-gray-200 text-gray-700">
               {s}
             </span>
           ))}
@@ -212,7 +212,7 @@ export default function JobCard({
           </div>
           <div className="flex items-center gap-1 shrink-0">
             {isNew && (
-              <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full bg-brand-50 text-brand-600 animate-pulse">
+              <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full bg-emerald-50 text-emerald-600 animate-pulse">
                 NEW
               </span>
             )}
@@ -220,7 +220,7 @@ export default function JobCard({
               <button
                 onClick={() => onCompareToggle(job.id)}
                 className={`w-6 h-6 rounded-full flex items-center justify-center transition text-[10px] ${
-                  comparing ? "bg-brand-500 text-white" : "text-gray-300 hover:text-brand-500 hover:bg-brand-50"
+                  comparing ? "bg-gray-800 text-white" : "text-gray-300 hover:text-gray-600 hover:bg-gray-100"
                 }`}
                 title="加入对比"
               >
@@ -244,7 +244,7 @@ export default function JobCard({
 
         {/* Row 2: Company + Salary */}
         <div className="flex items-center gap-2">
-          <a href={`/job/${job.id}`} className="text-[15px] font-bold text-gray-900 hover:text-brand-600 transition truncate">{job.company}</a>
+          <a href={`/job/${job.id}`} className="text-[15px] font-bold text-gray-900 hover:text-gray-600 transition truncate">{job.company}</a>
           {job.salary && (
             <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-green-50 text-green-700 whitespace-nowrap shrink-0">
               💰 {job.salary}
@@ -287,9 +287,9 @@ export default function JobCard({
         {/* Row 7: AI skills tags */}
         {job.aiTags && job.aiTags.skills.length > 0 && (
           <div className="flex flex-wrap gap-1">
-            <span className="text-[10px] text-brand-500 font-medium mr-0.5">技能</span>
+            <span className="text-[10px] text-gray-500 font-medium mr-0.5">技能</span>
             {job.aiTags.skills.slice(0, 5).map((s) => (
-              <span key={s} className="text-[10px] px-1.5 py-0.5 rounded bg-brand-50 text-brand-600">
+              <span key={s} className="text-[10px] px-1.5 py-0.5 rounded bg-gray-100 text-gray-700 border border-gray-200">
                 {s}
               </span>
             ))}
@@ -301,11 +301,11 @@ export default function JobCard({
           {job.deadline ? (
             <span className={urgent ? "text-red-600 font-medium" : ""}>
               截止 {job.deadline.slice(5, 10).replace("-", "/")}
-              {dl !== null && dl >= 0 && <span className={`ml-1 font-semibold ${dl <= 7 ? "text-red-500" : dl <= 15 ? "text-amber-500" : "text-green-600"}`}>({dl}天)</span>}
+              {dl !== null && dl >= 0 && <span className={`ml-1 font-semibold ${dl <= 7 ? "text-red-500" : dl <= 15 ? "text-orange-500" : "text-green-600"}`}>({dl}天)</span>}
               {dl !== null && dl < 0 && <span className="text-gray-400 ml-1">已过期</span>}
             </span>
           ) : (
-            <span className="text-brand-500 font-medium">滚动招聘</span>
+            <span className="text-teal-600 font-medium">滚动招聘</span>
           )}
           <span className="text-gray-300">|</span>
           <span>收录 {published ?? job.firstSeen.slice(0, 10)}</span>

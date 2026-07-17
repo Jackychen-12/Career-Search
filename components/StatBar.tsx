@@ -5,9 +5,9 @@ const STAT_CONFIG = [
   {
     key: "total",
     label: "活跃岗位",
-    borderColor: "border-l-brand-500",
-    iconBg: "bg-brand-50",
-    iconColor: "text-brand-500",
+    borderColor: "border-l-indigo-500",
+    iconBg: "bg-indigo-50",
+    iconColor: "text-indigo-500",
     icon: (
       <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
         <rect x="2" y="7" width="20" height="14" rx="2" />
@@ -30,9 +30,9 @@ const STAT_CONFIG = [
   {
     key: "campus",
     label: "秋招/校招",
-    borderColor: "border-l-brand-400",
-    iconBg: "bg-brand-50",
-    iconColor: "text-brand-400",
+    borderColor: "border-l-violet-400",
+    iconBg: "bg-violet-50",
+    iconColor: "text-violet-400",
     icon: (
       <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
         <path d="M22 10v6M2 10l10-5 10 5-10 5z" />

@@ -34,8 +34,8 @@ function Pill({
       onClick={onClick}
       className={`shrink-0 px-3 h-[30px] inline-flex items-center whitespace-nowrap rounded-full text-[13px] font-medium transition-all ${
         active
-          ? "bg-brand-500 text-white shadow-sm shadow-brand-500/20 border border-brand-500"
-          : "text-gray-600 border border-gray-200 hover:border-brand-400 hover:text-brand-600 hover:bg-brand-50/50"
+          ? "bg-gray-800 text-white shadow-sm border border-gray-800"
+          : "text-gray-600 border border-gray-200 hover:border-gray-400 hover:text-gray-800 hover:bg-gray-50"
       }`}
     >
       {children}
@@ -90,7 +90,7 @@ export default function FilterBar({
           value={state.keyword}
           onChange={(e) => onChange({ keyword: e.target.value })}
           placeholder="搜索公司、岗位、城市..."
-          className="w-full h-9 pl-9 pr-3 rounded-full border border-gray-200/80 bg-white/80 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-400 transition"
+          className="w-full h-9 pl-9 pr-3 rounded-full border border-gray-200/80 bg-white/80 text-sm focus:outline-none focus:ring-2 focus:ring-gray-300/50 focus:border-gray-400 transition"
         />
       </div>
 
@@ -126,7 +126,7 @@ export default function FilterBar({
               type="checkbox"
               checked={state.urgentOnly}
               onChange={(e) => onChange({ urgentOnly: e.target.checked })}
-              className="accent-brand-500"
+              className="accent-gray-700"
             />
             仅看紧急
           </label>

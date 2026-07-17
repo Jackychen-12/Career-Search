@@ -88,7 +88,7 @@ export default function Pagination({
         <span>页</span>
         <button
           onClick={handleJump}
-          className="h-7 px-3 text-xs font-medium text-white rounded-md bg-gradient-to-r from-brand-500 to-brand-600 hover:from-brand-600 hover:to-brand-700 transition"
+          className="h-7 px-3 text-xs font-medium text-white rounded-md bg-gray-800 hover:bg-gray-900 transition"
         >
           GO
         </button>

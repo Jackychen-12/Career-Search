@@ -63,7 +63,7 @@ function getWeekLabel(dateStr: string): string {
 }
 
 const TYPE_COLORS: Record<string, string> = {
-  "宣讲会": "bg-brand-50 text-brand-600",
+  "宣讲会": "bg-teal-50 text-teal-700",
   "网申": "bg-indigo-50 text-indigo-700",
   "笔试": "bg-amber-50 text-amber-700",
   "面试": "bg-rose-50 text-rose-700",
@@ -109,8 +109,8 @@ export default function EventsClient({ events, articles = [] }: { events: Campus
       <header className="sticky top-0 z-40 backdrop-blur-xl bg-white/80 border-b border-black/5 shadow-sm">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <a href="/" className="text-sm font-bold text-gray-900 hover:text-brand-600 transition flex items-center gap-1.5">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="text-brand-500"><path d="M15 18l-6-6 6-6" /></svg>
+            <a href="/" className="text-sm font-bold text-gray-900 hover:text-gray-600 transition flex items-center gap-1.5">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="text-gray-500"><path d="M15 18l-6-6 6-6" /></svg>
               Career Search
             </a>
             <span className="text-gray-200">|</span>
@@ -124,7 +124,7 @@ export default function EventsClient({ events, articles = [] }: { events: Campus
         {/* Stats Bar */}
         <div className="grid grid-cols-3 gap-3">
           <div className="card px-4 py-3 text-center">
-            <div className="text-2xl font-bold text-brand-600">{events.length}</div>
+            <div className="text-2xl font-bold text-indigo-600">{events.length}</div>
             <div className="text-[11px] text-gray-500 mt-0.5">校招活动</div>
           </div>
           <div className="card px-4 py-3 text-center">
@@ -147,7 +147,7 @@ export default function EventsClient({ events, articles = [] }: { events: Campus
               value={keyword}
               onChange={(e) => setKeyword(e.target.value)}
               placeholder="搜索公司、活动、文章..."
-              className="w-full h-9 pl-9 pr-3 rounded-full border border-gray-200/80 bg-white/80 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-400 transition"
+              className="w-full h-9 pl-9 pr-3 rounded-full border border-gray-200/80 bg-white/80 text-sm focus:outline-none focus:ring-2 focus:ring-gray-300/50 focus:border-gray-400 transition"
             />
           </div>
           <div className="flex items-center gap-1.5 flex-wrap">
@@ -158,8 +158,8 @@ export default function EventsClient({ events, articles = [] }: { events: Campus
                 onClick={() => setIndustryFilter(ind)}
                 className={`px-3 py-1 rounded-full text-[12px] font-medium transition ${
                   industryFilter === ind
-                    ? "bg-brand-500 text-white shadow-sm"
-                    : "text-gray-600 hover:bg-brand-50"
+                    ? "bg-gray-800 text-white shadow-sm"
+                    : "text-gray-600 hover:bg-gray-100"
                 }`}
               >
                 {ind}
@@ -187,7 +187,7 @@ export default function EventsClient({ events, articles = [] }: { events: Campus
                 title="本周"
                 count={thisWeek.length}
                 events={thisWeek}
-                accentColor="bg-brand-500"
+                accentColor="bg-teal-500"
                 highlight
               />
             )}
@@ -295,8 +295,8 @@ function EventCard({ event, highlight }: { event: CampusEvent; highlight?: boole
       href={event.url}
       target="_blank"
       rel="noreferrer"
-      className={`card p-0 overflow-hidden hover:border-brand-300 hover:shadow-md transition block ${
-        highlight ? "ring-1 ring-brand-100" : ""
+      className={`card p-0 overflow-hidden hover:border-gray-300 hover:shadow-md transition block ${
+        highlight ? "ring-1 ring-gray-200" : ""
       }`}
     >
       <div className={`h-1 bg-gradient-to-r ${colors.bar}`} />
@@ -362,7 +362,7 @@ function ArticleCard({ article }: { article: WechatArticle }) {
       href={article.url}
       target="_blank"
       rel="noreferrer"
-      className="card px-3.5 py-3 flex items-start gap-3 hover:border-brand-300 hover:shadow-sm transition block"
+      className="card px-3.5 py-3 flex items-start gap-3 hover:border-gray-300 hover:shadow-sm transition block"
     >
       <div className={`shrink-0 w-9 h-9 rounded-lg ${bgColor} flex items-center justify-center text-white text-sm font-bold`}>
         {firstChar}

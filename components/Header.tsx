@@ -221,7 +221,7 @@ export default function Header({
           <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-brand-400 to-brand-600 grid place-items-center shadow-sm group-hover:shadow-md transition">
             <span className="text-xs font-bold text-white">C</span>
           </div>
-          <span className="text-lg font-bold text-gray-900 group-hover:text-brand-600 transition tracking-tight">Career Search</span>
+          <span className="text-lg font-bold text-gray-900 group-hover:text-gray-600 transition tracking-tight">Career Search</span>
         </a>
         <div className="flex items-center gap-2">
           <span className="hidden sm:inline text-[11px] text-gray-400 bg-gray-100/60 px-2 py-0.5 rounded-full">
@@ -232,7 +232,7 @@ export default function Header({
         {/* Desktop nav */}
         <nav className="hidden md:flex items-center gap-3 text-sm">
           {navItems.map((item) => (
-            <a key={item.label} href={item.href} className={`text-[13px] transition ${item.highlight ? "text-brand-600 font-medium" : "text-gray-500 hover:text-brand-600"}`}>{item.label}</a>
+            <a key={item.label} href={item.href} className={`text-[13px] transition ${item.highlight ? "text-brand-600 font-medium" : "text-gray-500 hover:text-gray-900"}`}>{item.label}</a>
           ))}
           {loggedIn && <NotifyBell />}
           <ThemeToggle />
@@ -267,7 +267,7 @@ export default function Header({
       {menuOpen && (
         <div className="md:hidden border-t border-gray-100 bg-white/95 backdrop-blur-xl px-4 py-3 space-y-1">
           {navItems.map((item) =>
-            <a key={item.label} href={item.href} className="block py-2 text-sm text-gray-700 hover:text-brand-600" onClick={() => setMenuOpen(false)}>{item.label}</a>
+            <a key={item.label} href={item.href} className="block py-2 text-sm text-gray-700 hover:text-gray-900" onClick={() => setMenuOpen(false)}>{item.label}</a>
           )}
           {loggedIn ? (
             <button onClick={() => { signOut(); setMenuOpen(false); }} className="block w-full text-left py-2 text-sm text-red-500">退出登录</button>
