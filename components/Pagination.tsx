@@ -55,7 +55,7 @@ export default function Pagination({
               onClick={() => onPage(p)}
               className={`${btn} ${
                 p === page
-                  ? "border-gray-300 bg-white text-gray-900 shadow-sm font-semibold"
+                  ? "border-brand-200 bg-brand-50 text-brand-600 shadow-sm font-semibold"
                   : "border-slate-200 text-slate-600 hover:border-nav hover:text-nav bg-white"
               }`}
             >
@@ -88,7 +88,7 @@ export default function Pagination({
         <span>页</span>
         <button
           onClick={handleJump}
-          className="h-7 px-3 text-xs font-semibold text-gray-900 rounded-md bg-white border border-gray-300 shadow-sm hover:bg-gray-50 transition"
+          className="h-7 px-3 text-xs font-semibold text-brand-600 rounded-md bg-brand-50 border border-brand-200 shadow-sm hover:bg-brand-100 transition"
         >
           GO
         </button>

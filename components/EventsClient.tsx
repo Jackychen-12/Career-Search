@@ -142,7 +142,7 @@ export default function EventsClient({ events, articles = [] }: { events: Campus
               <div className="flex items-center gap-1.5">
                 <span className="text-xs text-gray-400">来源</span>
                 {(["all", "微信", "清华", "北大"] as const).map((s) => (
-                  <button key={s} onClick={() => setSource(s)} className={`px-3 py-1 rounded-full text-[12px] font-medium transition ${source === s ? "bg-white text-gray-900 shadow-sm border border-gray-300" : "text-gray-600 hover:bg-gray-100"}`}>
+                  <button key={s} onClick={() => setSource(s)} className={`px-3 py-1 rounded-full text-[12px] font-medium transition ${source === s ? "bg-brand-50 text-brand-600 shadow-sm border border-brand-200" : "text-gray-600 hover:bg-gray-100"}`}>
                     {s === "all" ? "全部" : s}
                   </button>
                 ))}
@@ -150,7 +150,7 @@ export default function EventsClient({ events, articles = [] }: { events: Campus
               <div className="flex items-center gap-1.5">
                 <span className="text-xs text-gray-400">类型</span>
                 {(["all", "宣讲会", "网申", "笔试", "面试", "其他"] as const).map((t) => (
-                  <button key={t} onClick={() => setTypeFilter(t)} className={`px-3 py-1 rounded-full text-[12px] font-medium transition ${typeFilter === t ? "bg-white text-gray-900 shadow-sm border border-gray-300" : "text-gray-600 hover:bg-gray-100"}`}>
+                  <button key={t} onClick={() => setTypeFilter(t)} className={`px-3 py-1 rounded-full text-[12px] font-medium transition ${typeFilter === t ? "bg-brand-50 text-brand-600 shadow-sm border border-brand-200" : "text-gray-600 hover:bg-gray-100"}`}>
                     {t === "all" ? "全部" : t}
                   </button>
                 ))}
@@ -231,7 +231,7 @@ export default function EventsClient({ events, articles = [] }: { events: Campus
                     <button
                       key={p}
                       onClick={() => setArticlePage(p)}
-                      className={`min-w-[34px] h-8 px-2 rounded-md text-xs border transition ${p === clampedPage ? "border-gray-300 bg-white text-gray-900 shadow-sm font-semibold" : "border-gray-200 text-gray-600 hover:border-gray-400 hover:text-gray-800 bg-white"}`}
+                      className={`min-w-[34px] h-8 px-2 rounded-md text-xs border transition ${p === clampedPage ? "border-brand-200 bg-brand-50 text-brand-600 shadow-sm font-semibold" : "border-gray-200 text-gray-600 hover:border-gray-400 hover:text-gray-800 bg-white"}`}
                     >
                       {p}
                     </button>

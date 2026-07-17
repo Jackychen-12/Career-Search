@@ -163,7 +163,7 @@ export default function HomeClient({
             <button
               onClick={() => setView("list")}
               className={`px-3 h-8 inline-flex items-center rounded-full text-[13px] transition ${
-                view === "list" ? "bg-white text-gray-900 shadow-sm border border-gray-300 font-semibold" : "text-gray-500 hover:text-gray-700"
+                view === "list" ? "bg-brand-50 text-brand-600 shadow-sm border border-brand-200 font-semibold" : "text-gray-500 hover:text-gray-700"
               }`}
             >
               列表
@@ -171,7 +171,7 @@ export default function HomeClient({
             <button
               onClick={() => setView("calendar")}
               className={`px-3 h-8 inline-flex items-center rounded-full text-[13px] transition ${
-                view === "calendar" ? "bg-white text-gray-900 shadow-sm border border-gray-300 font-semibold" : "text-gray-500 hover:text-gray-700"
+                view === "calendar" ? "bg-brand-50 text-brand-600 shadow-sm border border-brand-200 font-semibold" : "text-gray-500 hover:text-gray-700"
               }`}
             >
               日历

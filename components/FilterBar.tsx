@@ -34,7 +34,7 @@ function Pill({
       onClick={onClick}
       className={`shrink-0 px-3 h-[30px] inline-flex items-center whitespace-nowrap rounded-full text-[13px] font-medium transition-all ${
         active
-          ? "bg-white text-gray-900 shadow-sm border border-gray-300"
+          ? "bg-brand-50 text-brand-600 shadow-sm border border-brand-200"
           : "text-gray-600 border border-gray-200 hover:border-gray-400 hover:text-gray-800 hover:bg-gray-50"
       }`}
     >
