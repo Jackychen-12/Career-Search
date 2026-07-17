@@ -109,7 +109,7 @@ function SmartAnalysis({ job, matchResult }: { job: Job; matchResult?: MatchResu
       {/* Match score bar — always show */}
       <div className="flex items-center justify-between text-[11px] mb-1.5">
         <span className="text-gray-500 font-medium">岗位分析</span>
-        <span className={`font-bold ${displayPct >= 70 ? "text-green-600" : displayPct >= 40 ? "text-amber-600" : "text-gray-500"}`}>
+        <span className={`font-bold ${displayPct >= 70 ? "text-green-600" : displayPct >= 40 ? "text-amber-600" : "text-gray-400"}`}>
           匹配 {displayPct}%
         </span>
       </div>
@@ -120,7 +120,7 @@ function SmartAnalysis({ job, matchResult }: { job: Job; matchResult?: MatchResu
               ? "bg-gradient-to-r from-green-400 to-green-500"
               : displayPct >= 40
                 ? "bg-gradient-to-r from-amber-400 to-amber-500"
-                : "bg-gradient-to-r from-gray-300 to-gray-400"
+                : "bg-gradient-to-r from-gray-200 to-gray-300"
           }`}
           style={{ width: `${Math.max(displayPct, 3)}%` }}
         />

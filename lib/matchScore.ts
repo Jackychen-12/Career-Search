@@ -84,7 +84,7 @@ export function computeProfileMatchDetailed(job: Job, prefs: Prefs): MatchResult
       if (hit && !matched.includes(us)) matched.push(us);
     }
 
-    const skillScore = Math.min(matched.length / Math.max(expandedUserSkills.length * 0.2, 1), 1);
+    const skillScore = Math.min(matched.length / Math.max(expandedUserSkills.length * 0.15, 1), 1);
     score += 0.30 * skillScore;
 
     if (matched.length > 0) {
@@ -214,7 +214,7 @@ export function computeProfileMatchDetailed(job: Job, prefs: Prefs): MatchResult
     const overlap = enrichedSkillsNorm.filter((s) =>
       expandedUserSkills.some((us) => s.includes(us) || us.includes(s)),
     ).length;
-    const companyRelevance = Math.min(overlap / 3, 1);
+    const companyRelevance = Math.min(overlap / 2, 1);
     score += 0.10 * companyRelevance;
     if (companyRelevance >= 0.3) {
       reasons.push(`公司相关: ${job.company}`);
@@ -264,7 +264,7 @@ export function computeSimpleMatch(job: Job, profile: SimpleProfile): number {
     const overlap = enrichedSkillsNorm.filter((s) =>
       expandedSkills.some((us) => s.includes(us) || us.includes(s)),
     ).length;
-    score += 0.10 * Math.min(overlap / 3, 1);
+    score += 0.10 * Math.min(overlap / 2, 1);
   }
 
   return Math.min(1, score);
