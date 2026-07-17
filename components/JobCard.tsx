@@ -27,6 +27,30 @@ const CATEGORY_BAR_COLORS: Record<string, string> = {
   其他: "from-gray-300 to-gray-400",
 };
 
+const HIGHLIGHT_KEYWORDS: Record<string, string> = {
+  "AI": "AI", "人工智能": "AI", "大模型": "大模型", "LLM": "LLM", "NLP": "NLP", "AIGC": "AIGC",
+  "产品经理": "产品", "产品设计": "产品", "产品运营": "运营", "商业分析": "商分",
+  "数据分析": "数据", "数据驱动": "数据", "算法": "算法", "研发": "研发",
+  "投行": "投行", "投资银行": "投行", "资管": "资管", "金融": "金融", "风控": "风控",
+  "研究": "研究", "策略": "策略", "运营": "运营", "市场": "市场", "销售": "销售",
+  "管培": "管培", "管理培训": "管培", "实习": "实习",
+  "Python": "Python", "Java": "Java", "SQL": "SQL", "TypeScript": "TS",
+  "React": "React", "机器学习": "ML", "深度学习": "DL",
+  "全栈": "全栈", "前端": "前端", "后端": "后端",
+  "供应链": "供应链", "咨询": "咨询", "审计": "审计",
+};
+
+function extractRoleTags(job: Job): string[] {
+  if (job.aiTags && job.aiTags.skills.length > 0) {
+    return job.aiTags.skills.slice(0, 4);
+  }
+  const text = [job.title, job.description ?? "", ...job.tags].join(" ");
+  const matched = new Set<string>();
+  for (const [keyword, label] of Object.entries(HIGHLIGHT_KEYWORDS)) {
+    if (text.includes(keyword)) matched.add(label);
+  }
+  return Array.from(matched).slice(0, 4);
+}
 
 function daysSince(iso: string | null, now: Date): string | null {
   if (!iso) return null;
@@ -42,20 +66,6 @@ function daysSince(iso: string | null, now: Date): string | null {
 
 /** Always-visible smart analysis panel — generates insights from whatever data is available. */
 function SmartAnalysis({ job, matchResult }: { job: Job; matchResult?: MatchResult }) {
-  // Build keyword highlights from title + description
-  const HIGHLIGHT_KEYWORDS: Record<string, string> = {
-    "AI": "AI", "人工智能": "AI", "大模型": "大模型", "LLM": "LLM", "NLP": "NLP", "AIGC": "AIGC",
-    "产品经理": "产品", "产品设计": "产品", "产品运营": "运营", "商业分析": "商分",
-    "数据分析": "数据", "数据驱动": "数据", "算法": "算法", "研发": "研发",
-    "投行": "投行", "投资银行": "投行", "资管": "资管", "金融": "金融", "风控": "风控",
-    "研究": "研究", "策略": "策略", "运营": "运营", "市场": "市场", "销售": "销售",
-    "管培": "管培", "管理培训": "管培", "实习": "实习",
-    "Python": "Python", "Java": "Java", "SQL": "SQL", "TypeScript": "TS",
-    "React": "React", "机器学习": "ML", "深度学习": "DL",
-    "全栈": "全栈", "前端": "前端", "后端": "后端",
-    "供应链": "供应链", "咨询": "咨询", "审计": "审计",
-  };
-
   const text = [job.title, job.description ?? ""].join(" ");
   const matched = new Set<string>();
   for (const [keyword, label] of Object.entries(HIGHLIGHT_KEYWORDS)) {
@@ -248,18 +258,17 @@ export default function JobCard({
           {job.title}
         </div>
 
-        {/* Row 4: Description — expanded to 3 lines */}
-        {job.description && (
-          <p className="text-[12px] text-gray-600 line-clamp-3 leading-relaxed">{job.description}</p>
-        )}
-
-        {/* Row 5: Requirements */}
-        {job.requirements && (
-          <div className="text-[11px] text-gray-500 flex items-center gap-1">
-            <span className="text-gray-400">要求:</span>
-            <span className="font-medium text-gray-600">{job.requirements}</span>
-          </div>
-        )}
+        {/* Row 4: Role tags + requirements */}
+        <div className="flex items-center gap-1.5 flex-wrap">
+          {extractRoleTags(job).map((tag) => (
+            <span key={tag} className="text-[10px] px-2 py-0.5 rounded-md bg-brand-50 text-brand-600 border border-brand-100 font-medium">
+              {tag}
+            </span>
+          ))}
+          {job.requirements && (
+            <span className="text-[10px] text-gray-400 ml-0.5">{job.requirements}</span>
+          )}
+        </div>
 
         {/* Row 6: Location tags */}
         <div className="flex flex-wrap gap-1.5">
@@ -275,19 +284,7 @@ export default function JobCard({
           ))}
         </div>
 
-        {/* Row 7: AI skills tags */}
-        {job.aiTags && job.aiTags.skills.length > 0 && (
-          <div className="flex flex-wrap gap-1">
-            <span className="text-[10px] text-gray-500 font-medium mr-0.5">技能</span>
-            {job.aiTags.skills.slice(0, 5).map((s) => (
-              <span key={s} className="text-[10px] px-1.5 py-0.5 rounded bg-gray-100 text-gray-700 border border-gray-200">
-                {s}
-              </span>
-            ))}
-          </div>
-        )}
-
-        {/* Row 8: Deadline & freshness — compact inline */}
+        {/* Row 6: Deadline & freshness */}
         <div className="flex items-center gap-3 text-[11px] text-gray-500">
           {job.deadline ? (
             <span className={urgent ? "text-red-600 font-medium" : ""}>
