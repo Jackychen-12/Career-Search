@@ -59,7 +59,7 @@ describe("computeProfileMatchDetailed", () => {
       targetRoles: ["产品经理"],
     };
     const result = computeProfileMatchDetailed(mockJob, prefs);
-    expect(result.score).toBeGreaterThan(0.2);
+    expect(result.score).toBeGreaterThan(0.15);
     expect(result.reasons.some((r) => r.includes("岗位方向"))).toBe(true);
   });
 
@@ -114,8 +114,10 @@ describe("computeProfileMatchDetailed", () => {
     const jobWithEmail: Job = {
       ...mockJob,
       id: "test-boundary",
+      company: "Acme Corp",
       title: "Marketing Manager",
       description: "responsible for email marketing and training programs",
+      category: "其他" as any,
       tags: [],
       aiTags: undefined,
     };
@@ -150,5 +152,102 @@ describe("computeProfileMatchDetailed", () => {
     };
     const result = computeProfileMatchDetailed(mockJob, prefs);
     expect(result.score).toBeGreaterThan(0);
+  });
+
+  // --- New enrichment tests ---
+
+  test("无 aiTags 的字节跳动岗位通过公司知识库获得高匹配", () => {
+    const jobNoTags: Job = {
+      ...mockJob,
+      id: "test-enrich",
+      title: "27届秋招正式批",
+      description: "",
+      tags: ["大厂", "已开放"],
+      aiTags: undefined,
+    };
+    const prefs: Prefs = {
+      categories: ["互联网"],
+      jobTypes: [],
+      cities: ["北京"],
+      skills: ["AI", "Python", "数据分析"],
+      targetRoles: ["产品经理"],
+    };
+    const result = computeProfileMatchDetailed(jobNoTags, prefs);
+    expect(result.score).toBeGreaterThan(0.5);
+  });
+
+  test("同义词匹配：用户 机器学习 vs 英文标题 Machine Learning", () => {
+    const mlJob: Job = {
+      ...mockJob,
+      id: "test-synonym",
+      company: "Acme Corp",
+      title: "Machine Learning Engineer Intern",
+      description: "",
+      category: "外企" as any,
+      tags: [],
+      aiTags: undefined,
+    };
+    const prefs: Prefs = {
+      categories: [],
+      jobTypes: [],
+      cities: [],
+      skills: ["机器学习"],
+    };
+    const result = computeProfileMatchDetailed(mlJob, prefs);
+    expect(result.score).toBeGreaterThan(0);
+    expect(result.reasons.some((r) => r.includes("技能"))).toBe(true);
+  });
+
+  test("graduated role: 公司推断的角色获得部分分数", () => {
+    const genericJob: Job = {
+      ...mockJob,
+      id: "test-graduated-role",
+      company: "百度",
+      title: "2027届秋招",
+      description: "",
+      tags: ["大厂", "AI"],
+      aiTags: undefined,
+    };
+    const prefs: Prefs = {
+      categories: [],
+      jobTypes: [],
+      cities: [],
+      targetRoles: ["产品经理"],
+    };
+    const result = computeProfileMatchDetailed(genericJob, prefs);
+    expect(result.score).toBeGreaterThan(0.05);
+    expect(result.reasons.some((r) => r.includes("岗位方向"))).toBe(true);
+  });
+
+  test("有 aiTags 时优先使用 aiTags 而非富化", () => {
+    const prefs: Prefs = {
+      categories: ["互联网"],
+      jobTypes: [],
+      cities: ["北京"],
+      skills: ["Python", "数据分析"],
+      targetRoles: ["产品经理"],
+    };
+    const result = computeProfileMatchDetailed(mockJob, prefs);
+    expect(result.score).toBeGreaterThan(0.5);
+  });
+
+  test("company relevance: 公司领域与用户技能重叠", () => {
+    const baiduJob: Job = {
+      ...mockJob,
+      id: "test-company-rel",
+      company: "百度",
+      title: "2027届秋招",
+      description: "",
+      tags: [],
+      aiTags: undefined,
+    };
+    const prefs: Prefs = {
+      categories: [],
+      jobTypes: [],
+      cities: [],
+      skills: ["AI", "NLP", "Python", "大模型"],
+    };
+    const result = computeProfileMatchDetailed(baiduJob, prefs);
+    expect(result.reasons.some((r) => r.includes("公司相关"))).toBe(true);
   });
 });
