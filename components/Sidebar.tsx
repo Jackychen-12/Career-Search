@@ -199,13 +199,13 @@ export default function Sidebar({
       {discover.length > 0 && (
         <div className="card p-4">
           <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
-            <span className="w-1 h-4 bg-teal-500 rounded-full" />
+            <span className="w-1 h-4 bg-brand-500 rounded-full" />
             发现更多
           </h3>
           <ol className="space-y-2">
             {discover.map((job, idx) => (
               <li key={job.id} className="flex gap-2 text-sm">
-                <span className={`shrink-0 w-5 text-center text-[11px] font-medium leading-5 rounded ${idx < 3 ? "bg-teal-500 text-white" : "bg-gray-100 text-gray-500"}`}>
+                <span className={`shrink-0 w-5 text-center text-[11px] font-medium leading-5 rounded ${idx < 3 ? "bg-brand-500 text-white" : "bg-gray-100 text-gray-500"}`}>
                   {idx + 1}
                 </span>
                 <div className="min-w-0 flex-1">

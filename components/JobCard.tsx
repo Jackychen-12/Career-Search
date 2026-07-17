@@ -117,7 +117,7 @@ function SmartAnalysis({ job, matchResult }: { job: Job; matchResult?: MatchResu
       {/* Match score bar — always show */}
       <div className="flex items-center justify-between text-[11px] mb-1.5">
         <span className="text-gray-500 font-medium">岗位分析</span>
-        <span className={`font-bold ${displayPct >= 70 ? "text-green-600" : displayPct >= 40 ? "text-amber-600" : "text-gray-400"}`}>
+        <span className={`font-bold ${displayPct >= 70 ? "text-brand-600" : displayPct >= 40 ? "text-brand-500" : "text-gray-400"}`}>
           匹配 {displayPct}%
         </span>
       </div>
@@ -125,9 +125,9 @@ function SmartAnalysis({ job, matchResult }: { job: Job; matchResult?: MatchResu
         <div
           className={`h-full rounded-full transition-all ${
             displayPct >= 70
-              ? "bg-gradient-to-r from-green-400 to-green-500"
+              ? "bg-gradient-to-r from-brand-400 to-brand-500"
               : displayPct >= 40
-                ? "bg-gradient-to-r from-amber-400 to-amber-500"
+                ? "bg-gradient-to-r from-brand-300 to-brand-400"
                 : "bg-gradient-to-r from-gray-200 to-gray-300"
           }`}
           style={{ width: `${Math.max(displayPct, 3)}%` }}
@@ -247,7 +247,7 @@ export default function JobCard({
         <div className="flex items-center gap-2">
           <a href={`/job/${job.id}`} className="text-[15px] font-bold text-gray-900 hover:text-gray-600 transition truncate">{job.company}</a>
           {job.salary && (
-            <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-green-50 text-green-700 whitespace-nowrap shrink-0">
+            <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-brand-50 text-brand-700 whitespace-nowrap shrink-0">
               💰 {job.salary}
             </span>
           )}
