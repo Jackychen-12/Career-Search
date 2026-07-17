@@ -125,9 +125,9 @@ function SmartAnalysis({ job, matchResult }: { job: Job; matchResult?: MatchResu
         <div
           className={`h-full rounded-full transition-all ${
             displayPct >= 70
-              ? "bg-gradient-to-r from-brand-400 to-brand-500"
+              ? "bg-gradient-to-r from-brand-500 to-brand-600"
               : displayPct >= 40
-                ? "bg-gradient-to-r from-brand-300 to-brand-400"
+                ? "bg-gradient-to-r from-brand-400 to-brand-500"
                 : "bg-gradient-to-r from-gray-200 to-gray-300"
           }`}
           style={{ width: `${Math.max(displayPct, 3)}%` }}
