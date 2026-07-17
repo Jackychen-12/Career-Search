@@ -147,7 +147,7 @@ export default function HomeClient({
 
       <main className="max-w-7xl mx-auto px-4 py-6 space-y-5">
         {/* Stats + Filters (top, full width) */}
-        <StatBar jobs={jobs} now={now} newCount={newJobIds.length} />
+        <StatBar jobs={jobs} now={now} newJobIds={newJobIds} prefs={prefs} tracking={tracking} />
         <FilterBar
           state={filter}
           onChange={patch}
