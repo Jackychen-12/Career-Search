@@ -270,16 +270,11 @@ export default function JobCard({
           )}
         </div>
 
-        {/* Row 6: Location tags */}
+        {/* Row 5: Location */}
         <div className="flex flex-wrap gap-1.5">
           {job.location.slice(0, 5).map((loc) => (
             <span key={loc} className="text-[10px] px-2 py-0.5 rounded-md bg-gray-100 text-gray-600">
               📍 {loc}
-            </span>
-          ))}
-          {job.tags.slice(0, 2).map((t) => (
-            <span key={t} className="text-[10px] px-2 py-0.5 rounded-full bg-gray-50 text-gray-500 border border-gray-200">
-              {t}
             </span>
           ))}
         </div>
