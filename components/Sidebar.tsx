@@ -48,10 +48,27 @@ export default function Sidebar({
     })
     .slice(0, 8);
 
-  const topMatch = jobs
-    .filter((j) => j.scores.aiMatch > 0.4)
-    .sort((a, b) => b.scores.aiMatch - a.scores.aiMatch)
-    .slice(0, 6);
+  const discover = useMemo(() => {
+    const sorted = jobs
+      .filter((j) => j.scores.aiMatch > 0.2)
+      .sort((a, b) => b.scores.aiMatch - a.scores.aiMatch);
+    const result: Job[] = [];
+    const seenCompanies = new Set<string>();
+    const seenCategories = new Set<string>();
+    for (const j of sorted) {
+      if (seenCompanies.has(j.company)) continue;
+      const categoryBonus = seenCategories.has(j.category) ? 0 : 1;
+      if (result.length < 6) {
+        if (categoryBonus || result.length < 3) {
+          result.push(j);
+          seenCompanies.add(j.company);
+          seenCategories.add(j.category);
+        }
+      }
+      if (result.length >= 6) break;
+    }
+    return result;
+  }, [jobs]);
 
   // --- Stats (moved from StatBar) ---
   const weeklyMatchCount = useMemo(() => {
@@ -178,17 +195,17 @@ export default function Sidebar({
         )}
       </div>
 
-      {/* AI 推荐 */}
-      {topMatch.length > 0 && (
+      {/* 发现更多 */}
+      {discover.length > 0 && (
         <div className="card p-4">
           <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
-            <span className="w-1 h-4 bg-indigo-500 rounded-full" />
-            AI 推荐
+            <span className="w-1 h-4 bg-teal-500 rounded-full" />
+            发现更多
           </h3>
           <ol className="space-y-2">
-            {topMatch.map((job, idx) => (
+            {discover.map((job, idx) => (
               <li key={job.id} className="flex gap-2 text-sm">
-                <span className={`shrink-0 w-5 text-center text-[11px] font-medium leading-5 rounded ${idx < 3 ? "bg-indigo-500 text-white" : "bg-gray-100 text-gray-500"}`}>
+                <span className={`shrink-0 w-5 text-center text-[11px] font-medium leading-5 rounded ${idx < 3 ? "bg-teal-500 text-white" : "bg-gray-100 text-gray-500"}`}>
                   {idx + 1}
                 </span>
                 <div className="min-w-0 flex-1">
@@ -196,7 +213,7 @@ export default function Sidebar({
                     {job.company} · {job.title}
                   </a>
                   <div className="text-[11px] text-gray-400 mt-0.5">
-                    匹配 {Math.round(job.scores.aiMatch * 100)}%
+                    {job.category} · 匹配 {Math.round(job.scores.aiMatch * 100)}%
                   </div>
                 </div>
               </li>

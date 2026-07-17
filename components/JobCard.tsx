@@ -27,8 +27,6 @@ const CATEGORY_BAR_COLORS: Record<string, string> = {
   其他: "from-gray-300 to-gray-400",
 };
 
-const TIER_LABEL: Record<number, string> = { 1: "头部", 2: "", 3: "" };
-const TIER_COLOR: Record<number, string> = { 1: "text-amber-700 bg-amber-100 ring-1 ring-amber-200", 2: "", 3: "" };
 
 function daysSince(iso: string | null, now: Date): string | null {
   if (!iso) return null;
@@ -184,8 +182,6 @@ export default function JobCard({
   const urgent = dl !== null && dl >= 0 && dl <= 15;
   const published = daysSince(job.firstSeen, new Date(now));
   const barColor = CATEGORY_BAR_COLORS[job.category] ?? CATEGORY_BAR_COLORS["其他"];
-  const tierLabel = TIER_LABEL[job.companyTier];
-  const tierColor = TIER_COLOR[job.companyTier];
 
   return (
     <article className="card p-0 overflow-hidden flex flex-col">
@@ -199,11 +195,6 @@ export default function JobCard({
             <span className={`text-[11px] px-2.5 py-0.5 rounded-lg font-medium ${CATEGORY_COLORS[job.category]}`}>
               {job.category}
             </span>
-            {tierLabel && (
-              <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${tierColor}`}>
-                ★ {tierLabel}
-              </span>
-            )}
             {job.jobType && (
               <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 font-medium">
                 {job.jobType}

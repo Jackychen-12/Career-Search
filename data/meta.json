@@ -1,16 +1,18 @@
 {
-  "fetchedAt": "2026-07-16T23:22:58.418Z",
-  "count": 1206,
+  "fetchedAt": "2026-07-16T08:21:15.570Z",
+  "count": 971,
   "sources": {
     "seed": 63,
-    "greenhouse": 28,
+    "greenhouse": 8,
     "lever": 0,
-    "ashby": 5,
-    "repo": 959,
-    "official:baidu": 200,
+    "ashby": 0,
+    "repo": 946,
+    "official:bytedance": 0,
+    "official:meituan": 0,
     "campus-api": 0,
-    "nowcoder": 0,
-    "shixiseng": 0
+    "nowcoder": 0
   },
-  "errors": {}
+  "errors": {
+    "official:meituan": "empty / unexpected payload"
+  }
 }
