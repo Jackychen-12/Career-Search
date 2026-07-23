@@ -23,8 +23,8 @@ const SKILL_ICON_GRADIENTS: Record<Skill, string> = {
 const SKILLS: { key: Skill; label: string; desc: string; icon: string }[] = [
   { key: "interview", label: "面试题定制", desc: "根据你的背景和目标岗位，AI 生成针对性面试题+参考答案", icon: "🎯" },
   { key: "resume-optimize", label: "简历优化", desc: "AI 逐句分析简历，优先级改写建议 + 导出定制简历", icon: "📝" },
-  { key: "cover-letter", label: "求职信生成", desc: "根据目标岗位 JD，生成定制化求职信", icon: "✉️" },
-  { key: "offer", label: "Offer 对比", desc: "多个 Offer 横向对比，综合分析给出推荐", icon: "⚖️" },
+  { key: "cover-letter", label: "求职信生成", desc: "根据目标岗位 JD，生成定制化求职信，突出核心竞争力", icon: "✉️" },
+  { key: "offer", label: "Offer 对比", desc: "多个 Offer 横向对比，从薪资、发展、文化等维度综合分析", icon: "⚖️" },
   { key: "jd-match", label: "JD 匹配分析", desc: "深度分析简历与 JD 匹配度，关键词高亮+差距分析", icon: "🔍" },
   { key: "jd-compare", label: "多 JD 对比", desc: "批量对比多个岗位匹配度，智能排序投递优先级", icon: "📊" },
 ];
@@ -597,15 +597,15 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
                       runInterviewDirect();
                     }
                   }}
-                  className={`card p-0 overflow-hidden text-left transition ${active === s.key ? "border-brand-500 shadow-[var(--shadow-md)]" : "hover:border-[var(--border-s)]"}`}
+                  className={`card p-0 overflow-hidden text-left transition flex flex-col ${active === s.key ? "border-brand-500 shadow-[var(--shadow-md)]" : "hover:border-[var(--border-s)]"}`}
                 >
                   <div className="h-[80px] flex items-center justify-center text-4xl" style={{ background: SKILL_ICON_GRADIENTS[s.key] }}>
                     {s.icon}
                   </div>
-                  <div className="p-4">
+                  <div className="p-4 flex-1 flex flex-col">
                     <div className="text-sm font-extrabold text-[var(--text)]">{s.label}</div>
                     <div className="text-[11px] text-[var(--text-s)] mt-1">{s.desc}</div>
-                    <div className="text-[11px] text-brand-500 font-semibold mt-2">使用工具 →</div>
+                    <div className="text-[11px] text-brand-500 font-semibold mt-auto pt-2">使用工具 →</div>
                   </div>
                 </button>
               ))}
