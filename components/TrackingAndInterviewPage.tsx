@@ -420,13 +420,6 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
               </button>
             ))}
           </div>
-          <div className="flex-1" />
-          <button onClick={openEmailSetup}
-            className="px-3.5 py-1 rounded-[6px] text-[13px] font-semibold text-[var(--text-s)] hover:text-brand-500 hover:bg-[var(--primary-light)] transition flex items-center gap-1.5 shrink-0">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
-            邮件同步
-            {emailRecords.length > 0 && <span className="bg-[var(--rose)] text-white text-[10px] font-bold min-w-[16px] h-4 rounded-full inline-flex items-center justify-center px-1">{emailRecords.length}</span>}
-          </button>
         </div>
       </header>
 
@@ -487,6 +480,13 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
               {(activeItems.length > 0 || Object.keys(tracking).length > 0) && (
                 <button onClick={exportExcel} className="text-[12px] text-[var(--text-s)] hover:text-brand-500 transition">导出</button>
               )}
+              {/* Email sync */}
+              <button onClick={openEmailSetup}
+                className="px-3 py-[5px] rounded-[var(--radius-xs)] text-[12px] font-semibold text-[var(--text-s)] hover:text-brand-500 hover:bg-[var(--primary-light)] transition flex items-center gap-1.5 shrink-0 border border-[var(--border)]">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                邮件同步
+                {emailRecords.length > 0 && <span className="bg-[var(--rose)] text-white text-[10px] font-bold min-w-[16px] h-4 rounded-full inline-flex items-center justify-center px-1">{emailRecords.length}</span>}
+              </button>
               {/* New record */}
               <button onClick={() => { setEditRecord(undefined); setShowForm(true); }}
                 className="px-4 py-1.5 rounded-[var(--radius-xs)] bg-brand-500 text-white text-xs font-semibold hover:bg-[#4a3de0] transition shrink-0">
