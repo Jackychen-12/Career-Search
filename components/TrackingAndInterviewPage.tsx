@@ -412,6 +412,12 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
             ))}
           </div>
           <div className="flex-1" />
+          <button onClick={openEmailSetup}
+            className="px-3.5 py-1 rounded-[6px] text-[13px] font-semibold text-[var(--text-s)] hover:text-brand-500 hover:bg-[var(--primary-light)] transition flex items-center gap-1.5 shrink-0">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+            邮件同步
+            {emailRecords.length > 0 && <span className="bg-[var(--rose)] text-white text-[10px] font-bold min-w-[16px] h-4 rounded-full inline-flex items-center justify-center px-1">{emailRecords.length}</span>}
+          </button>
         </div>
       </header>
 
@@ -468,13 +474,6 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
                   placeholder="搜索公司、岗位..."
                   className="pl-[30px] pr-3 py-1.5 rounded-[var(--radius-xs)] border border-[var(--border)] bg-transparent text-xs text-[var(--text)] outline-none w-[180px] focus:border-brand-500 focus:shadow-[0_0_0_3px_rgba(91,76,255,0.08)] focus:w-[240px] transition-all placeholder:text-[var(--text-t)]" />
               </div>
-              {/* Email sync */}
-              <button onClick={openEmailSetup}
-                className="px-3 py-[5px] rounded-[var(--radius-xs)] text-xs font-semibold border border-[var(--border)] text-[var(--text-s)] hover:border-brand-500 hover:text-brand-500 hover:bg-[var(--primary-light)] transition flex items-center gap-1">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
-                <span>邮件同步</span>
-                {emailRecords.length > 0 && <span className="bg-[var(--rose)] text-white text-[10px] font-bold min-w-[16px] h-4 rounded-full inline-flex items-center justify-center px-1 ml-0.5">{emailRecords.length}</span>}
-              </button>
               {/* Export */}
               {(activeItems.length > 0 || Object.keys(tracking).length > 0) && (
                 <button onClick={exportExcel} className="text-[12px] text-[var(--text-s)] hover:text-brand-500 transition">导出</button>
@@ -650,7 +649,7 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
                 {subView === "table" && (
                   <div className="animate-fadeIn">
                     <div className="bg-[var(--surface)] backdrop-blur-[8px] [backdrop-filter:blur(8px)_saturate(180%)] [-webkit-backdrop-filter:blur(8px)_saturate(180%)] rounded-[var(--radius)] border border-[rgba(255,255,255,0.6)] shadow-[var(--shadow)]">
-                      <div className="overflow-x-auto">
+                      <div className="overflow-x-auto overflow-y-visible">
                         <table className="w-full border-collapse min-w-[920px]">
                           <thead>
                             <tr>
@@ -760,6 +759,7 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
                                     ) : item.job ? (
                                       <a href={`/job/${item.job.id}`} className="px-2.5 py-[3px] rounded-[5px] text-[11px] font-semibold border border-[var(--border)] text-[var(--text-s)] hover:border-brand-500 hover:text-brand-500 hover:bg-[var(--primary-light)] transition inline-block">详情</a>
                                     ) : null}
+                                    <button onClick={() => setEditId(editId === item.id ? null : item.id)} className="px-2.5 py-[3px] rounded-[5px] text-[11px] font-semibold border border-[var(--border)] text-[var(--text-s)] hover:border-brand-500 hover:text-brand-500 hover:bg-[var(--primary-light)] transition">编辑</button>
                                   </td>
                                 </tr>
                               );
@@ -847,9 +847,11 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
                         );
                       })}
                     </div>
+                  </div>
+                )}
 
-                    {/* Kanban detail panel */}
-                    {editId && (() => {
+                {/* ── Shared detail panel (table + kanban) ── */}
+                {editId && (() => {
                       const item = activeItems.find((i) => i.id === editId);
                       if (!item) return null;
                       return (
@@ -917,8 +919,6 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
                         </div>
                       );
                     })()}
-                  </div>
-                )}
               </>
             )}
           </>

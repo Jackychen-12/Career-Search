@@ -313,8 +313,10 @@ function EventCard({ event, isUpcoming }: { event: CampusEvent; isUpcoming?: boo
 }
 
 function ArticleCard({ article }: { article: WechatArticle }) {
-  const firstChar = article.account.charAt(0);
   const bgColor = avatarColor(article.account);
+  const barHex = AVATAR_COLORS.indexOf(bgColor) >= 0
+    ? bgColor.replace("bg-", "").replace("-500", "")
+    : "indigo";
   const days = daysFromNow(article.date);
   const dateLabel = days === 0 ? "今天" : days === -1 ? "昨天" : days > -7 ? `${Math.abs(days)}天前` : article.date.slice(5).replace("-", "/");
 
@@ -323,12 +325,10 @@ function ArticleCard({ article }: { article: WechatArticle }) {
       href={article.url}
       target="_blank"
       rel="noreferrer"
-      className="card px-4 py-3 flex items-start gap-4 hover:border-[var(--glass-border)] hover:shadow-[var(--shadow-sm)] transition block"
+      className="card p-0 overflow-hidden flex hover:border-[var(--glass-border)] hover:shadow-[var(--shadow-sm)] transition block"
     >
-      <div className={`shrink-0 w-10 h-10 rounded-[var(--radius-sm)] ${bgColor} flex items-center justify-center text-white text-lg font-bold`}>
-        {firstChar}
-      </div>
-      <div className="flex-1 min-w-0">
+      <div className={`w-1 shrink-0 ${bgColor}`} />
+      <div className="flex-1 min-w-0 px-4 py-3">
         <div className="text-[14px] font-medium text-[var(--text)] line-clamp-2">{article.title}</div>
         {article.summary && <p className="text-xs text-[var(--text-s)] mt-1 line-clamp-2">{article.summary}</p>}
         <div className="flex items-center gap-3 text-[11px] text-[var(--text-t)] mt-1.5">
@@ -336,7 +336,7 @@ function ArticleCard({ article }: { article: WechatArticle }) {
           <span>{dateLabel}</span>
         </div>
       </div>
-      <span className="shrink-0 text-[var(--text-t)] text-sm mt-1">→</span>
+      <span className="shrink-0 text-[var(--text-t)] text-sm self-center pr-4">→</span>
     </a>
   );
 }
