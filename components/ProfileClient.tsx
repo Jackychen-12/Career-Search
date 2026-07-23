@@ -15,7 +15,7 @@ function toggle<T>(arr: T[], v: T): T[] {
 
 function Chip({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
   return (
-    <button onClick={onClick} className={`px-3 h-[30px] inline-flex items-center rounded-full text-[13px] font-medium transition ${active ? "bg-brand-500 text-white shadow-sm shadow-brand-500/20" : "text-gray-600 hover:text-brand-600 hover:bg-[var(--surface)]/80"}`}>
+    <button onClick={onClick} className={`px-3 h-[30px] inline-flex items-center rounded-full text-[13px] font-medium transition ${active ? "bg-brand-500 text-white shadow-[var(--shadow-sm)] shadow-brand-500/20" : "text-[var(--text-s)] hover:text-brand-500 hover:bg-[var(--surface)]/80"}`}>
       {children}
     </button>
   );
@@ -118,12 +118,12 @@ export default function ProfileClient({ jobs }: { jobs: Job[] }) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="w-16 h-16 rounded-[var(--radius)] bg-gradient-to-br from-brand-400 to-brand-600 grid place-items-center mx-auto mb-4 shadow-lg">
+          <div className="w-16 h-16 rounded-[var(--radius)] bg-gradient-to-br from-brand-400 to-brand-500 grid place-items-center mx-auto mb-4 shadow-lg">
             <span className="text-2xl font-bold text-white">C</span>
           </div>
-          <h1 className="text-xl font-black tracking-tight text-gray-900 mb-2">Career Search</h1>
-          <p className="text-sm text-gray-500 mb-6">登录后建立你的求职画像，获取 AI 匹配推荐</p>
-          <button onClick={() => signInWithGitHub()} className="px-6 py-2.5 rounded-[var(--radius-xs)] text-sm font-semibold text-white bg-brand-500 hover:bg-brand-600 shadow-sm transition">
+          <h1 className="text-xl font-black tracking-tight text-[var(--text)] mb-2">Career Search</h1>
+          <p className="text-sm text-[var(--text-s)] mb-6">登录后建立你的求职画像，获取 AI 匹配推荐</p>
+          <button onClick={() => signInWithGitHub()} className="px-6 py-2.5 rounded-[var(--radius-xs)] text-sm font-semibold text-white bg-brand-500 hover:bg-brand-500 shadow-[var(--shadow-sm)] transition">
             GitHub 登录
           </button>
         </div>
@@ -135,16 +135,16 @@ export default function ProfileClient({ jobs }: { jobs: Job[] }) {
     <div className="min-h-screen">
       <header className="sticky top-0 z-40 backdrop-blur-xl bg-[var(--surface-solid)]/60 border-b border-black/5">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
-          <a href={basePath + "/"} className="text-[15px] font-bold text-gray-900 hover:text-brand-600 transition">← 返回首页</a>
+          <a href={basePath + "/"} className="text-[15px] font-bold text-[var(--text)] hover:text-brand-500 transition">← 返回首页</a>
           <div className="flex items-center gap-3">
             <button
               onClick={() => { sessionStorage.setItem("skip-profile", "1"); window.location.href = "/"; }}
-              className="text-[13px] text-gray-500 hover:text-brand-600 transition"
+              className="text-[13px] text-[var(--text-s)] hover:text-brand-500 transition"
             >
               跳过
             </button>
             {user && (
-              <div className="w-7 h-7 rounded-full overflow-hidden ring-2 ring-white shadow-sm">
+              <div className="w-7 h-7 rounded-full overflow-hidden ring-2 ring-white shadow-[var(--shadow-sm)]">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={user.avatar_url} alt="" className="w-full h-full" />
               </div>
@@ -158,11 +158,11 @@ export default function ProfileClient({ jobs }: { jobs: Job[] }) {
         <div className="flex items-center gap-3 mb-8">
           {[{ n: 1, label: "上传简历" }, { n: 2, label: "完善画像" }, { n: 3, label: "查看匹配" }].map((s) => (
             <div key={s.n} className="flex items-center gap-2 flex-1">
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition ${step >= s.n ? "bg-brand-500 text-white" : "bg-gray-100 text-gray-400"}`}>
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition ${step >= s.n ? "bg-brand-500 text-white" : "bg-[rgba(0,0,0,0.04)] text-[var(--text-t)]"}`}>
                 {step > s.n ? "✓" : s.n}
               </div>
-              <span className={`text-sm ${step >= s.n ? "text-gray-900 font-medium" : "text-gray-400"}`}>{s.label}</span>
-              {s.n < 3 && <div className={`flex-1 h-px ${step > s.n ? "bg-brand-500" : "bg-gray-200"}`} />}
+              <span className={`text-sm ${step >= s.n ? "text-[var(--text)] font-medium" : "text-[var(--text-t)]"}`}>{s.label}</span>
+              {s.n < 3 && <div className={`flex-1 h-px ${step > s.n ? "bg-brand-500" : "bg-[rgba(0,0,0,0.06)]"}`} />}
             </div>
           ))}
         </div>
@@ -173,8 +173,8 @@ export default function ProfileClient({ jobs }: { jobs: Job[] }) {
         {step === 1 && (
           <div className="space-y-6">
             <div>
-              <h2 className="text-lg font-black tracking-tight text-gray-900 mb-1">上传简历或手动填写</h2>
-              <p className="text-sm text-gray-500">AI 自动解析你的学校、技能、经历，生成求职画像</p>
+              <h2 className="text-lg font-black tracking-tight text-[var(--text)] mb-1">上传简历或手动填写</h2>
+              <p className="text-sm text-[var(--text-s)]">AI 自动解析你的学校、技能、经历，生成求职画像</p>
             </div>
 
             <div
@@ -183,17 +183,17 @@ export default function ProfileClient({ jobs }: { jobs: Job[] }) {
             >
               <input ref={fileRef} type="file" accept=".pdf" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFileUpload(f); }} />
               {loading ? (
-                <div className="text-brand-600 font-medium">AI 解析中...</div>
+                <div className="text-brand-500 font-medium">AI 解析中...</div>
               ) : (
                 <>
-                  <div className="text-4xl text-gray-300 mb-3">📄</div>
-                  <div className="text-sm font-medium text-gray-700">点击上传简历 PDF</div>
-                  <div className="text-xs text-gray-400 mt-1">DeepSeek AI 自动提取学校、技能、岗位方向</div>
+                  <div className="text-4xl text-[var(--text-t)] mb-3">📄</div>
+                  <div className="text-sm font-medium text-[var(--text)]">点击上传简历 PDF</div>
+                  <div className="text-xs text-[var(--text-t)] mt-1">DeepSeek AI 自动提取学校、技能、岗位方向</div>
                 </>
               )}
             </div>
 
-            <div className="text-center text-xs text-gray-400">— 或者 —</div>
+            <div className="text-center text-xs text-[var(--text-t)]">— 或者 —</div>
 
             <div className="space-y-3">
               <textarea
@@ -204,10 +204,10 @@ export default function ProfileClient({ jobs }: { jobs: Job[] }) {
                 className="w-full px-4 py-3 rounded-[var(--radius-xs)] border border-[var(--border-s)] text-sm resize-none focus:outline-none focus:border-brand-500"
               />
               <div className="flex gap-2">
-                <button onClick={handleTextParse} disabled={loading || !resumeText.trim()} className="flex-1 py-2.5 rounded-[var(--radius-xs)] text-sm font-medium bg-brand-500 text-white hover:bg-brand-600 disabled:opacity-50 transition">
+                <button onClick={handleTextParse} disabled={loading || !resumeText.trim()} className="flex-1 py-2.5 rounded-[var(--radius-xs)] text-sm font-medium bg-brand-500 text-white hover:bg-brand-500 disabled:opacity-50 transition">
                   {loading ? "解析中..." : "AI 解析"}
                 </button>
-                <button onClick={() => setStep(2)} className="py-2.5 px-4 rounded-[var(--radius-xs)] text-sm border border-[var(--border-s)] text-gray-600 hover:border-gray-400">
+                <button onClick={() => setStep(2)} className="py-2.5 px-4 rounded-[var(--radius-xs)] text-sm border border-[var(--border-s)] text-[var(--text-s)] hover:border-[var(--border-s)]">
                   跳过，手动填写
                 </button>
               </div>
@@ -219,31 +219,31 @@ export default function ProfileClient({ jobs }: { jobs: Job[] }) {
         {step === 2 && (
           <div className="space-y-6">
             <div>
-              <h2 className="text-lg font-black tracking-tight text-gray-900 mb-1">完善求职画像</h2>
-              <p className="text-sm text-gray-500">{aiResult ? "AI 已自动填充，你可以修改调整" : "填写你的基本信息和求职意向"}</p>
+              <h2 className="text-lg font-black tracking-tight text-[var(--text)] mb-1">完善求职画像</h2>
+              <p className="text-sm text-[var(--text-s)]">{aiResult ? "AI 已自动填充，你可以修改调整" : "填写你的基本信息和求职意向"}</p>
             </div>
 
             {aiResult && (
               <div className="card p-4 bg-brand-50/50 border-brand-100">
                 <div className="text-xs font-medium text-brand-700 mb-1">AI 解析结果</div>
-                <div className="text-sm text-brand-600">{aiResult.summary}</div>
-                {aiResult.strengths.length > 0 && <div className="text-xs text-gray-600 mt-1">优势：{aiResult.strengths.join("、")}</div>}
-                {aiResult.weaknesses.length > 0 && <div className="text-xs text-gray-500 mt-0.5">待提升：{aiResult.weaknesses.join("、")}</div>}
+                <div className="text-sm text-brand-500">{aiResult.summary}</div>
+                {aiResult.strengths.length > 0 && <div className="text-xs text-[var(--text-s)] mt-1">优势：{aiResult.strengths.join("、")}</div>}
+                {aiResult.weaknesses.length > 0 && <div className="text-xs text-[var(--text-s)] mt-0.5">待提升：{aiResult.weaknesses.join("、")}</div>}
               </div>
             )}
 
             <div className="card p-5 space-y-5">
               <div className="grid grid-cols-3 gap-3">
                 <div>
-                  <label className="text-xs text-gray-500 mb-1 block">学校</label>
+                  <label className="text-xs text-[var(--text-s)] mb-1 block">学校</label>
                   <input value={draft.school ?? ""} onChange={(e) => setDraft({ ...draft, school: e.target.value })} className="w-full px-3 py-2 rounded-[var(--radius-xs)] border border-[var(--border-s)] text-sm focus:outline-none focus:border-brand-500" />
                 </div>
                 <div>
-                  <label className="text-xs text-gray-500 mb-1 block">专业</label>
+                  <label className="text-xs text-[var(--text-s)] mb-1 block">专业</label>
                   <input value={draft.major ?? ""} onChange={(e) => setDraft({ ...draft, major: e.target.value })} className="w-full px-3 py-2 rounded-[var(--radius-xs)] border border-[var(--border-s)] text-sm focus:outline-none focus:border-brand-500" />
                 </div>
                 <div>
-                  <label className="text-xs text-gray-500 mb-1 block">学历</label>
+                  <label className="text-xs text-[var(--text-s)] mb-1 block">学历</label>
                   <select value={draft.degree ?? ""} onChange={(e) => setDraft({ ...draft, degree: e.target.value as Prefs["degree"] })} className="w-full px-3 py-2 rounded-[var(--radius-xs)] border border-[var(--border-s)] text-sm focus:outline-none focus:border-brand-500">
                     <option value="">不限</option>
                     <option value="本科">本科</option>
@@ -254,31 +254,31 @@ export default function ProfileClient({ jobs }: { jobs: Job[] }) {
               </div>
 
               <div>
-                <label className="text-xs text-gray-500 mb-1 block">核心技能</label>
+                <label className="text-xs text-[var(--text-s)] mb-1 block">核心技能</label>
                 <input value={(draft.skills ?? []).join(", ")} onChange={(e) => setDraft({ ...draft, skills: e.target.value.split(/[,，]/).map((s) => s.trim()).filter(Boolean) })} placeholder="如：Python, 数据分析, AI, 产品经理" className="w-full px-3 py-2 rounded-[var(--radius-xs)] border border-[var(--border-s)] text-sm focus:outline-none focus:border-brand-500" />
               </div>
 
               <div>
-                <label className="text-xs text-gray-500 mb-1 block">目标岗位</label>
+                <label className="text-xs text-[var(--text-s)] mb-1 block">目标岗位</label>
                 <input value={(draft.targetRoles ?? []).join(", ")} onChange={(e) => setDraft({ ...draft, targetRoles: e.target.value.split(/[,，]/).map((s) => s.trim()).filter(Boolean) })} placeholder="如：AI产品经理, 管培生" className="w-full px-3 py-2 rounded-[var(--radius-xs)] border border-[var(--border-s)] text-sm focus:outline-none focus:border-brand-500" />
               </div>
 
               <div>
-                <label className="text-xs text-gray-500 mb-2 block">意向行业</label>
+                <label className="text-xs text-[var(--text-s)] mb-2 block">意向行业</label>
                 <div className="flex flex-wrap gap-2">
                   {CATEGORIES.map((c) => <Chip key={c} active={draft.categories.includes(c)} onClick={() => setDraft({ ...draft, categories: toggle<Category>(draft.categories, c) })}>{c}</Chip>)}
                 </div>
               </div>
 
               <div>
-                <label className="text-xs text-gray-500 mb-2 block">岗位类型</label>
+                <label className="text-xs text-[var(--text-s)] mb-2 block">岗位类型</label>
                 <div className="flex flex-wrap gap-2">
                   {JOB_TYPES.map((t) => <Chip key={t} active={draft.jobTypes.includes(t)} onClick={() => setDraft({ ...draft, jobTypes: toggle<JobType>(draft.jobTypes, t) })}>{t}</Chip>)}
                 </div>
               </div>
 
               <div>
-                <label className="text-xs text-gray-500 mb-2 block">意向城市</label>
+                <label className="text-xs text-[var(--text-s)] mb-2 block">意向城市</label>
                 <div className="flex flex-wrap gap-2">
                   {CITIES.map((c) => <Chip key={c} active={draft.cities.includes(c)} onClick={() => setDraft({ ...draft, cities: toggle<string>(draft.cities, c) })}>{c}</Chip>)}
                 </div>
@@ -289,30 +289,30 @@ export default function ProfileClient({ jobs }: { jobs: Job[] }) {
             {(draft.experiences ?? []).length > 0 && (
               <div className="card p-5 space-y-3">
                 <div className="flex items-center justify-between">
-                  <label className="text-xs font-medium text-gray-700">实习/工作经历（{draft.experiences!.length} 段）</label>
+                  <label className="text-xs font-medium text-[var(--text)]">实习/工作经历（{draft.experiences!.length} 段）</label>
                 </div>
                 {draft.experiences!.map((exp, idx) => (
                   <div key={idx} className="p-3 rounded-[var(--radius-xs)] border border-[var(--border)] relative group">
                     <button
                       onClick={() => setDraft({ ...draft, experiences: draft.experiences!.filter((_, i) => i !== idx) })}
-                      className="absolute top-2 right-2 text-gray-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition text-sm"
+                      className="absolute top-2 right-2 text-[var(--text-t)] hover:text-red-500 opacity-0 group-hover:opacity-100 transition text-sm"
                     >✕</button>
                     <div className="flex items-center gap-2 mb-1">
-                      <span className="text-sm font-semibold text-gray-900">{exp.company}</span>
-                      <span className="text-xs text-brand-600">{exp.role}</span>
-                      {exp.department && <span className="text-[11px] text-gray-400">· {exp.department}</span>}
+                      <span className="text-sm font-semibold text-[var(--text)]">{exp.company}</span>
+                      <span className="text-xs text-brand-500">{exp.role}</span>
+                      {exp.department && <span className="text-[11px] text-[var(--text-t)]">· {exp.department}</span>}
                     </div>
-                    <div className="flex items-center gap-2 text-[11px] text-gray-400 mb-2">
+                    <div className="flex items-center gap-2 text-[11px] text-[var(--text-t)] mb-2">
                       {exp.duration && <span>{exp.duration}</span>}
-                      {exp.industry && <span className="px-1.5 py-0.5 rounded bg-gray-100 text-gray-500">{exp.industry}</span>}
+                      {exp.industry && <span className="px-1.5 py-0.5 rounded bg-[rgba(0,0,0,0.04)] text-[var(--text-s)]">{exp.industry}</span>}
                     </div>
                     {exp.skills.length > 0 && (
                       <div className="flex flex-wrap gap-1 mb-1.5">
-                        {exp.skills.map((s) => <span key={s} className="text-[10px] px-1.5 py-0.5 rounded-full bg-brand-50 text-brand-600">{s}</span>)}
+                        {exp.skills.map((s) => <span key={s} className="text-[10px] px-1.5 py-0.5 rounded-full bg-brand-50 text-brand-500">{s}</span>)}
                       </div>
                     )}
                     {exp.highlights.length > 0 && (
-                      <div className="text-[11px] text-gray-600">
+                      <div className="text-[11px] text-[var(--text-s)]">
                         {exp.highlights.map((h, hi) => <span key={hi} className="mr-2">• {h}</span>)}
                       </div>
                     )}
@@ -324,10 +324,10 @@ export default function ProfileClient({ jobs }: { jobs: Job[] }) {
             {/* Email notification */}
             <div className="card p-4 bg-brand-50/30 border-brand-100 space-y-2">
               <div className="flex items-center justify-between">
-                <label className="text-xs font-medium text-gray-700">每日岗位推送</label>
+                <label className="text-xs font-medium text-[var(--text)]">每日岗位推送</label>
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input type="checkbox" checked={draft.notifyEnabled ?? false} onChange={(e) => setDraft({ ...draft, notifyEnabled: e.target.checked })} className="accent-brand-500" />
-                  <span className="text-xs text-gray-600">{draft.notifyEnabled ? "已开启" : "关闭"}</span>
+                  <span className="text-xs text-[var(--text-s)]">{draft.notifyEnabled ? "已开启" : "关闭"}</span>
                 </label>
               </div>
               {draft.notifyEnabled && (
@@ -342,8 +342,8 @@ export default function ProfileClient({ jobs }: { jobs: Job[] }) {
             </div>
 
             <div className="flex gap-3">
-              <button onClick={() => setStep(1)} className="py-2.5 px-4 rounded-[var(--radius-xs)] text-sm border border-[var(--border-s)] text-gray-600">返回上一步</button>
-              <button onClick={handleSave} className="flex-1 py-2.5 rounded-[var(--radius-xs)] text-sm font-semibold text-white bg-brand-500 hover:bg-brand-600 shadow-sm transition">
+              <button onClick={() => setStep(1)} className="py-2.5 px-4 rounded-[var(--radius-xs)] text-sm border border-[var(--border-s)] text-[var(--text-s)]">返回上一步</button>
+              <button onClick={handleSave} className="flex-1 py-2.5 rounded-[var(--radius-xs)] text-sm font-semibold text-white bg-brand-500 hover:bg-brand-500 shadow-[var(--shadow-sm)] transition">
                 保存画像，查看匹配
               </button>
             </div>
@@ -355,16 +355,16 @@ export default function ProfileClient({ jobs }: { jobs: Job[] }) {
           <div className="space-y-6">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-lg font-black tracking-tight text-gray-900 mb-1">画像已建立</h2>
-                <p className="text-sm text-gray-500">{draft.school} · {draft.major} · {(draft.skills ?? []).slice(0, 3).join(", ")}</p>
+                <h2 className="text-lg font-black tracking-tight text-[var(--text)] mb-1">画像已建立</h2>
+                <p className="text-sm text-[var(--text-s)]">{draft.school} · {draft.major} · {(draft.skills ?? []).slice(0, 3).join(", ")}</p>
               </div>
-              <button onClick={() => setStep(2)} className="text-sm text-brand-600 hover:text-brand-700">修改画像</button>
+              <button onClick={() => setStep(2)} className="text-sm text-brand-500 hover:text-brand-700">修改画像</button>
             </div>
 
             {draft.summary && (
               <div className="card p-4 bg-brand-50/50 border-brand-100">
                 <div className="text-xs font-medium text-brand-700 mb-1">AI 画像摘要</div>
-                <div className="text-sm text-brand-600">{draft.summary}</div>
+                <div className="text-sm text-brand-500">{draft.summary}</div>
               </div>
             )}
 
@@ -391,26 +391,26 @@ export default function ProfileClient({ jobs }: { jobs: Job[] }) {
 
             {(draft.experiences ?? []).length > 0 && (
               <div className="card p-4">
-                <div className="text-xs font-medium text-gray-700 mb-3">实习/工作经历（{draft.experiences!.length} 段）</div>
+                <div className="text-xs font-medium text-[var(--text)] mb-3">实习/工作经历（{draft.experiences!.length} 段）</div>
                 <div className="space-y-2.5">
                   {draft.experiences!.map((exp, i) => (
-                    <div key={i} className="p-3 rounded-[var(--radius-xs)] bg-gray-50/80 border border-[var(--border)]">
+                    <div key={i} className="p-3 rounded-[var(--radius-xs)] bg-[var(--surface)]/80 border border-[var(--border)]">
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="text-sm font-semibold text-gray-900">{exp.company}</span>
-                        <span className="text-xs text-brand-600">{exp.role}</span>
-                        {exp.department && <span className="text-[11px] text-gray-400">· {exp.department}</span>}
+                        <span className="text-sm font-semibold text-[var(--text)]">{exp.company}</span>
+                        <span className="text-xs text-brand-500">{exp.role}</span>
+                        {exp.department && <span className="text-[11px] text-[var(--text-t)]">· {exp.department}</span>}
                       </div>
-                      <div className="flex items-center gap-2 text-[11px] text-gray-400 mb-1.5">
+                      <div className="flex items-center gap-2 text-[11px] text-[var(--text-t)] mb-1.5">
                         {exp.duration && <span>{exp.duration}</span>}
-                        {exp.industry && <span className="px-1.5 py-0.5 rounded bg-gray-100 text-gray-500">{exp.industry}</span>}
+                        {exp.industry && <span className="px-1.5 py-0.5 rounded bg-[rgba(0,0,0,0.04)] text-[var(--text-s)]">{exp.industry}</span>}
                       </div>
                       {exp.skills.length > 0 && (
                         <div className="flex flex-wrap gap-1 mb-1">
-                          {exp.skills.map((s) => <span key={s} className="text-[10px] px-1.5 py-0.5 rounded-full bg-brand-50 text-brand-600">{s}</span>)}
+                          {exp.skills.map((s) => <span key={s} className="text-[10px] px-1.5 py-0.5 rounded-full bg-brand-50 text-brand-500">{s}</span>)}
                         </div>
                       )}
                       {exp.highlights.length > 0 && (
-                        <div className="text-[11px] text-gray-600">
+                        <div className="text-[11px] text-[var(--text-s)]">
                           {exp.highlights.map((h, hi) => <span key={hi} className="mr-2">• {h}</span>)}
                         </div>
                       )}
@@ -423,16 +423,16 @@ export default function ProfileClient({ jobs }: { jobs: Job[] }) {
             {/* Quick match preview */}
             {topMatches.length > 0 && (
               <div className="card p-5">
-                <h3 className="text-sm font-black tracking-tight text-gray-900 mb-3">Top 5 匹配岗位</h3>
+                <h3 className="text-sm font-black tracking-tight text-[var(--text)] mb-3">Top 5 匹配岗位</h3>
                 <div className="space-y-3">
                   {topMatches.map((m, i) => (
-                    <a key={m.job.id} href={m.job.applyUrl} target="_blank" rel="noreferrer" className="flex items-center gap-3 p-3 rounded-[var(--radius-xs)] hover:bg-gray-50 transition">
-                      <span className={`shrink-0 w-7 h-7 rounded-[var(--radius-xs)] flex items-center justify-center text-xs font-bold ${i < 3 ? "bg-brand-500 text-white" : "bg-gray-100 text-gray-500"}`}>{i + 1}</span>
+                    <a key={m.job.id} href={m.job.applyUrl} target="_blank" rel="noreferrer" className="flex items-center gap-3 p-3 rounded-[var(--radius-xs)] hover:bg-[var(--surface)] transition">
+                      <span className={`shrink-0 w-7 h-7 rounded-[var(--radius-xs)] flex items-center justify-center text-xs font-bold ${i < 3 ? "bg-brand-500 text-white" : "bg-[rgba(0,0,0,0.04)] text-[var(--text-s)]"}`}>{i + 1}</span>
                       <div className="flex-1 min-w-0">
-                        <div className="text-sm font-medium text-gray-900">{m.job.company} · {m.job.title}</div>
-                        <div className="text-xs text-gray-500 mt-0.5">{m.reasons.slice(0, 2).join(" · ")}</div>
+                        <div className="text-sm font-medium text-[var(--text)]">{m.job.company} · {m.job.title}</div>
+                        <div className="text-xs text-[var(--text-s)] mt-0.5">{m.reasons.slice(0, 2).join(" · ")}</div>
                       </div>
-                      <span className={`shrink-0 text-xs font-bold font-mono px-2 py-1 rounded-full ${m.score > 0.6 ? "bg-brand-500 text-white" : "bg-brand-50 text-brand-600"}`}>
+                      <span className={`shrink-0 text-xs font-bold font-mono px-2 py-1 rounded-full ${m.score > 0.6 ? "bg-brand-500 text-white" : "bg-brand-50 text-brand-500"}`}>
                         {Math.round(m.score * 100)}%
                       </span>
                     </a>
@@ -442,10 +442,10 @@ export default function ProfileClient({ jobs }: { jobs: Job[] }) {
             )}
 
             <div className="flex gap-3">
-              <a href={basePath + "/"} className="flex-1 py-2.5 rounded-[var(--radius-xs)] text-sm font-medium text-center border border-[var(--border-s)] text-gray-700 hover:border-gray-400 transition">
+              <a href={basePath + "/"} className="flex-1 py-2.5 rounded-[var(--radius-xs)] text-sm font-medium text-center border border-[var(--border-s)] text-[var(--text)] hover:border-[var(--border-s)] transition">
                 浏览全部岗位
               </a>
-              <a href={basePath + "/report/"} className="flex-1 py-2.5 rounded-[var(--radius-xs)] text-sm font-semibold text-center text-white bg-brand-500 hover:bg-brand-600 shadow-sm transition">
+              <a href={basePath + "/report/"} className="flex-1 py-2.5 rounded-[var(--radius-xs)] text-sm font-semibold text-center text-white bg-brand-500 hover:bg-brand-500 shadow-[var(--shadow-sm)] transition">
                 查看求职报告
               </a>
             </div>

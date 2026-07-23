@@ -72,8 +72,8 @@ export default function ComparePanel({
       >
         {/* Header */}
         <div className="px-5 py-4 border-b border-[var(--border)] flex items-center justify-between shrink-0">
-          <h3 className="text-base font-bold text-gray-900">岗位对比</h3>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-700 text-xl">×</button>
+          <h3 className="text-base font-bold text-[var(--text)]">岗位对比</h3>
+          <button onClick={onClose} className="text-[var(--text-t)] hover:text-[var(--text)] text-xl">×</button>
         </div>
 
         {/* Table */}
@@ -81,30 +81,30 @@ export default function ComparePanel({
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-[var(--border)]">
-                <th className="text-left px-4 py-3 text-xs text-gray-400 font-medium w-28 shrink-0 sticky left-0 bg-[var(--surface-solid)]">维度</th>
+                <th className="text-left px-4 py-3 text-xs text-[var(--text-t)] font-medium w-28 shrink-0 sticky left-0 bg-[var(--surface-solid)]">维度</th>
                 {jobs.map((j, i) => (
                   <th key={j.id} className={`text-left px-4 py-3 min-w-[200px] ${i === bestIdx && scores[bestIdx] > 0 ? "bg-brand-50/50" : ""}`}>
-                    <div className="text-sm font-bold text-gray-900">{j.company}</div>
-                    <div className="text-xs text-gray-500 font-normal mt-0.5 truncate">{j.title}</div>
+                    <div className="text-sm font-bold text-[var(--text)]">{j.company}</div>
+                    <div className="text-xs text-[var(--text-s)] font-normal mt-0.5 truncate">{j.title}</div>
                   </th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {rows.slice(2).map((row) => (
-                <tr key={row.label} className="border-b border-[var(--border)] hover:bg-gray-50/50">
-                  <td className="px-4 py-2.5 text-xs text-gray-400 font-medium sticky left-0 bg-[var(--surface-solid)]">{row.label}</td>
+                <tr key={row.label} className="border-b border-[var(--border)] hover:bg-[var(--surface)]/50">
+                  <td className="px-4 py-2.5 text-xs text-[var(--text-t)] font-medium sticky left-0 bg-[var(--surface-solid)]">{row.label}</td>
                   {row.values.map((val, i) => {
-                    let cellClass = "px-4 py-2.5 text-xs text-gray-700 font-mono";
+                    let cellClass = "px-4 py-2.5 text-xs text-[var(--text)] font-mono";
                     if (row.highlight === "best" && i === bestIdx && scores[bestIdx] > 0) {
-                      cellClass += " text-brand-600 font-bold bg-brand-50/30";
+                      cellClass += " text-brand-500 font-bold bg-brand-50/30";
                     }
                     return (
                       <td key={i} className={cellClass}>
                         {row.label === "所需技能" && val !== "—" ? (
                           <div className="flex flex-wrap gap-1">
                             {val!.split(", ").map((s) => (
-                              <span key={s} className={`px-1.5 py-0.5 rounded-[var(--radius-xs)] text-[10px] ${userSkills.has(s.toLowerCase()) ? "bg-brand-100 text-brand-700 font-medium" : "bg-gray-100 text-gray-500"}`}>
+                              <span key={s} className={`px-1.5 py-0.5 rounded-[var(--radius-xs)] text-[10px] ${userSkills.has(s.toLowerCase()) ? "bg-brand-100 text-brand-700 font-medium" : "bg-[rgba(0,0,0,0.04)] text-[var(--text-s)]"}`}>
                                 {s}
                               </span>
                             ))}

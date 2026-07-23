@@ -24,7 +24,7 @@ const CATEGORY_BAR_COLORS: Record<string, string> = {
   快消: "bg-[var(--cat-fmcg)]",
   实体: "bg-[var(--cat-entity)]",
   管培: "bg-[var(--cat-trainee)]",
-  其他: "bg-gray-400",
+  其他: "bg-[rgba(0,0,0,0.15)]",
 };
 
 const HIGHLIGHT_KEYWORDS: Record<string, string> = {
@@ -84,10 +84,10 @@ function SmartAnalysis({ job, matchResult }: { job: Job; matchResult?: MatchResu
   }
 
   // Category + industry
-  dimensions.push({ label: "行业", value: job.category, color: "text-gray-700" });
+  dimensions.push({ label: "行业", value: job.category, color: "text-[var(--text)]" });
 
   // Job type
-  dimensions.push({ label: "类型", value: job.jobType, color: "text-gray-700" });
+  dimensions.push({ label: "类型", value: job.jobType, color: "text-[var(--text)]" });
 
   // Salary assessment
   if (job.salary) {
@@ -96,7 +96,7 @@ function SmartAnalysis({ job, matchResult }: { job: Job; matchResult?: MatchResu
 
   // Location count
   if (job.location.length > 2) {
-    dimensions.push({ label: "城市", value: `${job.location.length}个城市可选`, color: "text-gray-600" });
+    dimensions.push({ label: "城市", value: `${job.location.length}个城市可选`, color: "text-[var(--text-s)]" });
   }
 
   // Has matchResult
@@ -113,22 +113,22 @@ function SmartAnalysis({ job, matchResult }: { job: Job; matchResult?: MatchResu
       : [];
 
   return (
-    <div className="px-3 py-2.5 rounded-lg bg-gradient-to-br from-gray-50 to-gray-50/80 border border-gray-100">
+    <div className="px-3 py-2.5 rounded-[var(--radius-xs)] bg-gradient-to-br from-[var(--surface)] to-[var(--surface)]/80 border border-[var(--border)]">
       {/* Match score bar — always show */}
       <div className="flex items-center justify-between text-[11px] mb-1.5">
-        <span className="text-gray-500 font-medium">岗位分析</span>
-        <span className={`font-bold ${displayPct >= 70 ? "text-brand-600" : displayPct >= 40 ? "text-brand-500" : "text-gray-400"}`}>
+        <span className="text-[var(--text-s)] font-medium">岗位分析</span>
+        <span className={`font-bold ${displayPct >= 70 ? "text-brand-500" : displayPct >= 40 ? "text-brand-500" : "text-[var(--text-t)]"}`}>
           匹配 {displayPct}%
         </span>
       </div>
-      <div className="h-[5px] bg-gray-100 rounded-full overflow-hidden mb-2">
+      <div className="h-[5px] bg-[rgba(0,0,0,0.04)] rounded-full overflow-hidden mb-2">
         <div
           className={`h-full rounded-full transition-all ${
             displayPct >= 70
-              ? "bg-gradient-to-r from-brand-500 to-brand-600"
+              ? "bg-gradient-to-r from-brand-500 to-brand-500"
               : displayPct >= 40
                 ? "bg-gradient-to-r from-brand-400 to-brand-500"
-                : "bg-gradient-to-r from-gray-200 to-gray-300"
+                : "bg-gradient-to-r from-[rgba(0,0,0,0.06)] to-[rgba(0,0,0,0.10)]"
           }`}
           style={{ width: `${Math.max(displayPct, 3)}%` }}
         />
@@ -136,14 +136,14 @@ function SmartAnalysis({ job, matchResult }: { job: Job; matchResult?: MatchResu
 
       {/* Match reasons or fallback dimensions */}
       {displayReasons.length > 0 ? (
-        <div className="text-[10px] text-gray-700 font-medium line-clamp-1 mb-1.5">
+        <div className="text-[10px] text-[var(--text)] font-medium line-clamp-1 mb-1.5">
           {displayReasons.join(" · ")}
         </div>
       ) : (
         <div className="flex flex-wrap gap-x-3 gap-y-0.5 mb-1.5">
           {dimensions.slice(0, 4).map((d) => (
             <span key={d.label} className="text-[10px]">
-              <span className="text-gray-400">{d.label}</span>{" "}
+              <span className="text-[var(--text-t)]">{d.label}</span>{" "}
               <span className={`font-medium ${d.color}`}>{d.value}</span>
             </span>
           ))}
@@ -154,7 +154,7 @@ function SmartAnalysis({ job, matchResult }: { job: Job; matchResult?: MatchResu
       {skillTags.length > 0 && (
         <div className="flex flex-wrap gap-1">
           {skillTags.map((s) => (
-            <span key={s} className="text-[9px] px-1.5 py-0.5 rounded bg-gray-100 border border-gray-200 text-gray-700">
+            <span key={s} className="text-[9px] px-1.5 py-0.5 rounded bg-[rgba(0,0,0,0.04)] border border-[var(--border)] text-[var(--text)]">
               {s}
             </span>
           ))}
@@ -163,7 +163,7 @@ function SmartAnalysis({ job, matchResult }: { job: Job; matchResult?: MatchResu
 
       {/* AI summary if available */}
       {job.aiTags?.summary && (
-        <p className="text-[10px] text-gray-500 mt-1.5 line-clamp-1 leading-relaxed">{job.aiTags.summary}</p>
+        <p className="text-[10px] text-[var(--text-s)] mt-1.5 line-clamp-1 leading-relaxed">{job.aiTags.summary}</p>
       )}
     </div>
   );
@@ -202,7 +202,7 @@ export default function JobCard({
         {/* Row 1: category + tier + tags + actions */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5 flex-wrap">
-            <span className={`text-[11px] px-2.5 py-0.5 rounded-lg font-medium ${CATEGORY_COLORS[job.category]}`}>
+            <span className={`text-[11px] px-2.5 py-0.5 rounded-[var(--radius-xs)] font-medium ${CATEGORY_COLORS[job.category]}`}>
               {job.category}
             </span>
             {job.jobType && (
@@ -221,7 +221,7 @@ export default function JobCard({
               <button
                 onClick={() => onCompareToggle(job.id)}
                 className={`w-6 h-6 rounded-full flex items-center justify-center transition text-[10px] ${
-                  comparing ? "bg-gray-800 text-white" : "text-gray-300 hover:text-gray-600 hover:bg-gray-100"
+                  comparing ? "bg-[var(--text)] text-white" : "text-[var(--text-t)] hover:text-[var(--text-s)] hover:bg-[rgba(0,0,0,0.04)]"
                 }`}
                 title="加入对比"
               >
@@ -232,7 +232,7 @@ export default function JobCard({
               <button
                 onClick={() => onTrack(job.id, trackingStatus ? null : "saved")}
                 className={`w-6 h-6 rounded-full flex items-center justify-center transition ${
-                  trackingStatus ? "text-red-500 bg-red-50" : "text-gray-300 hover:bg-brand-50 hover:text-brand-500"
+                  trackingStatus ? "text-red-500 bg-red-50" : "text-[var(--text-t)] hover:bg-brand-50 hover:text-brand-500"
                 }`}
               >
                 <svg width="12" height="12" viewBox="0 0 24 24" fill={trackingStatus ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2.5">
@@ -245,7 +245,7 @@ export default function JobCard({
 
         {/* Row 2: Company + Salary */}
         <div className="flex items-center gap-2">
-          <a href={`/job/${job.id}`} className="text-[15px] font-extrabold tracking-tight text-gray-900 hover:text-gray-600 transition truncate">{job.company}</a>
+          <a href={`/job/${job.id}`} className="text-[15px] font-extrabold tracking-tight text-[var(--text)] hover:text-[var(--text-s)] transition truncate">{job.company}</a>
           {job.salary && (
             <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-brand-50 text-brand-700 whitespace-nowrap shrink-0">
               💰 {job.salary}
@@ -254,7 +254,7 @@ export default function JobCard({
         </div>
 
         {/* Row 3: Title */}
-        <div className="text-[13px] text-gray-800 line-clamp-2 leading-snug font-bold">
+        <div className="text-[13px] text-[var(--text)] line-clamp-2 leading-snug font-bold">
           {job.title}
         </div>
 
@@ -266,31 +266,31 @@ export default function JobCard({
             </span>
           ))}
           {job.requirements && (
-            <span className="text-[10px] text-gray-400 ml-0.5">{job.requirements}</span>
+            <span className="text-[10px] text-[var(--text-t)] ml-0.5">{job.requirements}</span>
           )}
         </div>
 
         {/* Row 5: Location */}
         <div className="flex flex-wrap gap-1.5">
           {job.location.slice(0, 5).map((loc) => (
-            <span key={loc} className="text-[10px] px-2 py-0.5 rounded-full bg-[rgba(0,0,0,.03)] text-gray-500">
+            <span key={loc} className="text-[10px] px-2 py-0.5 rounded-full bg-[rgba(0,0,0,.03)] text-[var(--text-s)]">
               📍 {loc}
             </span>
           ))}
         </div>
 
         {/* Row 6: Deadline & freshness */}
-        <div className="flex items-center gap-3 text-[11px] text-gray-500">
+        <div className="flex items-center gap-3 text-[11px] text-[var(--text-s)]">
           {job.deadline ? (
             <span className={urgent ? "text-red-600 font-medium" : ""}>
               截止 {job.deadline.slice(5, 10).replace("-", "/")}
               {dl !== null && dl >= 0 && <span className={`ml-1 font-semibold ${dl <= 7 ? "text-red-500" : dl <= 15 ? "text-orange-500" : "text-green-600"}`}>({dl}天)</span>}
-              {dl !== null && dl < 0 && <span className="text-gray-400 ml-1">已过期</span>}
+              {dl !== null && dl < 0 && <span className="text-[var(--text-t)] ml-1">已过期</span>}
             </span>
           ) : (
             <span className="text-teal-600 font-medium">滚动招聘</span>
           )}
-          <span className="text-gray-300">|</span>
+          <span className="text-[var(--text-t)]">|</span>
           <span>收录 {published ?? job.firstSeen.slice(0, 10)}</span>
         </div>
 
@@ -305,7 +305,7 @@ export default function JobCard({
               <select
                 value={trackingStatus}
                 onChange={(e) => onTrack?.(job.id, e.target.value as TrackingStatus)}
-                className="text-[11px] px-2 py-1 rounded-lg border border-gray-200 text-gray-600"
+                className="text-[11px] px-2 py-1 rounded-[var(--radius-xs)] border border-[var(--border)] text-[var(--text-s)]"
               >
                 {STATUS_OPTIONS.map((o) => (
                   <option key={o.value} value={o.value}>{o.label}</option>
@@ -317,7 +317,7 @@ export default function JobCard({
             href={job.applyUrl}
             target="_blank"
             rel="noreferrer"
-            className="text-[11px] font-medium text-white px-3.5 py-1.5 rounded-[var(--radius-xs)] bg-brand-500 hover:bg-brand-600 shadow-sm transition"
+            className="text-[11px] font-medium text-white px-3.5 py-1.5 rounded-[var(--radius-xs)] bg-brand-500 hover:bg-brand-500 shadow-[var(--shadow-sm)] transition"
           >
             投递 →
           </a>

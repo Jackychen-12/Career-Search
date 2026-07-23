@@ -16,8 +16,8 @@ function Chip({ active, onClick, children }: { active: boolean; onClick: () => v
       onClick={onClick}
       className={`px-3 h-[30px] inline-flex items-center rounded-full text-[13px] font-medium transition ${
         active
-          ? "bg-brand-500 text-white shadow-sm shadow-brand-500/20"
-          : "border border-[var(--border)] text-gray-500 hover:text-brand-600 hover:bg-brand-50/80"
+          ? "bg-brand-500 text-white shadow-[var(--shadow-sm)] shadow-brand-500/20"
+          : "border border-[var(--border)] text-[var(--text-s)] hover:text-brand-500 hover:bg-brand-50/80"
       }`}
     >
       {children}
@@ -103,17 +103,17 @@ export default function PrefsPanel({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-base font-bold text-gray-900">求职画像</h3>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-700 text-lg leading-none">×</button>
+          <h3 className="text-base font-bold text-[var(--text)]">求职画像</h3>
+          <button onClick={onClose} className="text-[var(--text-t)] hover:text-[var(--text)] text-lg leading-none">×</button>
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-0.5 p-0.5 bg-gray-100 rounded-[var(--radius-xs)] mb-4">
+        <div className="flex gap-0.5 p-0.5 bg-[rgba(0,0,0,0.04)] rounded-[var(--radius-xs)] mb-4">
           {TABS.map((t) => (
             <button
               key={t.key}
               onClick={() => setTab(t.key)}
-              className={`flex-1 py-1.5 rounded-md text-xs font-medium transition ${tab === t.key ? "bg-[var(--surface-solid)] text-gray-900 shadow-sm" : "text-gray-500"}`}
+              className={`flex-1 py-1.5 rounded-md text-xs font-medium transition ${tab === t.key ? "bg-[var(--surface-solid)] text-[var(--text)] shadow-[var(--shadow-sm)]" : "text-[var(--text-s)]"}`}
             >
               {t.label}
             </button>
@@ -129,15 +129,15 @@ export default function PrefsPanel({
           <div className="space-y-4">
             <div className="grid grid-cols-3 gap-2">
               <div>
-                <label className="text-[11px] text-gray-500 mb-1 block">学校</label>
+                <label className="text-[11px] text-[var(--text-s)] mb-1 block">学校</label>
                 <input value={draft.school ?? ""} onChange={(e) => setDraft({ ...draft, school: e.target.value })} placeholder="如：北大" className="w-full px-2.5 py-1.5 rounded-md border border-[var(--border-s)] text-xs focus:outline-none focus:border-brand-500" />
               </div>
               <div>
-                <label className="text-[11px] text-gray-500 mb-1 block">专业</label>
+                <label className="text-[11px] text-[var(--text-s)] mb-1 block">专业</label>
                 <input value={draft.major ?? ""} onChange={(e) => setDraft({ ...draft, major: e.target.value })} placeholder="如：计算机" className="w-full px-2.5 py-1.5 rounded-md border border-[var(--border-s)] text-xs focus:outline-none focus:border-brand-500" />
               </div>
               <div>
-                <label className="text-[11px] text-gray-500 mb-1 block">学历</label>
+                <label className="text-[11px] text-[var(--text-s)] mb-1 block">学历</label>
                 <select value={draft.degree ?? ""} onChange={(e) => setDraft({ ...draft, degree: e.target.value as Prefs["degree"] })} className="w-full px-2.5 py-1.5 rounded-md border border-[var(--border-s)] text-xs focus:outline-none focus:border-brand-500">
                   <option value="">不限</option>
                   <option value="本科">本科</option>
@@ -147,27 +147,27 @@ export default function PrefsPanel({
               </div>
             </div>
             <div>
-              <label className="text-[11px] text-gray-500 mb-1 block">核心技能（逗号分隔）</label>
+              <label className="text-[11px] text-[var(--text-s)] mb-1 block">核心技能（逗号分隔）</label>
               <input value={(draft.skills ?? []).join(", ")} onChange={(e) => setDraft({ ...draft, skills: e.target.value.split(/[,，]/).map((s) => s.trim()).filter(Boolean) })} placeholder="如：Python, 数据分析, AI, 产品经理" className="w-full px-2.5 py-1.5 rounded-md border border-[var(--border-s)] text-xs focus:outline-none focus:border-brand-500" />
             </div>
             <div>
-              <label className="text-[11px] text-gray-500 mb-1 block">目标岗位（逗号分隔）</label>
+              <label className="text-[11px] text-[var(--text-s)] mb-1 block">目标岗位（逗号分隔）</label>
               <input value={(draft.targetRoles ?? []).join(", ")} onChange={(e) => setDraft({ ...draft, targetRoles: e.target.value.split(/[,，]/).map((s) => s.trim()).filter(Boolean) })} placeholder="如：AI产品经理, 管培生, 数据分析师" className="w-full px-2.5 py-1.5 rounded-md border border-[var(--border-s)] text-xs focus:outline-none focus:border-brand-500" />
             </div>
             <div>
-              <div className="text-[11px] text-gray-500 mb-1.5">意向行业</div>
+              <div className="text-[11px] text-[var(--text-s)] mb-1.5">意向行业</div>
               <div className="flex flex-wrap gap-1.5">
                 {CATEGORIES.map((c) => <Chip key={c} active={draft.categories.includes(c)} onClick={() => setDraft({ ...draft, categories: toggle<Category>(draft.categories, c) })}>{c}</Chip>)}
               </div>
             </div>
             <div>
-              <div className="text-[11px] text-gray-500 mb-1.5">岗位类型</div>
+              <div className="text-[11px] text-[var(--text-s)] mb-1.5">岗位类型</div>
               <div className="flex flex-wrap gap-1.5">
                 {JOB_TYPES.map((t) => <Chip key={t} active={draft.jobTypes.includes(t)} onClick={() => setDraft({ ...draft, jobTypes: toggle<JobType>(draft.jobTypes, t) })}>{t}</Chip>)}
               </div>
             </div>
             <div>
-              <div className="text-[11px] text-gray-500 mb-1.5">意向城市</div>
+              <div className="text-[11px] text-[var(--text-s)] mb-1.5">意向城市</div>
               <div className="flex flex-wrap gap-1.5">
                 {CITIES.map((c) => <Chip key={c} active={draft.cities.includes(c)} onClick={() => setDraft({ ...draft, cities: toggle<string>(draft.cities, c) })}>{c}</Chip>)}
               </div>
@@ -190,35 +190,35 @@ export default function PrefsPanel({
                 onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFileUpload(f); }}
               />
               {loading ? (
-                <div className="text-sm text-brand-600">解析中...</div>
+                <div className="text-sm text-brand-500">解析中...</div>
               ) : (
                 <>
-                  <div className="text-2xl text-gray-300 mb-2">PDF</div>
-                  <div className="text-sm text-gray-500">点击上传简历 PDF</div>
-                  <div className="text-[11px] text-gray-400 mt-1">AI 自动解析学校/技能/岗位方向</div>
+                  <div className="text-2xl text-[var(--text-t)] mb-2">PDF</div>
+                  <div className="text-sm text-[var(--text-s)]">点击上传简历 PDF</div>
+                  <div className="text-[11px] text-[var(--text-t)] mt-1">AI 自动解析学校/技能/岗位方向</div>
                 </>
               )}
             </div>
 
             {aiResult && (
-              <div className="space-y-2 p-3 bg-gray-50 rounded-[var(--radius-xs)]">
-                <div className="text-xs font-semibold text-gray-700">AI 解析结果</div>
-                {aiResult.school && <div className="text-[11px] text-gray-600">学校：{aiResult.school} · {aiResult.major} · {aiResult.degree}</div>}
+              <div className="space-y-2 p-3 bg-[var(--surface)] rounded-[var(--radius-xs)]">
+                <div className="text-xs font-semibold text-[var(--text)]">AI 解析结果</div>
+                {aiResult.school && <div className="text-[11px] text-[var(--text-s)]">学校：{aiResult.school} · {aiResult.major} · {aiResult.degree}</div>}
                 {aiResult.skills.length > 0 && (
                   <div className="flex flex-wrap gap-1">
-                    {aiResult.skills.map((s) => <span key={s} className="text-[10px] px-2 py-0.5 rounded-full bg-brand-50 text-brand-600">{s}</span>)}
+                    {aiResult.skills.map((s) => <span key={s} className="text-[10px] px-2 py-0.5 rounded-full bg-brand-50 text-brand-500">{s}</span>)}
                   </div>
                 )}
                 {aiResult.targetRoles.length > 0 && (
-                  <div className="text-[11px] text-gray-600">推荐方向：{aiResult.targetRoles.join("、")}</div>
+                  <div className="text-[11px] text-[var(--text-s)]">推荐方向：{aiResult.targetRoles.join("、")}</div>
                 )}
                 {aiResult.strengths.length > 0 && (
-                  <div className="text-[11px] text-gray-600">优势：{aiResult.strengths.join("、")}</div>
+                  <div className="text-[11px] text-[var(--text-s)]">优势：{aiResult.strengths.join("、")}</div>
                 )}
                 {aiResult.weaknesses.length > 0 && (
-                  <div className="text-[11px] text-gray-500">待提升：{aiResult.weaknesses.join("、")}</div>
+                  <div className="text-[11px] text-[var(--text-s)]">待提升：{aiResult.weaknesses.join("、")}</div>
                 )}
-                <div className="text-[11px] text-brand-600 font-medium">{aiResult.summary}</div>
+                <div className="text-[11px] text-brand-500 font-medium">{aiResult.summary}</div>
               </div>
             )}
           </div>
@@ -227,7 +227,7 @@ export default function PrefsPanel({
         {/* Tab: Paste text */}
         {tab === "paste" && (
           <div className="space-y-3">
-            <p className="text-xs text-gray-500">粘贴简历文本，可选 AI 解析或本地关键词提取。</p>
+            <p className="text-xs text-[var(--text-s)]">粘贴简历文本，可选 AI 解析或本地关键词提取。</p>
             <textarea
               value={resumeText}
               onChange={(e) => setResumeText(e.target.value)}
@@ -239,23 +239,23 @@ export default function PrefsPanel({
               <button
                 onClick={() => handleAIParse(resumeText)}
                 disabled={loading || !resumeText.trim()}
-                className="flex-1 py-2 rounded-[var(--radius-xs)] text-xs font-medium bg-brand-500 text-white hover:bg-brand-600 disabled:opacity-50 transition"
+                className="flex-1 py-2 rounded-[var(--radius-xs)] text-xs font-medium bg-brand-500 text-white hover:bg-brand-500 disabled:opacity-50 transition"
               >
                 {loading ? "解析中..." : "AI 智能解析"}
               </button>
               <button
                 onClick={handleLocalExtract}
                 disabled={!resumeText.trim()}
-                className="py-2 px-4 rounded-[var(--radius-xs)] text-xs border border-[var(--border-s)] text-gray-600 hover:border-gray-400 disabled:opacity-50"
+                className="py-2 px-4 rounded-[var(--radius-xs)] text-xs border border-[var(--border-s)] text-[var(--text-s)] hover:border-[var(--border-s)] disabled:opacity-50"
               >
                 本地提取
               </button>
             </div>
             {(draft.resumeKeywords ?? []).length > 0 && (
               <div>
-                <div className="text-[11px] text-gray-500 mb-1.5">已提取 {draft.resumeKeywords!.length} 个关键词：</div>
+                <div className="text-[11px] text-[var(--text-s)] mb-1.5">已提取 {draft.resumeKeywords!.length} 个关键词：</div>
                 <div className="flex flex-wrap gap-1">
-                  {draft.resumeKeywords!.map((k) => <span key={k} className="text-[10px] px-2 py-0.5 rounded-full bg-brand-50 text-brand-600">{k}</span>)}
+                  {draft.resumeKeywords!.map((k) => <span key={k} className="text-[10px] px-2 py-0.5 rounded-full bg-brand-50 text-brand-500">{k}</span>)}
                 </div>
               </div>
             )}
@@ -266,13 +266,13 @@ export default function PrefsPanel({
         <div className="flex gap-2 mt-5 pt-4 border-t border-[var(--border)]">
           <button
             onClick={() => { setDraft(EMPTY_PREFS); setResumeText(""); setAiResult(null); setError(""); }}
-            className="px-4 py-2.5 rounded-[var(--radius-xs)] text-sm border border-[var(--border-s)] text-gray-600 hover:border-gray-400"
+            className="px-4 py-2.5 rounded-[var(--radius-xs)] text-sm border border-[var(--border-s)] text-[var(--text-s)] hover:border-[var(--border-s)]"
           >
             清空
           </button>
           <button
             onClick={() => { onSave(draft); onClose(); }}
-            className="flex-1 px-4 py-2.5 rounded-[var(--radius-xs)] text-sm font-semibold text-white bg-brand-500 hover:bg-brand-600 shadow-sm transition"
+            className="flex-1 px-4 py-2.5 rounded-[var(--radius-xs)] text-sm font-semibold text-white bg-brand-500 hover:bg-brand-500 shadow-[var(--shadow-sm)] transition"
           >
             保存画像
           </button>

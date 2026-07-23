@@ -22,19 +22,19 @@ export default function CompareBar({
           {jobs.map((j) => (
             <div key={j.id} className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-[var(--radius-xs)] bg-brand-50 border border-brand-100">
               <span className="text-xs font-medium text-brand-700 truncate max-w-[120px]">{j.company}</span>
-              <button onClick={() => onRemove(j.id)} className="text-brand-400 hover:text-brand-600 text-sm leading-none">×</button>
+              <button onClick={() => onRemove(j.id)} className="text-brand-400 hover:text-brand-500 text-sm leading-none">×</button>
             </div>
           ))}
-          <span className="text-xs text-gray-400 shrink-0">
+          <span className="text-xs text-[var(--text-t)] shrink-0">
             {jobs.length}/3
           </span>
         </div>
         <div className="flex items-center gap-2 shrink-0">
-          <button onClick={onClear} className="text-xs text-gray-500 hover:text-gray-700">清空</button>
+          <button onClick={onClear} className="text-xs text-[var(--text-s)] hover:text-[var(--text)]">清空</button>
           <button
             onClick={onCompare}
             disabled={jobs.length < 2}
-            className="px-4 py-2 rounded-[var(--radius-xs)] text-sm font-semibold text-white bg-brand-500 hover:bg-brand-600 disabled:opacity-40 shadow-sm transition"
+            className="px-4 py-2 rounded-[var(--radius-xs)] text-sm font-semibold text-white bg-brand-500 hover:bg-brand-500 disabled:opacity-40 shadow-[var(--shadow-sm)] transition"
           >
             对比 ({jobs.length})
           </button>

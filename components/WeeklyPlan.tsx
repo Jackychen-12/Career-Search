@@ -27,8 +27,8 @@ function getUrgency(daysLeft: number | null): PlanItem["urgency"] {
 const URGENCY_LABELS: Record<PlanItem["urgency"], { label: string; color: string }> = {
   thisWeek: { label: "本周截止", color: "text-red-500" },
   nextWeek: { label: "下周截止", color: "text-amber-500" },
-  thisMonth: { label: "本月截止", color: "text-brand-600" },
-  later: { label: "暂无紧迫", color: "text-gray-400" },
+  thisMonth: { label: "本月截止", color: "text-brand-500" },
+  later: { label: "暂无紧迫", color: "text-[var(--text-t)]" },
 };
 
 export default function WeeklyPlan({
@@ -125,15 +125,15 @@ export default function WeeklyPlan({
       >
         <div className="px-5 py-4 border-b border-[var(--border)] flex items-center justify-between shrink-0">
           <div>
-            <h3 className="text-base font-bold text-gray-900">本周投递清单</h3>
-            <p className="text-xs text-gray-500 mt-0.5">基于画像自动筛选，按紧急度排序，已投递的已排除</p>
+            <h3 className="text-base font-bold text-[var(--text)]">本周投递清单</h3>
+            <p className="text-xs text-[var(--text-s)] mt-0.5">基于画像自动筛选，按紧急度排序，已投递的已排除</p>
           </div>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-700 text-xl">×</button>
+          <button onClick={onClose} className="text-[var(--text-t)] hover:text-[var(--text)] text-xl">×</button>
         </div>
 
         <div className="flex-1 overflow-y-auto px-5 py-4">
           {plan.length === 0 ? (
-            <div className="py-12 text-center text-sm text-gray-400">
+            <div className="py-12 text-center text-sm text-[var(--text-t)]">
               {hasPrefs(prefs) ? "没有符合条件的待投递岗位" : "请先设置求职画像"}
             </div>
           ) : (
@@ -157,18 +157,18 @@ export default function WeeklyPlan({
                           className="flex items-center gap-3 p-3 rounded-[var(--radius-xs)] border border-[var(--border)] hover:border-brand-300 transition"
                         >
                           <span className={`shrink-0 text-[11px] font-bold px-2 py-1 rounded-full ${
-                            p.score > 0.6 ? "bg-brand-500 text-white" : "bg-brand-50 text-brand-600"
+                            p.score > 0.6 ? "bg-brand-500 text-white" : "bg-brand-50 text-brand-500"
                           }`}>
                             {Math.round(p.score * 100)}%
                           </span>
                           <div className="flex-1 min-w-0">
-                            <div className="text-sm font-medium text-gray-900">{p.job.company} · {p.job.title}</div>
-                            <div className="text-[11px] text-gray-500 mt-0.5">
+                            <div className="text-sm font-medium text-[var(--text)]">{p.job.company} · {p.job.title}</div>
+                            <div className="text-[11px] text-[var(--text-s)] mt-0.5">
                               {p.reasons.slice(0, 2).join(" · ")}
-                              {p.daysLeft !== null && <span className="ml-2 text-gray-400">剩{p.daysLeft}天</span>}
+                              {p.daysLeft !== null && <span className="ml-2 text-[var(--text-t)]">剩{p.daysLeft}天</span>}
                             </div>
                           </div>
-                          <span className="shrink-0 text-xs text-gray-400">{p.job.location[0]}</span>
+                          <span className="shrink-0 text-xs text-[var(--text-t)]">{p.job.location[0]}</span>
                         </a>
                       ))}
                     </div>
@@ -181,10 +181,10 @@ export default function WeeklyPlan({
 
         {plan.length > 0 && (
           <div className="px-5 py-3 border-t border-[var(--border)] flex items-center gap-2 shrink-0">
-            <button onClick={copyText} className="flex-1 py-2 rounded-[var(--radius-xs)] text-sm border border-[var(--border-s)] text-gray-700 hover:border-gray-400 transition">
+            <button onClick={copyText} className="flex-1 py-2 rounded-[var(--radius-xs)] text-sm border border-[var(--border-s)] text-[var(--text)] hover:border-[var(--border-s)] transition">
               复制清单
             </button>
-            <button onClick={exportExcel} className="flex-1 py-2 rounded-[var(--radius-xs)] text-sm font-medium text-white bg-brand-500 hover:bg-brand-600 shadow-sm transition">
+            <button onClick={exportExcel} className="flex-1 py-2 rounded-[var(--radius-xs)] text-sm font-medium text-white bg-brand-500 hover:bg-brand-500 shadow-[var(--shadow-sm)] transition">
               导出 Excel
             </button>
           </div>

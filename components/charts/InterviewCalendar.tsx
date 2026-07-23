@@ -63,7 +63,7 @@ export function InterviewCalendar({ heatmap }: CalendarProps) {
       <div className="flex gap-1 mt-1">
         {weeks.map((week, i) => (
           <div key={i} className="flex-1 text-center">
-            {i % 2 === 0 && <span className="text-[9px] text-gray-400 leading-none">{week.label}</span>}
+            {i % 2 === 0 && <span className="text-[9px] text-[var(--text-t)] leading-none">{week.label}</span>}
           </div>
         ))}
       </div>

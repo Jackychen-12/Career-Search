@@ -32,7 +32,7 @@ const INDUSTRY_COLORS: Record<string, { bg: string; text: string; bar: string }>
   "外企": { bg: "bg-blue-50", text: "text-blue-700", bar: "from-blue-400 to-blue-600" },
   "新能源": { bg: "bg-green-50", text: "text-green-700", bar: "from-green-400 to-green-600" },
   "科技": { bg: "bg-violet-50", text: "text-violet-700", bar: "from-violet-400 to-violet-600" },
-  "其他": { bg: "bg-gray-50", text: "text-gray-600", bar: "from-gray-300 to-gray-400" },
+  "其他": { bg: "bg-[var(--surface)]", text: "text-[var(--text-s)]", bar: "from-[var(--text-t)] to-[var(--text-t)]" },
 };
 
 const TYPE_COLORS: Record<string, string> = {
@@ -40,7 +40,7 @@ const TYPE_COLORS: Record<string, string> = {
   "网申": "bg-indigo-50 text-indigo-700",
   "笔试": "bg-amber-50 text-amber-700",
   "面试": "bg-rose-50 text-rose-700",
-  "其他": "bg-gray-100 text-gray-600",
+  "其他": "bg-[rgba(0,0,0,0.04)] text-[var(--text-s)]",
 };
 
 const AVATAR_COLORS = [
@@ -99,27 +99,27 @@ export default function EventsClient({ events, articles = [] }: { events: Campus
 
   return (
     <div className="min-h-screen">
-      <header className="sticky top-0 z-40 backdrop-blur-xl bg-[var(--surface-solid)]/80 border-b border-[var(--border)] shadow-sm">
+      <header className="sticky top-0 z-40 backdrop-blur-xl bg-[var(--surface-solid)]/80 border-b border-[var(--border)] shadow-[var(--shadow-sm)]">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <a href="/" className="text-[15px] font-black tracking-tight text-gray-900 hover:text-gray-600 transition flex items-center gap-1.5">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="text-gray-500"><path d="M15 18l-6-6 6-6" /></svg>
+            <a href="/" className="text-[15px] font-black tracking-tight text-[var(--text)] hover:text-[var(--text-s)] transition flex items-center gap-1.5">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="text-[var(--text-s)]"><path d="M15 18l-6-6 6-6" /></svg>
               Career Search
             </a>
-            <span className="text-gray-300">·</span>
-            <span className="text-[15px] font-black tracking-tight text-gray-700">宣讲 & 资讯</span>
+            <span className="text-[var(--text-t)]">·</span>
+            <span className="text-[15px] font-black tracking-tight text-[var(--text)]">宣讲 & 资讯</span>
           </div>
-          <span className="text-xs text-gray-400">{events.length} 活动 · {articles.length} 文章</span>
+          <span className="text-xs text-[var(--text-t)]">{events.length} 活动 · {articles.length} 文章</span>
         </div>
       </header>
 
       <main className="max-w-5xl mx-auto px-4 sm:px-6 py-6 space-y-5">
         {/* Tabs */}
-        <div className="flex gap-0.5 p-1 bg-[var(--surface)] backdrop-blur-[8px] rounded-full border border-[var(--border)] shadow-sm w-fit">
-          <button onClick={() => { setTab("events"); setArticlePage(1); }} className={`px-4 py-1.5 rounded-full text-sm transition ${tab === "events" ? "bg-brand-500 text-white font-bold shadow-sm" : "text-gray-500 font-semibold hover:text-brand-500"}`}>
+        <div className="flex gap-0.5 p-1 bg-[var(--surface)] backdrop-blur-[8px] rounded-full border border-[var(--border)] shadow-[var(--shadow-sm)] w-fit">
+          <button onClick={() => { setTab("events"); setArticlePage(1); }} className={`px-4 py-1.5 rounded-full text-sm transition ${tab === "events" ? "bg-brand-500 text-white font-bold shadow-[var(--shadow-sm)]" : "text-[var(--text-s)] font-semibold hover:text-brand-500"}`}>
             宣讲活动（{events.length}）
           </button>
-          <button onClick={() => { setTab("articles"); setArticlePage(1); }} className={`px-4 py-1.5 rounded-full text-sm transition ${tab === "articles" ? "bg-brand-500 text-white font-bold shadow-sm" : "text-gray-500 font-semibold hover:text-brand-500"}`}>
+          <button onClick={() => { setTab("articles"); setArticlePage(1); }} className={`px-4 py-1.5 rounded-full text-sm transition ${tab === "articles" ? "bg-brand-500 text-white font-bold shadow-[var(--shadow-sm)]" : "text-[var(--text-s)] font-semibold hover:text-brand-500"}`}>
             公众号推送（{articles.length}）
           </button>
         </div>
@@ -127,7 +127,7 @@ export default function EventsClient({ events, articles = [] }: { events: Campus
         {/* Search + Filters */}
         <div className="card p-4 space-y-3">
           <div className="relative">
-            <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-t)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" />
             </svg>
             <input
@@ -140,24 +140,24 @@ export default function EventsClient({ events, articles = [] }: { events: Campus
           {tab === "events" && (
             <div className="flex items-center justify-between flex-wrap gap-2">
               <div className="flex items-center gap-1.5">
-                <span className="text-xs text-gray-400">来源</span>
+                <span className="text-xs text-[var(--text-t)]">来源</span>
                 {(["all", "微信", "清华", "北大"] as const).map((s) => (
-                  <button key={s} onClick={() => setSource(s)} className={`px-3 py-1 rounded-full text-[12px] font-medium transition ${source === s ? "bg-brand-500 text-white border-transparent" : "border border-[var(--border)] text-gray-500 hover:border-brand-500 hover:text-brand-500"}`}>
+                  <button key={s} onClick={() => setSource(s)} className={`px-3 py-1 rounded-full text-[12px] font-medium transition ${source === s ? "bg-brand-500 text-white border-transparent" : "border border-[var(--border)] text-[var(--text-s)] hover:border-brand-500 hover:text-brand-500"}`}>
                     {s === "all" ? "全部" : s}
                   </button>
                 ))}
               </div>
               <div className="flex items-center gap-1.5">
-                <span className="text-xs text-gray-400">类型</span>
+                <span className="text-xs text-[var(--text-t)]">类型</span>
                 {(["all", "宣讲会", "网申", "笔试", "面试", "其他"] as const).map((t) => (
-                  <button key={t} onClick={() => setTypeFilter(t)} className={`px-3 py-1 rounded-full text-[12px] font-medium transition ${typeFilter === t ? "bg-brand-500 text-white border-transparent" : "border border-[var(--border)] text-gray-500 hover:border-brand-500 hover:text-brand-500"}`}>
+                  <button key={t} onClick={() => setTypeFilter(t)} className={`px-3 py-1 rounded-full text-[12px] font-medium transition ${typeFilter === t ? "bg-brand-500 text-white border-transparent" : "border border-[var(--border)] text-[var(--text-s)] hover:border-brand-500 hover:text-brand-500"}`}>
                     {t === "all" ? "全部" : t}
                   </button>
                 ))}
               </div>
             </div>
           )}
-          <div className="text-xs text-gray-400">
+          <div className="text-xs text-[var(--text-t)]">
             {tab === "events" ? `${filteredEvents.length} 条活动` : `${filteredArticles.length} 篇文章`}
           </div>
         </div>
@@ -166,16 +166,16 @@ export default function EventsClient({ events, articles = [] }: { events: Campus
         {tab === "events" && (
           filteredEvents.length === 0 ? (
             <div className="card p-12 text-center">
-              <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-[var(--surface)] flex items-center justify-center text-gray-300">
+              <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-[var(--surface)] flex items-center justify-center text-[var(--text-t)]">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4M8 2v4M3 10h18" /></svg>
               </div>
-              <p className="text-sm text-gray-500">暂无符合条件的宣讲活动</p>
+              <p className="text-sm text-[var(--text-s)]">暂无符合条件的宣讲活动</p>
             </div>
           ) : (
             <div className="space-y-5">
               {upcoming.length > 0 && (
                 <section>
-                  <h2 className="text-base font-bold text-gray-900 mb-3 flex items-center gap-2">
+                  <h2 className="text-base font-bold text-[var(--text)] mb-3 flex items-center gap-2">
                     <span className="w-1 h-4 rounded-full bg-teal-500" /> 即将举行（{upcoming.length}）
                   </h2>
                   <div className="space-y-2">{upcoming.map((e) => <EventCard key={e.id} event={e} isUpcoming />)}</div>
@@ -185,12 +185,12 @@ export default function EventsClient({ events, articles = [] }: { events: Campus
                 <section>
                   <button
                     onClick={() => setShowPast(!showPast)}
-                    className="flex items-center gap-2 text-base font-bold text-gray-500 hover:text-gray-700 transition mb-3"
+                    className="flex items-center gap-2 text-base font-bold text-[var(--text-s)] hover:text-[var(--text)] transition mb-3"
                   >
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"
                       className={`transition-transform ${showPast ? "rotate-90" : ""}`}
                     ><path d="M9 18l6-6-6-6" /></svg>
-                    <span className="w-1 h-4 rounded-full bg-gray-300" />
+                    <span className="w-1 h-4 rounded-full bg-[rgba(0,0,0,0.10)]" />
                     已结束（{past.length}）
                   </button>
                   {showPast && (
@@ -206,10 +206,10 @@ export default function EventsClient({ events, articles = [] }: { events: Campus
         {tab === "articles" && (
           filteredArticles.length === 0 ? (
             <div className="card p-12 text-center">
-              <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-[var(--surface)] flex items-center justify-center text-gray-300">
+              <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-[var(--surface)] flex items-center justify-center text-[var(--text-t)]">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /></svg>
               </div>
-              <p className="text-sm text-gray-500">暂无校招公众号文章</p>
+              <p className="text-sm text-[var(--text-s)]">暂无校招公众号文章</p>
             </div>
           ) : (
             <>
@@ -223,7 +223,7 @@ export default function EventsClient({ events, articles = [] }: { events: Campus
                   <button
                     onClick={() => setArticlePage((p) => Math.max(1, p - 1))}
                     disabled={clampedPage <= 1}
-                    className={`px-3 h-8 rounded-[var(--radius-xs)] text-xs border transition ${clampedPage <= 1 ? "border-[var(--border-s)] text-gray-300 cursor-not-allowed" : "border-[var(--border-s)] text-gray-600 hover:border-brand-500 hover:text-brand-500 bg-[var(--surface-solid)]"}`}
+                    className={`px-3 h-8 rounded-[var(--radius-xs)] text-xs border transition ${clampedPage <= 1 ? "border-[var(--border-s)] text-[var(--text-t)] cursor-not-allowed" : "border-[var(--border-s)] text-[var(--text-s)] hover:border-brand-500 hover:text-brand-500 bg-[var(--surface-solid)]"}`}
                   >
                     ‹ 上一页
                   </button>
@@ -231,7 +231,7 @@ export default function EventsClient({ events, articles = [] }: { events: Campus
                     <button
                       key={p}
                       onClick={() => setArticlePage(p)}
-                      className={`min-w-[34px] h-8 px-2 rounded-[var(--radius-xs)] text-xs border transition ${p === clampedPage ? "border-brand-500 bg-brand-500 text-white shadow-sm font-semibold" : "border-[var(--border-s)] text-gray-600 hover:border-brand-500 hover:text-brand-500 bg-[var(--surface-solid)]"}`}
+                      className={`min-w-[34px] h-8 px-2 rounded-[var(--radius-xs)] text-xs border transition ${p === clampedPage ? "border-brand-500 bg-brand-500 text-white shadow-[var(--shadow-sm)] font-semibold" : "border-[var(--border-s)] text-[var(--text-s)] hover:border-brand-500 hover:text-brand-500 bg-[var(--surface-solid)]"}`}
                     >
                       {p}
                     </button>
@@ -239,7 +239,7 @@ export default function EventsClient({ events, articles = [] }: { events: Campus
                   <button
                     onClick={() => setArticlePage((p) => Math.min(articleTotalPages, p + 1))}
                     disabled={clampedPage >= articleTotalPages}
-                    className={`px-3 h-8 rounded-[var(--radius-xs)] text-xs border transition ${clampedPage >= articleTotalPages ? "border-[var(--border-s)] text-gray-300 cursor-not-allowed" : "border-[var(--border-s)] text-gray-600 hover:border-brand-500 hover:text-brand-500 bg-[var(--surface-solid)]"}`}
+                    className={`px-3 h-8 rounded-[var(--radius-xs)] text-xs border transition ${clampedPage >= articleTotalPages ? "border-[var(--border-s)] text-[var(--text-t)] cursor-not-allowed" : "border-[var(--border-s)] text-[var(--text-s)] hover:border-brand-500 hover:text-brand-500 bg-[var(--surface-solid)]"}`}
                   >
                     下一页 ›
                   </button>
@@ -260,21 +260,21 @@ function EventCard({ event, isUpcoming }: { event: CampusEvent; isUpcoming?: boo
   const isUrgent = isUpcoming && days >= 0 && days <= 3;
 
   return (
-    <a href={event.url} target="_blank" rel="noreferrer" className="card p-0 overflow-hidden flex hover:border-[var(--glass-border)] hover:shadow-md transition block">
+    <a href={event.url} target="_blank" rel="noreferrer" className="card p-0 overflow-hidden flex hover:border-[var(--glass-border)] hover:shadow-[var(--shadow-md)] transition block">
       <div className={`w-1 shrink-0 bg-gradient-to-b ${colors.bar}`} />
       <div className="flex items-center gap-4 px-4 py-3 flex-1 min-w-0">
         <div className={`shrink-0 w-14 h-14 rounded-[var(--radius-xs)] flex flex-col items-center justify-center ${isUpcoming ? "bg-[var(--surface)]" : "bg-[var(--surface)]"}`}>
-          <span className={`text-lg font-bold font-mono ${isUpcoming ? "text-gray-900" : "text-gray-400"}`}>{event.date.slice(8, 10)}</span>
-          <span className="text-[10px] text-gray-500 font-mono">{event.date.slice(5, 7)}月</span>
+          <span className={`text-lg font-bold font-mono ${isUpcoming ? "text-[var(--text)]" : "text-[var(--text-t)]"}`}>{event.date.slice(8, 10)}</span>
+          <span className="text-[10px] text-[var(--text-s)] font-mono">{event.date.slice(5, 7)}月</span>
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-[14px] font-semibold text-gray-900 truncate">{event.company}</span>
+            <span className="text-[14px] font-semibold text-[var(--text)] truncate">{event.company}</span>
             <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${colors.bg} ${colors.text}`}>{industry}</span>
             <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${TYPE_COLORS[event.type] ?? TYPE_COLORS["其他"]}`}>{event.type}</span>
           </div>
-          <div className="text-xs text-gray-600 mt-1 line-clamp-1">{event.title}</div>
-          <div className="flex items-center gap-3 text-[11px] text-gray-500 mt-1 flex-wrap">
+          <div className="text-xs text-[var(--text-s)] mt-1 line-clamp-1">{event.title}</div>
+          <div className="flex items-center gap-3 text-[11px] text-[var(--text-s)] mt-1 flex-wrap">
             {event.time && <span className="font-mono">{event.time}</span>}
             {event.location && (
               <span className="truncate max-w-[160px] flex items-center gap-0.5">
@@ -282,7 +282,7 @@ function EventCard({ event, isUpcoming }: { event: CampusEvent; isUpcoming?: boo
                 {event.location}
               </span>
             )}
-            <span className="bg-[rgba(0,0,0,.03)] text-gray-500 rounded-full px-1.5">· {event.source}</span>
+            <span className="bg-[rgba(0,0,0,.03)] text-[var(--text-s)] rounded-full px-1.5">· {event.source}</span>
           </div>
         </div>
         <div className="shrink-0 flex flex-col items-end gap-1">
@@ -292,12 +292,12 @@ function EventCard({ event, isUpcoming }: { event: CampusEvent; isUpcoming?: boo
                 ? "bg-red-50 text-red-600 animate-pulse"
                 : days <= 7
                   ? "bg-amber-50 text-amber-600"
-                  : "bg-[var(--surface)] text-gray-500"
+                  : "bg-[var(--surface)] text-[var(--text-s)]"
             }`}>
               {days === 0 ? "今天" : days === 1 ? "明天" : `${days}天后`}
             </span>
           )}
-          <span className="text-gray-300 text-sm">→</span>
+          <span className="text-[var(--text-t)] text-sm">→</span>
         </div>
       </div>
     </a>
@@ -315,20 +315,20 @@ function ArticleCard({ article }: { article: WechatArticle }) {
       href={article.url}
       target="_blank"
       rel="noreferrer"
-      className="card px-4 py-3 flex items-start gap-4 hover:border-[var(--glass-border)] hover:shadow-sm transition block"
+      className="card px-4 py-3 flex items-start gap-4 hover:border-[var(--glass-border)] hover:shadow-[var(--shadow-sm)] transition block"
     >
       <div className={`shrink-0 w-10 h-10 rounded-[var(--radius-sm)] ${bgColor} flex items-center justify-center text-white text-lg font-bold`}>
         {firstChar}
       </div>
       <div className="flex-1 min-w-0">
-        <div className="text-[14px] font-medium text-gray-900 line-clamp-2">{article.title}</div>
-        {article.summary && <p className="text-xs text-gray-500 mt-1 line-clamp-2">{article.summary}</p>}
-        <div className="flex items-center gap-3 text-[11px] text-gray-400 mt-1.5">
-          <span className="font-medium text-gray-500">{article.account}</span>
+        <div className="text-[14px] font-medium text-[var(--text)] line-clamp-2">{article.title}</div>
+        {article.summary && <p className="text-xs text-[var(--text-s)] mt-1 line-clamp-2">{article.summary}</p>}
+        <div className="flex items-center gap-3 text-[11px] text-[var(--text-t)] mt-1.5">
+          <span className="font-medium text-[var(--text-s)]">{article.account}</span>
           <span>{dateLabel}</span>
         </div>
       </div>
-      <span className="shrink-0 text-gray-300 text-sm mt-1">→</span>
+      <span className="shrink-0 text-[var(--text-t)] text-sm mt-1">→</span>
     </a>
   );
 }

@@ -23,7 +23,7 @@ export function StatusPie({ byStatus }: StatusPieProps) {
 
   if (!data.length) {
     return (
-      <div className="flex items-center justify-center h-48 text-sm text-slate-400">
+      <div className="flex items-center justify-center h-48 text-sm text-[var(--text-t)]">
         暂无状态数据
       </div>
     );
@@ -66,9 +66,9 @@ export function StatusPie({ byStatus }: StatusPieProps) {
         {data.map((d) => (
           <div key={d.name} className="flex items-center gap-2.5 text-sm">
             <span className="w-2.5 h-2.5 rounded-full flex-none" style={{ backgroundColor: d.color }} />
-            <span className="text-slate-600 flex-1">{d.name}</span>
-            <span className="font-semibold text-slate-900 tabular-nums">{d.value}</span>
-            <span className="text-xs text-slate-400 tabular-nums w-10 text-right">{Math.round((d.value / total) * 100)}%</span>
+            <span className="text-[var(--text-s)] flex-1">{d.name}</span>
+            <span className="font-semibold text-[var(--text)] tabular-nums">{d.value}</span>
+            <span className="text-xs text-[var(--text-t)] tabular-nums w-10 text-right">{Math.round((d.value / total) * 100)}%</span>
           </div>
         ))}
       </div>

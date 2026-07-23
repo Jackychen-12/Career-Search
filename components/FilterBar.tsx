@@ -34,8 +34,8 @@ function Pill({
       onClick={onClick}
       className={`shrink-0 px-3 h-[30px] inline-flex items-center whitespace-nowrap rounded-full text-[13px] font-medium transition-all ${
         active
-          ? "bg-brand-500 text-white border-transparent shadow-sm"
-          : "text-gray-500 border border-[var(--border)] hover:border-brand-500 hover:text-brand-500"
+          ? "bg-brand-500 text-white border-transparent shadow-[var(--shadow-sm)]"
+          : "text-[var(--text-s)] border border-[var(--border)] hover:border-brand-500 hover:text-brand-500"
       }`}
     >
       {children}
@@ -57,7 +57,7 @@ function MultiRow<T extends string>({
   const isAll = selected.includes("all" as T);
   return (
     <div className="flex items-center gap-1 flex-wrap">
-      <span className="text-xs text-gray-400 shrink-0 mr-1 w-8">{label}</span>
+      <span className="text-xs text-[var(--text-t)] shrink-0 mr-1 w-8">{label}</span>
       <Pill active={isAll} onClick={() => onToggle("all" as T)}>全部</Pill>
       {options.map((o) => (
         <Pill key={o} active={!isAll && selected.includes(o)} onClick={() => onToggle(o)}>{o}</Pill>
@@ -83,14 +83,14 @@ export default function FilterBar({
   return (
     <div className="card p-4 sm:p-5 space-y-3">
       <div className="relative">
-        <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-t)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" />
         </svg>
         <input
           value={state.keyword}
           onChange={(e) => onChange({ keyword: e.target.value })}
           placeholder="搜索公司、岗位、城市..."
-          className="w-full h-9 pl-9 pr-3 rounded-[var(--radius-xs)] border border-[var(--border-s)] bg-white/80 text-sm focus:outline-none focus:ring-2 focus:ring-gray-300/50 focus:border-gray-400 transition"
+          className="w-full h-9 pl-9 pr-3 rounded-[var(--radius-xs)] border border-[var(--border-s)] bg-[var(--surface-solid)]/80 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--border-s)]/50 focus:border-[var(--border-s)] transition"
         />
       </div>
 
@@ -121,18 +121,18 @@ export default function FilterBar({
             selected={state.region}
             onToggle={(v) => onChange({ region: toggleValue(state.region, v, "all") })}
           />
-          <label className="flex items-center gap-1.5 text-[13px] text-gray-600 ml-3 cursor-pointer select-none">
+          <label className="flex items-center gap-1.5 text-[13px] text-[var(--text-s)] ml-3 cursor-pointer select-none">
             <input
               type="checkbox"
               checked={state.urgentOnly}
               onChange={(e) => onChange({ urgentOnly: e.target.checked })}
-              className="accent-gray-700"
+              className="accent-brand-500"
             />
             仅看紧急
           </label>
         </div>
         <div className="flex items-center gap-1">
-          <span className="text-xs text-gray-400 mr-1">排序</span>
+          <span className="text-xs text-[var(--text-t)] mr-1">排序</span>
           {SORTS.map((s) => (
             <Pill key={s.key} active={state.sort === s.key} onClick={() => onChange({ sort: s.key })}>
               {s.label}

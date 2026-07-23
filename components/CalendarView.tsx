@@ -53,12 +53,12 @@ export default function CalendarView({ jobs, now }: { jobs: Job[]; now: number }
     <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-3">
       <div className="card p-5">
         <div className="flex items-center justify-between mb-4">
-          <button onClick={prevMonth} className="w-8 h-8 rounded-md text-gray-500 hover:bg-[var(--surface)] hover:text-gray-900 transition grid place-items-center text-sm">←</button>
-          <h3 className="text-sm font-semibold text-gray-900">{year} 年 {month + 1} 月</h3>
-          <button onClick={nextMonth} className="w-8 h-8 rounded-md text-gray-500 hover:bg-[var(--surface)] hover:text-gray-900 transition grid place-items-center text-sm">→</button>
+          <button onClick={prevMonth} className="w-8 h-8 rounded-md text-[var(--text-s)] hover:bg-[var(--surface)] hover:text-[var(--text)] transition grid place-items-center text-sm">←</button>
+          <h3 className="text-sm font-semibold text-[var(--text)]">{year} 年 {month + 1} 月</h3>
+          <button onClick={nextMonth} className="w-8 h-8 rounded-md text-[var(--text-s)] hover:bg-[var(--surface)] hover:text-[var(--text)] transition grid place-items-center text-sm">→</button>
         </div>
 
-        <div className="grid grid-cols-7 gap-1 text-center text-[11px] text-gray-400 mb-1.5 font-medium">
+        <div className="grid grid-cols-7 gap-1 text-center text-[11px] text-[var(--text-t)] mb-1.5 font-medium">
           {WEEKDAYS.map((w) => <div key={w} className="py-1">{w}</div>)}
         </div>
 
@@ -75,8 +75,8 @@ export default function CalendarView({ jobs, now }: { jobs: Job[]; now: number }
                 onClick={() => setSelected(isSelected ? null : key)}
                 className={`relative rounded-md py-2 text-xs transition ${
                   isSelected ? "bg-brand-500 text-white" :
-                  isToday ? "bg-brand-50 text-brand-600 font-bold ring-1 ring-brand-200" :
-                  count > 0 ? "hover:bg-gray-50 text-gray-900 font-medium" : "text-gray-300"
+                  isToday ? "bg-brand-50 text-brand-500 font-bold ring-1 ring-brand-200" :
+                  count > 0 ? "hover:bg-[var(--surface)] text-[var(--text)] font-medium" : "text-[var(--text-t)]"
                 }`}
               >
                 {day}
@@ -96,8 +96,8 @@ export default function CalendarView({ jobs, now }: { jobs: Job[]; now: number }
         {selected ? (
           <>
             <div className="flex items-center gap-2 mb-3">
-              <span className="text-xs font-mono font-medium text-gray-900">{selected}</span>
-              <span className="text-[11px] text-gray-400">{selectedJobs.length} 个截止</span>
+              <span className="text-xs font-mono font-medium text-[var(--text)]">{selected}</span>
+              <span className="text-[11px] text-[var(--text-t)]">{selectedJobs.length} 个截止</span>
             </div>
             <div className="space-y-1.5 max-h-80 overflow-y-auto">
               {selectedJobs.map((j) => (
@@ -108,15 +108,15 @@ export default function CalendarView({ jobs, now }: { jobs: Job[]; now: number }
                   rel="noreferrer"
                   className="block p-2.5 rounded-md border border-[var(--border)] hover:border-brand-300 hover:bg-brand-50/30 transition"
                 >
-                  <div className="text-xs font-medium text-gray-900">{j.company}</div>
-                  <div className="text-[11px] text-brand-600 mt-0.5 truncate">{j.title}</div>
-                  <div className="text-[10px] text-gray-400 mt-1 font-mono">{j.location[0]} · {j.jobType}</div>
+                  <div className="text-xs font-medium text-[var(--text)]">{j.company}</div>
+                  <div className="text-[11px] text-brand-500 mt-0.5 truncate">{j.title}</div>
+                  <div className="text-[10px] text-[var(--text-t)] mt-1 font-mono">{j.location[0]} · {j.jobType}</div>
                 </a>
               ))}
             </div>
           </>
         ) : (
-          <div className="py-10 text-center text-xs text-gray-400">
+          <div className="py-10 text-center text-xs text-[var(--text-t)]">
             选择日期查看截止岗位
           </div>
         )}

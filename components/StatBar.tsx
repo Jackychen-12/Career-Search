@@ -60,7 +60,7 @@ export default function StatBar({
       label: "本周高匹配",
       value: weeklyMatchCount !== null ? String(weeklyMatchCount) : null,
       fallback: "设置画像后显示",
-      color: weeklyMatchCount && weeklyMatchCount > 0 ? "text-green-600" : "text-gray-900",
+      color: weeklyMatchCount && weeklyMatchCount > 0 ? "text-green-600" : "text-[var(--text)]",
       borderColor: "border-l-green-500",
       iconBg: "bg-[rgba(0,0,0,.03)]",
       iconColor: "text-green-500",
@@ -75,7 +75,7 @@ export default function StatBar({
       label: "关注公司新岗",
       value: trackedCompanyNewCount !== null ? String(trackedCompanyNewCount) : null,
       fallback: "收藏岗位后显示",
-      color: trackedCompanyNewCount && trackedCompanyNewCount > 0 ? "text-amber-600" : "text-gray-900",
+      color: trackedCompanyNewCount && trackedCompanyNewCount > 0 ? "text-amber-600" : "text-[var(--text)]",
       borderColor: "border-l-amber-500",
       iconBg: "bg-[rgba(0,0,0,.03)]",
       iconColor: "text-amber-500",
@@ -94,13 +94,13 @@ export default function StatBar({
           ? "text-red-600"
           : nearestDeadline !== null && nearestDeadline <= 7
             ? "text-orange-500"
-            : "text-gray-900",
+            : "text-[var(--text)]",
       borderColor:
         nearestDeadline !== null && nearestDeadline <= 3
           ? "border-l-red-500"
           : nearestDeadline !== null && nearestDeadline <= 7
             ? "border-l-orange-500"
-            : "border-l-gray-300",
+            : "border-l-[var(--border-s)]",
       iconBg:
         nearestDeadline !== null && nearestDeadline <= 3
           ? "bg-[rgba(0,0,0,.03)]"
@@ -112,7 +112,7 @@ export default function StatBar({
           ? "text-red-500"
           : nearestDeadline !== null && nearestDeadline <= 7
             ? "text-orange-500"
-            : "text-gray-400",
+            : "text-[var(--text-t)]",
       icon: (
         <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <circle cx="12" cy="12" r="10" />
@@ -126,16 +126,16 @@ export default function StatBar({
     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
       {cards.map((c) => (
         <div key={c.label} className={`stat-card px-4 py-3 flex items-center gap-3 border-l-[3px] ${c.borderColor}`}>
-          <div className={`w-10 h-10 rounded-xl ${c.iconBg} flex items-center justify-center ${c.iconColor}`}>
+          <div className={`w-10 h-10 rounded-[var(--radius)] ${c.iconBg} flex items-center justify-center ${c.iconColor}`}>
             {c.icon}
           </div>
           <div>
             {c.value !== null ? (
               <div className={`text-xl font-bold font-mono ${c.color}`}>{c.value}</div>
             ) : (
-              <div className="text-[13px] text-gray-400">{c.fallback}</div>
+              <div className="text-[13px] text-[var(--text-t)]">{c.fallback}</div>
             )}
-            <div className="text-[11px] text-gray-500">{c.label}</div>
+            <div className="text-[11px] text-[var(--text-s)]">{c.label}</div>
           </div>
         </div>
       ))}

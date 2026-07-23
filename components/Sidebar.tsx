@@ -107,7 +107,7 @@ export default function Sidebar({
       label: "本周高匹配",
       value: weeklyMatchCount !== null ? String(weeklyMatchCount) : null,
       fallback: "设置画像后显示",
-      color: weeklyMatchCount && weeklyMatchCount > 0 ? "text-green-600" : "text-gray-900",
+      color: weeklyMatchCount && weeklyMatchCount > 0 ? "text-green-600" : "text-[var(--text)]",
       iconBg: "bg-green-50",
       iconColor: "text-green-500",
       icon: (
@@ -121,7 +121,7 @@ export default function Sidebar({
       label: "关注公司新岗",
       value: trackedCompanyNewCount !== null ? String(trackedCompanyNewCount) : null,
       fallback: "收藏岗位后显示",
-      color: trackedCompanyNewCount && trackedCompanyNewCount > 0 ? "text-amber-600" : "text-gray-900",
+      color: trackedCompanyNewCount && trackedCompanyNewCount > 0 ? "text-amber-600" : "text-[var(--text)]",
       iconBg: "bg-amber-50",
       iconColor: "text-amber-500",
       icon: (
@@ -139,19 +139,19 @@ export default function Sidebar({
           ? "text-red-600"
           : nearestDeadline !== null && nearestDeadline <= 7
             ? "text-orange-500"
-            : "text-gray-900",
+            : "text-[var(--text)]",
       iconBg:
         nearestDeadline !== null && nearestDeadline <= 3
           ? "bg-red-50"
           : nearestDeadline !== null && nearestDeadline <= 7
             ? "bg-orange-50"
-            : "bg-gray-50",
+            : "bg-[var(--surface)]",
       iconColor:
         nearestDeadline !== null && nearestDeadline <= 3
           ? "text-red-500"
           : nearestDeadline !== null && nearestDeadline <= 7
             ? "text-orange-500"
-            : "text-gray-400",
+            : "text-[var(--text-t)]",
       icon: (
         <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <circle cx="12" cy="12" r="10" />
@@ -170,7 +170,7 @@ export default function Sidebar({
           临近截止
         </h3>
         {urgentJobs.length === 0 ? (
-          <p className="text-sm text-gray-400">暂无紧急岗位</p>
+          <p className="text-sm text-[var(--text-t)]">暂无紧急岗位</p>
         ) : (
           <ol className="space-y-2">
             {urgentJobs.map((job) => {
@@ -181,10 +181,10 @@ export default function Sidebar({
                     {dl}天
                   </span>
                   <div className="min-w-0 flex-1">
-                    <a href={job.applyUrl} target="_blank" rel="noreferrer" className="text-gray-700 hover:text-gray-900 line-clamp-1 block text-[13px]">
+                    <a href={job.applyUrl} target="_blank" rel="noreferrer" className="text-[var(--text)] hover:text-[var(--text)] line-clamp-1 block text-[13px]">
                       {job.company} · {job.title}
                     </a>
-                    <div className="text-[11px] text-gray-400 mt-0.5">
+                    <div className="text-[11px] text-[var(--text-t)] mt-0.5">
                       截止 {job.deadline?.slice(5, 10)}
                     </div>
                   </div>
@@ -205,14 +205,14 @@ export default function Sidebar({
           <ol className="space-y-2">
             {discover.map((job, idx) => (
               <li key={job.id} className="flex gap-2 text-sm">
-                <span className={`shrink-0 w-5 text-center text-[11px] font-medium leading-5 rounded ${idx < 3 ? "bg-brand-100 text-brand-600" : "bg-gray-100 text-gray-500"}`}>
+                <span className={`shrink-0 w-5 text-center text-[11px] font-medium leading-5 rounded ${idx < 3 ? "bg-brand-100 text-brand-500" : "bg-[rgba(0,0,0,0.04)] text-[var(--text-s)]"}`}>
                   {idx + 1}
                 </span>
                 <div className="min-w-0 flex-1">
-                  <a href={`/job/${job.id}`} className="text-gray-700 hover:text-gray-900 line-clamp-1 block text-[13px]">
+                  <a href={`/job/${job.id}`} className="text-[var(--text)] hover:text-[var(--text)] line-clamp-1 block text-[13px]">
                     {job.company} · {job.title}
                   </a>
-                  <div className="text-[11px] text-gray-400 mt-0.5">
+                  <div className="text-[11px] text-[var(--text-t)] mt-0.5">
                     {job.category} · 匹配 {Math.round(job.scores.aiMatch * 100)}%
                   </div>
                 </div>
@@ -232,20 +232,20 @@ export default function Sidebar({
           <ol className="space-y-2 mb-3">
             {weeklyTop.map((m, i) => (
               <li key={m.job.id} className="flex gap-2 text-sm">
-                <span className={`shrink-0 w-5 text-center text-[11px] font-medium leading-5 rounded ${i === 0 ? "bg-violet-500 text-white" : "bg-gray-100 text-gray-500"}`}>{i + 1}</span>
+                <span className={`shrink-0 w-5 text-center text-[11px] font-medium leading-5 rounded ${i === 0 ? "bg-violet-500 text-white" : "bg-[rgba(0,0,0,0.04)] text-[var(--text-s)]"}`}>{i + 1}</span>
                 <div className="min-w-0 flex-1">
-                  <a href={`/job/${m.job.id}`} className="text-gray-700 hover:text-gray-900 line-clamp-1 block text-[13px]">
+                  <a href={`/job/${m.job.id}`} className="text-[var(--text)] hover:text-[var(--text)] line-clamp-1 block text-[13px]">
                     {m.job.company} · {m.job.title}
                   </a>
-                  <div className="text-[11px] text-gray-400 mt-0.5">匹配 {Math.round(m.score * 100)}%</div>
+                  <div className="text-[11px] text-[var(--text-t)] mt-0.5">匹配 {Math.round(m.score * 100)}%</div>
                 </div>
               </li>
             ))}
           </ol>
         ) : (
-          <p className="text-xs text-gray-400 mb-3">设置画像后显示推荐</p>
+          <p className="text-xs text-[var(--text-t)] mb-3">设置画像后显示推荐</p>
         )}
-        <button onClick={onOpenWeekly} className="w-full py-2 rounded-[var(--radius-xs)] text-xs font-medium text-gray-700 bg-[rgba(0,0,0,.03)] hover:bg-[rgba(0,0,0,.06)] transition">
+        <button onClick={onOpenWeekly} className="w-full py-2 rounded-[var(--radius-xs)] text-xs font-medium text-[var(--text)] bg-[rgba(0,0,0,.03)] hover:bg-[rgba(0,0,0,.06)] transition">
           查看完整清单 →
         </button>
       </div>
@@ -259,15 +259,15 @@ export default function Sidebar({
         <div className="space-y-2.5">
           {statItems.map((s) => (
             <div key={s.label} className="flex items-center gap-2.5">
-              <div className={`w-8 h-8 rounded-lg ${s.iconBg} flex items-center justify-center ${s.iconColor} shrink-0`}>
+              <div className={`w-8 h-8 rounded-[var(--radius-xs)] ${s.iconBg} flex items-center justify-center ${s.iconColor} shrink-0`}>
                 {s.icon}
               </div>
               <div className="flex-1 min-w-0">
-                <div className="text-[11px] text-gray-500">{s.label}</div>
+                <div className="text-[11px] text-[var(--text-s)]">{s.label}</div>
                 {s.value !== null ? (
                   <div className={`text-[15px] font-bold leading-tight font-mono ${s.color}`}>{s.value}</div>
                 ) : (
-                  <div className="text-[11px] text-gray-400">{s.fallback}</div>
+                  <div className="text-[11px] text-[var(--text-t)]">{s.fallback}</div>
                 )}
               </div>
             </div>
@@ -276,8 +276,8 @@ export default function Sidebar({
       </div>
 
       {/* 数据统计 */}
-      <div className="card p-4 text-xs text-gray-500 leading-relaxed">
-        <p className="font-medium text-gray-700 mb-1">关于数据</p>
+      <div className="card p-4 text-xs text-[var(--text-s)] leading-relaxed">
+        <p className="font-medium text-[var(--text)] mb-1">关于数据</p>
         <p>
           岗位来自公开招聘 API + 社区维护的校招仓库，每日自动抓取更新。投递以官方页面为准。
         </p>

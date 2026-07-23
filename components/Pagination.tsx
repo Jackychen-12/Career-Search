@@ -40,7 +40,7 @@ export default function Pagination({
       {/* Page buttons row */}
       <div className="flex items-center justify-center gap-1.5">
         <button
-          className={`${btn} ${page <= 1 ? "border-[var(--border)] text-slate-300 cursor-not-allowed" : "border border-[var(--border)] text-gray-500 bg-[var(--surface)] hover:border-brand-500 hover:text-brand-500"}`}
+          className={`${btn} ${page <= 1 ? "border-[var(--border)] text-[var(--text-t)] cursor-not-allowed" : "border border-[var(--border)] text-[var(--text-s)] bg-[var(--surface)] hover:border-brand-500 hover:text-brand-500"}`}
           onClick={() => onPage(page - 1)}
           disabled={page <= 1}
         >
@@ -48,15 +48,15 @@ export default function Pagination({
         </button>
         {pages.map((p, idx) =>
           p === "..." ? (
-            <span key={`dot-${idx}`} className="px-1 text-slate-400 text-xs">…</span>
+            <span key={`dot-${idx}`} className="px-1 text-[var(--text-t)] text-xs">…</span>
           ) : (
             <button
               key={p}
               onClick={() => onPage(p)}
               className={`${btn} ${
                 p === page
-                  ? "bg-brand-500 text-white border-transparent font-bold shadow-sm"
-                  : "border border-[var(--border)] text-gray-500 bg-[var(--surface)] hover:border-brand-500 hover:text-brand-500"
+                  ? "bg-brand-500 text-white border-transparent font-bold shadow-[var(--shadow-sm)]"
+                  : "border border-[var(--border)] text-[var(--text-s)] bg-[var(--surface)] hover:border-brand-500 hover:text-brand-500"
               }`}
             >
               {p}
@@ -64,7 +64,7 @@ export default function Pagination({
           ),
         )}
         <button
-          className={`${btn} ${page >= totalPages ? "border-[var(--border)] text-slate-300 cursor-not-allowed" : "border border-[var(--border)] text-gray-500 bg-[var(--surface)] hover:border-brand-500 hover:text-brand-500"}`}
+          className={`${btn} ${page >= totalPages ? "border-[var(--border)] text-[var(--text-t)] cursor-not-allowed" : "border border-[var(--border)] text-[var(--text-s)] bg-[var(--surface)] hover:border-brand-500 hover:text-brand-500"}`}
           onClick={() => onPage(page + 1)}
           disabled={page >= totalPages}
         >
@@ -73,7 +73,7 @@ export default function Pagination({
       </div>
 
       {/* Jump-to-page row */}
-      <div className="flex items-center gap-2 text-xs text-slate-500">
+      <div className="flex items-center gap-2 text-xs text-[var(--text-s)]">
         <span>共 {totalPages} 页，跳转到第</span>
         <input
           type="number"
@@ -83,12 +83,12 @@ export default function Pagination({
           onChange={(e) => setJumpValue(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleJump()}
           placeholder={String(page)}
-          className="w-14 h-7 px-2 text-center text-xs border border-[var(--border-s)] rounded-[var(--radius-xs)] focus:border-nav focus:ring-1 focus:ring-nav/30 outline-none bg-white"
+          className="w-14 h-7 px-2 text-center text-xs border border-[var(--border-s)] rounded-[var(--radius-xs)] focus:border-nav focus:ring-1 focus:ring-nav/30 outline-none bg-[var(--surface-solid)]"
         />
         <span>页</span>
         <button
           onClick={handleJump}
-          className="h-7 px-3 text-xs font-semibold text-brand-600 rounded-md bg-brand-50 border border-brand-200 shadow-sm hover:bg-brand-100 transition"
+          className="h-7 px-3 text-xs font-semibold text-brand-500 rounded-md bg-brand-50 border border-brand-200 shadow-[var(--shadow-sm)] hover:bg-brand-100 transition"
         >
           GO
         </button>
