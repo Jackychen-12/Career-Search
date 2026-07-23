@@ -25,10 +25,10 @@ function getUrgency(daysLeft: number | null): PlanItem["urgency"] {
 }
 
 const URGENCY_LABELS: Record<PlanItem["urgency"], { label: string; color: string }> = {
-  thisWeek: { label: "本周截止", color: "text-red-600" },
-  nextWeek: { label: "下周截止", color: "text-amber-600" },
+  thisWeek: { label: "本周截止", color: "text-red-500" },
+  nextWeek: { label: "下周截止", color: "text-amber-500" },
   thisMonth: { label: "本月截止", color: "text-brand-600" },
-  later: { label: "暂无紧迫", color: "text-gray-500" },
+  later: { label: "暂无紧迫", color: "text-gray-400" },
 };
 
 export default function WeeklyPlan({
@@ -120,10 +120,10 @@ export default function WeeklyPlan({
   return (
     <div className="fixed inset-0 z-50 bg-black/50 flex items-end sm:items-center justify-center" onClick={onClose}>
       <div
-        className="bg-white w-full sm:max-w-2xl sm:rounded-xl max-h-[88vh] flex flex-col"
+        className="bg-[var(--surface-solid)] w-full sm:max-w-2xl sm:rounded-[var(--radius-sm)] max-h-[88vh] flex flex-col border border-[var(--border)]"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between shrink-0">
+        <div className="px-5 py-4 border-b border-[var(--border)] flex items-center justify-between shrink-0">
           <div>
             <h3 className="text-base font-bold text-gray-900">本周投递清单</h3>
             <p className="text-xs text-gray-500 mt-0.5">基于画像自动筛选，按紧急度排序，已投递的已排除</p>
@@ -154,7 +154,7 @@ export default function WeeklyPlan({
                           href={p.job.applyUrl}
                           target="_blank"
                           rel="noreferrer"
-                          className="flex items-center gap-3 p-3 rounded-lg border border-gray-100 hover:border-brand-300 transition"
+                          className="flex items-center gap-3 p-3 rounded-[var(--radius-xs)] border border-[var(--border)] hover:border-brand-300 transition"
                         >
                           <span className={`shrink-0 text-[11px] font-bold px-2 py-1 rounded-full ${
                             p.score > 0.6 ? "bg-brand-500 text-white" : "bg-brand-50 text-brand-600"
@@ -180,11 +180,11 @@ export default function WeeklyPlan({
         </div>
 
         {plan.length > 0 && (
-          <div className="px-5 py-3 border-t border-gray-100 flex items-center gap-2 shrink-0">
-            <button onClick={copyText} className="flex-1 py-2 rounded-lg text-sm border border-gray-200 text-gray-700 hover:border-gray-400 transition">
+          <div className="px-5 py-3 border-t border-[var(--border)] flex items-center gap-2 shrink-0">
+            <button onClick={copyText} className="flex-1 py-2 rounded-[var(--radius-xs)] text-sm border border-[var(--border-s)] text-gray-700 hover:border-gray-400 transition">
               复制清单
             </button>
-            <button onClick={exportExcel} className="flex-1 py-2 rounded-lg text-sm font-medium text-white bg-brand-500 hover:bg-brand-600 shadow-sm transition">
+            <button onClick={exportExcel} className="flex-1 py-2 rounded-[var(--radius-xs)] text-sm font-medium text-white bg-brand-500 hover:bg-brand-600 shadow-sm transition">
               导出 Excel
             </button>
           </div>

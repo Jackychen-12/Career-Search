@@ -53,9 +53,9 @@ export default function CalendarView({ jobs, now }: { jobs: Job[]; now: number }
     <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-3">
       <div className="card p-5">
         <div className="flex items-center justify-between mb-4">
-          <button onClick={prevMonth} className="w-8 h-8 rounded-md text-gray-500 hover:bg-gray-100 hover:text-gray-900 transition grid place-items-center text-sm">←</button>
+          <button onClick={prevMonth} className="w-8 h-8 rounded-md text-gray-500 hover:bg-[var(--surface)] hover:text-gray-900 transition grid place-items-center text-sm">←</button>
           <h3 className="text-sm font-semibold text-gray-900">{year} 年 {month + 1} 月</h3>
-          <button onClick={nextMonth} className="w-8 h-8 rounded-md text-gray-500 hover:bg-gray-100 hover:text-gray-900 transition grid place-items-center text-sm">→</button>
+          <button onClick={nextMonth} className="w-8 h-8 rounded-md text-gray-500 hover:bg-[var(--surface)] hover:text-gray-900 transition grid place-items-center text-sm">→</button>
         </div>
 
         <div className="grid grid-cols-7 gap-1 text-center text-[11px] text-gray-400 mb-1.5 font-medium">
@@ -106,7 +106,7 @@ export default function CalendarView({ jobs, now }: { jobs: Job[]; now: number }
                   href={j.applyUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="block p-2.5 rounded-md border border-gray-100 hover:border-brand-300 hover:bg-brand-50/30 transition"
+                  className="block p-2.5 rounded-md border border-[var(--border)] hover:border-brand-300 hover:bg-brand-50/30 transition"
                 >
                   <div className="text-xs font-medium text-gray-900">{j.company}</div>
                   <div className="text-[11px] text-brand-600 mt-0.5 truncate">{j.title}</div>

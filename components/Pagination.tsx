@@ -33,14 +33,14 @@ export default function Pagination({
     }
   };
 
-  const btn = "min-w-[34px] h-8 px-2 inline-flex items-center justify-center rounded-md text-xs border transition";
+  const btn = "min-w-[34px] h-8 px-2 inline-flex items-center justify-center rounded-[var(--radius-xs)] text-xs border transition";
 
   return (
     <nav className="flex flex-col items-center gap-3 mt-6">
       {/* Page buttons row */}
       <div className="flex items-center justify-center gap-1.5">
         <button
-          className={`${btn} ${page <= 1 ? "border-slate-200 text-slate-300 cursor-not-allowed" : "border-slate-200 text-slate-600 hover:border-nav hover:text-nav bg-white"}`}
+          className={`${btn} ${page <= 1 ? "border-[var(--border)] text-slate-300 cursor-not-allowed" : "border border-[var(--border)] text-gray-500 bg-[var(--surface)] hover:border-brand-500 hover:text-brand-500"}`}
           onClick={() => onPage(page - 1)}
           disabled={page <= 1}
         >
@@ -55,8 +55,8 @@ export default function Pagination({
               onClick={() => onPage(p)}
               className={`${btn} ${
                 p === page
-                  ? "border-brand-200 bg-brand-50 text-brand-600 shadow-sm font-semibold"
-                  : "border-slate-200 text-slate-600 hover:border-nav hover:text-nav bg-white"
+                  ? "bg-brand-500 text-white border-transparent font-bold shadow-sm"
+                  : "border border-[var(--border)] text-gray-500 bg-[var(--surface)] hover:border-brand-500 hover:text-brand-500"
               }`}
             >
               {p}
@@ -64,7 +64,7 @@ export default function Pagination({
           ),
         )}
         <button
-          className={`${btn} ${page >= totalPages ? "border-slate-200 text-slate-300 cursor-not-allowed" : "border-slate-200 text-slate-600 hover:border-nav hover:text-nav bg-white"}`}
+          className={`${btn} ${page >= totalPages ? "border-[var(--border)] text-slate-300 cursor-not-allowed" : "border border-[var(--border)] text-gray-500 bg-[var(--surface)] hover:border-brand-500 hover:text-brand-500"}`}
           onClick={() => onPage(page + 1)}
           disabled={page >= totalPages}
         >
@@ -83,7 +83,7 @@ export default function Pagination({
           onChange={(e) => setJumpValue(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleJump()}
           placeholder={String(page)}
-          className="w-14 h-7 px-2 text-center text-xs border border-slate-200 rounded-md focus:border-nav focus:ring-1 focus:ring-nav/30 outline-none bg-white"
+          className="w-14 h-7 px-2 text-center text-xs border border-[var(--border-s)] rounded-[var(--radius-xs)] focus:border-nav focus:ring-1 focus:ring-nav/30 outline-none bg-white"
         />
         <span>页</span>
         <button

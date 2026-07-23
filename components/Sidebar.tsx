@@ -245,7 +245,7 @@ export default function Sidebar({
         ) : (
           <p className="text-xs text-gray-400 mb-3">设置画像后显示推荐</p>
         )}
-        <button onClick={onOpenWeekly} className="w-full py-2 rounded-lg text-xs font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 transition">
+        <button onClick={onOpenWeekly} className="w-full py-2 rounded-[var(--radius-xs)] text-xs font-medium text-gray-700 bg-[rgba(0,0,0,.03)] hover:bg-[rgba(0,0,0,.06)] transition">
           查看完整清单 →
         </button>
       </div>
@@ -265,7 +265,7 @@ export default function Sidebar({
               <div className="flex-1 min-w-0">
                 <div className="text-[11px] text-gray-500">{s.label}</div>
                 {s.value !== null ? (
-                  <div className={`text-[15px] font-bold leading-tight ${s.color}`}>{s.value}</div>
+                  <div className={`text-[15px] font-bold leading-tight font-mono ${s.color}`}>{s.value}</div>
                 ) : (
                   <div className="text-[11px] text-gray-400">{s.fallback}</div>
                 )}

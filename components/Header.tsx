@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { signInWithGitHub, sendOtpCode, verifyOtpCode, signOut, getUser, type GhUser } from "@/lib/auth";
 import { hasPrefs } from "@/lib/ranking";
@@ -30,7 +31,7 @@ function NotifyBell() {
     <div className="relative">
       <button
         onClick={() => setOpen(!open)}
-        className={`w-7 h-7 rounded-lg flex items-center justify-center transition ${enabled ? "text-brand-600 bg-brand-50" : "text-gray-400 hover:text-gray-600 hover:bg-gray-100"}`}
+        className={`w-8 h-8 rounded-full flex items-center justify-center transition border ${enabled ? "text-brand-500 bg-brand-50 border-brand-200" : "text-gray-400 hover:text-brand-500 border-[var(--border)] hover:border-brand-500 hover:bg-brand-50"}`}
         title="邮件推送设置"
       >
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -41,9 +42,9 @@ function NotifyBell() {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-9 w-72 card p-4 shadow-lg z-50 space-y-3">
+        <div className="absolute right-0 top-10 w-72 card p-4 z-50 space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-sm font-semibold text-gray-900">每日岗位推送</span>
+            <span className="text-sm font-bold text-gray-900">每日岗位推送</span>
             <label className="flex items-center gap-1.5 cursor-pointer">
               <input type="checkbox" checked={enabled} onChange={(e) => setEnabled(e.target.checked)} className="accent-brand-500" />
               <span className="text-xs text-gray-600">{enabled ? "开" : "关"}</span>
@@ -55,10 +56,10 @@ function NotifyBell() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="输入接收邮箱"
-              className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:border-brand-500"
+              className="w-full px-3 py-2 rounded-[var(--radius-xs)] border border-[var(--border-s)] text-sm"
             />
           )}
-          <button onClick={save} className="w-full py-2 rounded-lg text-xs font-medium text-white bg-brand-500 hover:bg-brand-600 transition">
+          <button onClick={save} className="w-full py-2 rounded-[var(--radius-xs)] text-xs font-semibold text-white bg-brand-500 hover:bg-brand-600 transition">
             {saved ? "已保存 ✓" : "保存"}
           </button>
           <p className="text-[10px] text-gray-400">每天早上推送与你画像匹配的新增岗位，可随时关闭。</p>
@@ -87,7 +88,7 @@ function ThemeToggle() {
   }
 
   return (
-    <button onClick={toggle} className="w-7 h-7 rounded-lg flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition" title={dark ? "切换亮色" : "切换暗色"}>
+    <button onClick={toggle} className="w-8 h-8 rounded-full flex items-center justify-center border border-[var(--border)] text-gray-400 hover:text-brand-500 hover:border-brand-500 hover:bg-brand-50 transition" title={dark ? "切换亮色" : "切换暗色"}>
       {dark ? "☀" : "☾"}
     </button>
   );
@@ -102,6 +103,7 @@ export default function Header({
   onOpenPrefs?: () => void;
   onOpenWeekly?: () => void;
 }) {
+  const pathname = usePathname();
   const [user, setUser] = useState<GhUser | null>(null);
   const [loggedIn, setLoggedIn] = useState(false);
   const [hasProfile, setHasProfile] = useState(false);
@@ -214,32 +216,41 @@ export default function Header({
     { label: "投递 & 面试", href: "/timeline/" },
   ];
 
+  function isActive(href: string) {
+    if (href === "/") return pathname === "/";
+    return pathname?.startsWith(href.replace(/\/$/, ""));
+  }
+
   return (
-    <><header className="sticky top-0 z-40 backdrop-blur-xl bg-white/70 border-b border-gray-200/50 shadow-sm">
+    <><header className="sticky top-0 z-40 bg-[var(--surface)] backdrop-blur-[8px] [backdrop-filter:blur(8px)_saturate(180%)] [-webkit-backdrop-filter:blur(8px)_saturate(180%)] border-b border-[var(--border)]" style={{ boxShadow: "0 1px 8px rgba(91,76,255,.04)" }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
         <a href="/" className="flex items-center gap-2.5 group">
-          <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-brand-400 to-brand-600 grid place-items-center shadow-sm group-hover:shadow-md transition">
-            <span className="text-xs font-bold text-white">C</span>
+          <div className="w-7 h-7 rounded-[var(--radius-xs)] bg-gradient-to-br from-brand-400 to-brand-600 grid place-items-center shadow-sm group-hover:shadow-md transition">
+            <span className="text-xs font-black text-white">C</span>
           </div>
-          <span className="text-lg font-bold text-gray-900 group-hover:text-gray-600 transition tracking-tight">Career Search</span>
+          <span className="text-lg font-black text-gray-900 group-hover:text-brand-500 transition tracking-tight">Career Search</span>
         </a>
         <div className="flex items-center gap-2">
-          <span className="hidden sm:inline text-[11px] text-gray-400 bg-gray-100/60 px-2 py-0.5 rounded-full">
+          <span className="hidden sm:inline text-[11px] font-bold font-mono text-brand-500 bg-brand-50 px-2.5 py-0.5 rounded-full">
             {total.toLocaleString()} 岗位
           </span>
         </div>
 
         {/* Desktop nav */}
-        <nav className="hidden md:flex items-center gap-3 text-sm">
-          {navItems.map((item) => (
-            <a key={item.label} href={item.href} className={`text-[13px] transition ${item.highlight ? "text-brand-600 font-medium" : "text-gray-500 hover:text-gray-900"}`}>{item.label}</a>
-          ))}
+        <nav className="hidden md:flex items-center gap-1.5 text-sm">
+          {navItems.map((item) => {
+            const active = isActive(item.href);
+            return (
+              <a key={item.label} href={item.href} className={`px-3.5 py-1.5 rounded-full text-[13px] font-semibold transition ${active ? "bg-brand-500 text-white shadow-sm" : item.highlight ? "text-brand-500 bg-brand-50" : "text-gray-500 hover:text-brand-500 hover:bg-brand-50"}`}>{item.label}</a>
+            );
+          })}
+          <div className="w-px h-5 bg-[var(--border)] mx-1" />
           {loggedIn && <NotifyBell />}
           <ThemeToggle />
           {loggedIn && user ? (
             <button
               onClick={() => signOut().then(() => { setLoggedIn(false); setUser(null); })}
-              className="w-7 h-7 rounded-full overflow-hidden ring-2 ring-white shadow-sm hover:ring-brand-200 transition"
+              className="w-8 h-8 rounded-full overflow-hidden ring-2 ring-white shadow-sm hover:ring-brand-200 transition ml-1"
               title={`${user.login} · 点击登出`}
             >
               {user.avatar_url ? (
@@ -250,14 +261,14 @@ export default function Header({
               )}
             </button>
           ) : (
-            <button onClick={() => openLogin()} className="text-[13px] font-medium text-white px-3 py-1.5 rounded-full bg-brand-500 hover:bg-brand-600 shadow-sm transition">登录</button>
+            <button onClick={() => openLogin()} className="text-[13px] font-semibold text-white px-4 py-1.5 rounded-full bg-brand-500 hover:bg-brand-600 shadow-sm transition ml-1">登录</button>
           )}
         </nav>
 
         {/* Mobile */}
         <div className="flex md:hidden items-center gap-2">
           <ThemeToggle />
-          <button onClick={() => setMenuOpen(!menuOpen)} className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-500 hover:bg-gray-100">
+          <button onClick={() => setMenuOpen(!menuOpen)} className="w-8 h-8 rounded-full flex items-center justify-center text-gray-500 border border-[var(--border)] hover:border-brand-500 hover:text-brand-500">
             {menuOpen ? "✕" : "☰"}
           </button>
         </div>
@@ -265,14 +276,17 @@ export default function Header({
 
       {/* Mobile menu */}
       {menuOpen && (
-        <div className="md:hidden border-t border-gray-100 bg-white/95 backdrop-blur-xl px-4 py-3 space-y-1">
-          {navItems.map((item) =>
-            <a key={item.label} href={item.href} className="block py-2 text-sm text-gray-700 hover:text-gray-900" onClick={() => setMenuOpen(false)}>{item.label}</a>
-          )}
+        <div className="md:hidden border-t border-[var(--border)] bg-[var(--surface)] backdrop-blur-[8px] [backdrop-filter:blur(8px)_saturate(180%)] px-4 py-3 space-y-1">
+          {navItems.map((item) => {
+            const active = isActive(item.href);
+            return (
+              <a key={item.label} href={item.href} className={`block py-2.5 px-3 rounded-[var(--radius-xs)] text-sm font-semibold transition ${active ? "bg-brand-500 text-white" : "text-gray-700 hover:text-brand-500 hover:bg-brand-50"}`} onClick={() => setMenuOpen(false)}>{item.label}</a>
+            );
+          })}
           {loggedIn ? (
-            <button onClick={() => { signOut(); setMenuOpen(false); }} className="block w-full text-left py-2 text-sm text-red-500">退出登录</button>
+            <button onClick={() => { signOut(); setMenuOpen(false); }} className="block w-full text-left py-2.5 px-3 text-sm text-red-500 font-semibold">退出登录</button>
           ) : (
-            <button onClick={() => { openLogin(); setMenuOpen(false); }} className="block w-full text-left py-2 text-sm font-medium text-brand-600">登录</button>
+            <button onClick={() => { openLogin(); setMenuOpen(false); }} className="block w-full text-left py-2.5 px-3 text-sm font-semibold text-brand-500">登录</button>
           )}
         </div>
       )}
@@ -280,7 +294,7 @@ export default function Header({
 
       {showLogin && (
         <div className="fixed inset-0 z-50 bg-black/30 backdrop-blur-sm flex items-center justify-center" onClick={() => setShowLogin(false)}>
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm mx-4 p-6 space-y-4" onClick={(e) => e.stopPropagation()}>
+          <div className="bg-[var(--surface-solid)] rounded-[var(--radius)] border border-[var(--border)] shadow-2xl w-full max-w-sm mx-4 p-6 space-y-4" onClick={(e) => e.stopPropagation()} style={{ boxShadow: "0 24px 80px rgba(91,76,255,.12), 0 8px 32px rgba(0,0,0,.08)" }}>
             <h2 className="text-lg font-bold text-gray-900 text-center">登录</h2>
 
             {emailSent ? (
@@ -300,14 +314,14 @@ export default function Header({
                   onChange={(e) => setOtpCode(e.target.value.replace(/[^0-9]/g, ""))}
                   onKeyDown={(e) => e.key === "Enter" && otpCode.trim() && handleVerifyCode()}
                   placeholder="请输入验证码"
-                  className="w-full px-4 py-3 rounded-lg border border-gray-200 text-center text-xl tracking-[0.3em] font-mono focus:outline-none focus:ring-2 focus:ring-brand-400/30 focus:border-brand-400"
+                  className="w-full px-4 py-3 rounded-[var(--radius-xs)] border border-[var(--border-s)] text-center text-xl tracking-[0.3em] font-mono"
                   autoFocus
                 />
                 {loginErr && <p className="text-xs text-red-500">{loginErr}</p>}
                 <button
                   onClick={handleVerifyCode}
                   disabled={verifying || !otpCode.trim()}
-                  className="w-full py-2.5 rounded-lg bg-brand-600 text-white text-sm font-medium hover:bg-brand-700 disabled:opacity-50 transition"
+                  className="w-full py-2.5 rounded-[var(--radius-xs)] bg-brand-500 text-white text-sm font-semibold hover:bg-brand-600 disabled:opacity-50 transition"
                 >
                   {verifying ? "验证中..." : "验证登录"}
                 </button>
@@ -316,14 +330,14 @@ export default function Header({
                   <button
                     onClick={handleEmailAuth}
                     disabled={cooldown > 0}
-                    className="text-xs text-brand-600 hover:text-brand-700 disabled:text-gray-300"
+                    className="text-xs text-brand-500 hover:text-brand-600 disabled:text-gray-300"
                   >
                     {cooldown > 0 ? `重新发送 (${cooldown}s)` : "重新发送"}
                   </button>
                   <span className="text-gray-300">|</span>
                   <button
                     onClick={() => { setEmailSent(false); setLoginEmail(""); setOtpCode(""); setLoginErr(""); }}
-                    className="text-xs text-brand-600 hover:text-brand-700"
+                    className="text-xs text-brand-500 hover:text-brand-600"
                   >
                     使用其他邮箱
                   </button>
@@ -337,13 +351,13 @@ export default function Header({
                   onChange={(e) => setLoginEmail(e.target.value)}
                   placeholder="输入邮箱地址"
                   onKeyDown={(e) => e.key === "Enter" && loginEmail && handleEmailAuth()}
-                  className="w-full px-3 py-2.5 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400/30 focus:border-brand-400"
+                  className="w-full px-3 py-2.5 rounded-[var(--radius-xs)] border border-[var(--border-s)] text-sm"
                 />
                 {loginErr && <p className="text-xs text-red-500">{loginErr}</p>}
                 <button
                   onClick={handleEmailAuth}
                   disabled={loginLoading || !loginEmail}
-                  className="w-full py-2.5 rounded-lg bg-brand-600 text-white text-sm font-medium hover:bg-brand-700 disabled:opacity-50 transition"
+                  className="w-full py-2.5 rounded-[var(--radius-xs)] bg-brand-500 text-white text-sm font-semibold hover:bg-brand-600 disabled:opacity-50 transition"
                 >
                   {loginLoading ? "发送中..." : "发送验证码"}
                 </button>
@@ -352,13 +366,13 @@ export default function Header({
             )}
 
             <div className="relative">
-              <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-gray-200" /></div>
-              <div className="relative flex justify-center text-xs"><span className="bg-white px-2 text-gray-400">或</span></div>
+              <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-[var(--border)]" /></div>
+              <div className="relative flex justify-center text-xs"><span className="bg-[var(--surface-solid)] px-2 text-gray-400">或</span></div>
             </div>
 
             <button
               onClick={handleGitHubAuth}
-              className="w-full py-2.5 rounded-lg border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-50 transition flex items-center justify-center gap-2"
+              className="w-full py-2.5 rounded-[var(--radius-xs)] border border-[var(--border-s)] text-sm font-semibold text-gray-700 hover:bg-brand-50 hover:text-brand-500 hover:border-brand-500 transition flex items-center justify-center gap-2"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
               GitHub 登录

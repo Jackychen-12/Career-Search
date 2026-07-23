@@ -18,13 +18,13 @@ const STATUS_OPTIONS: { value: TrackingStatus; label: string }[] = [
 ];
 
 const CATEGORY_BAR_COLORS: Record<string, string> = {
-  互联网: "from-indigo-400 to-indigo-600",
-  金融: "from-amber-400 to-amber-600",
-  外企: "from-emerald-400 to-emerald-600",
-  快消: "from-orange-400 to-orange-500",
-  实体: "from-slate-400 to-slate-500",
-  管培: "from-violet-400 to-violet-600",
-  其他: "from-gray-300 to-gray-400",
+  互联网: "bg-[var(--cat-internet)]",
+  金融: "bg-[var(--cat-finance)]",
+  外企: "bg-[var(--cat-foreign)]",
+  快消: "bg-[var(--cat-fmcg)]",
+  实体: "bg-[var(--cat-entity)]",
+  管培: "bg-[var(--cat-trainee)]",
+  其他: "bg-gray-400",
 };
 
 const HIGHLIGHT_KEYWORDS: Record<string, string> = {
@@ -121,7 +121,7 @@ function SmartAnalysis({ job, matchResult }: { job: Job; matchResult?: MatchResu
           匹配 {displayPct}%
         </span>
       </div>
-      <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden mb-2">
+      <div className="h-[5px] bg-gray-100 rounded-full overflow-hidden mb-2">
         <div
           className={`h-full rounded-full transition-all ${
             displayPct >= 70
@@ -196,7 +196,7 @@ export default function JobCard({
   return (
     <article className="card p-0 overflow-hidden flex flex-col">
       {/* Top color bar */}
-      <div className={`h-1 bg-gradient-to-r ${barColor}`} />
+      <div className={`h-[3px] ${barColor}`} />
 
       <div className="p-4 flex flex-col gap-2.5 flex-1">
         {/* Row 1: category + tier + tags + actions */}
@@ -232,7 +232,7 @@ export default function JobCard({
               <button
                 onClick={() => onTrack(job.id, trackingStatus ? null : "saved")}
                 className={`w-6 h-6 rounded-full flex items-center justify-center transition ${
-                  trackingStatus ? "text-red-500 bg-red-50" : "text-gray-300 hover:text-red-400"
+                  trackingStatus ? "text-red-500 bg-red-50" : "text-gray-300 hover:bg-brand-50 hover:text-brand-500"
                 }`}
               >
                 <svg width="12" height="12" viewBox="0 0 24 24" fill={trackingStatus ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2.5">
@@ -245,7 +245,7 @@ export default function JobCard({
 
         {/* Row 2: Company + Salary */}
         <div className="flex items-center gap-2">
-          <a href={`/job/${job.id}`} className="text-[15px] font-bold text-gray-900 hover:text-gray-600 transition truncate">{job.company}</a>
+          <a href={`/job/${job.id}`} className="text-[15px] font-extrabold tracking-tight text-gray-900 hover:text-gray-600 transition truncate">{job.company}</a>
           {job.salary && (
             <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-brand-50 text-brand-700 whitespace-nowrap shrink-0">
               💰 {job.salary}
@@ -254,14 +254,14 @@ export default function JobCard({
         </div>
 
         {/* Row 3: Title */}
-        <div className="text-[13px] text-gray-800 line-clamp-2 leading-snug font-semibold">
+        <div className="text-[13px] text-gray-800 line-clamp-2 leading-snug font-bold">
           {job.title}
         </div>
 
         {/* Row 4: Role tags + requirements */}
         <div className="flex items-center gap-1.5 flex-wrap">
           {extractRoleTags(job).map((tag) => (
-            <span key={tag} className="text-[10px] px-2 py-0.5 rounded-md bg-brand-50 text-brand-600 border border-brand-100 font-medium">
+            <span key={tag} className="text-[10px] px-2 py-0.5 rounded-md bg-brand-50 text-brand-500 border border-[rgba(91,76,255,.12)] font-medium">
               {tag}
             </span>
           ))}
@@ -273,7 +273,7 @@ export default function JobCard({
         {/* Row 5: Location */}
         <div className="flex flex-wrap gap-1.5">
           {job.location.slice(0, 5).map((loc) => (
-            <span key={loc} className="text-[10px] px-2 py-0.5 rounded-md bg-gray-100 text-gray-600">
+            <span key={loc} className="text-[10px] px-2 py-0.5 rounded-full bg-[rgba(0,0,0,.03)] text-gray-500">
               📍 {loc}
             </span>
           ))}
@@ -317,7 +317,7 @@ export default function JobCard({
             href={job.applyUrl}
             target="_blank"
             rel="noreferrer"
-            className="text-[11px] font-medium text-white px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-brand-500 to-brand-600 hover:from-brand-600 hover:to-brand-700 shadow-sm transition"
+            className="text-[11px] font-medium text-white px-3.5 py-1.5 rounded-[var(--radius-xs)] bg-brand-500 hover:bg-brand-600 shadow-sm transition"
           >
             投递 →
           </a>

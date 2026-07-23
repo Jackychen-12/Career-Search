@@ -62,7 +62,7 @@ export default function StatBar({
       fallback: "设置画像后显示",
       color: weeklyMatchCount && weeklyMatchCount > 0 ? "text-green-600" : "text-gray-900",
       borderColor: "border-l-green-500",
-      iconBg: "bg-green-50",
+      iconBg: "bg-[rgba(0,0,0,.03)]",
       iconColor: "text-green-500",
       icon: (
         <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -77,7 +77,7 @@ export default function StatBar({
       fallback: "收藏岗位后显示",
       color: trackedCompanyNewCount && trackedCompanyNewCount > 0 ? "text-amber-600" : "text-gray-900",
       borderColor: "border-l-amber-500",
-      iconBg: "bg-amber-50",
+      iconBg: "bg-[rgba(0,0,0,.03)]",
       iconColor: "text-amber-500",
       icon: (
         <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -103,10 +103,10 @@ export default function StatBar({
             : "border-l-gray-300",
       iconBg:
         nearestDeadline !== null && nearestDeadline <= 3
-          ? "bg-red-50"
+          ? "bg-[rgba(0,0,0,.03)]"
           : nearestDeadline !== null && nearestDeadline <= 7
-            ? "bg-orange-50"
-            : "bg-gray-50",
+            ? "bg-[rgba(0,0,0,.03)]"
+            : "bg-[rgba(0,0,0,.03)]",
       iconColor:
         nearestDeadline !== null && nearestDeadline <= 3
           ? "text-red-500"
@@ -131,7 +131,7 @@ export default function StatBar({
           </div>
           <div>
             {c.value !== null ? (
-              <div className={`text-xl font-bold ${c.color}`}>{c.value}</div>
+              <div className={`text-xl font-bold font-mono ${c.color}`}>{c.value}</div>
             ) : (
               <div className="text-[13px] text-gray-400">{c.fallback}</div>
             )}

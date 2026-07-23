@@ -198,7 +198,7 @@ function StructuredInputCard({ card, index, onChange, onRemove, canRemove, label
   onRemove: (id: number) => void; canRemove: boolean;
 }) {
   return (
-    <div className="p-4 rounded-lg border border-gray-200 bg-white space-y-2.5 relative">
+    <div className="p-4 rounded-[var(--radius-xs)] border border-[var(--border-s)] bg-[var(--surface-solid)] space-y-2.5 relative">
       {canRemove && (
         <button onClick={() => onRemove(card.id)}
           className="absolute top-2 right-2 w-6 h-6 rounded-full hover:bg-red-50 text-gray-400 hover:text-red-500 flex items-center justify-center transition text-xs">
@@ -210,31 +210,31 @@ function StructuredInputCard({ card, index, onChange, onRemove, canRemove, label
         <div>
           <label className="text-[10px] text-gray-400 block mb-0.5">公司</label>
           <input value={card.company} onChange={(e) => onChange(card.id, "company", e.target.value)}
-            placeholder="如：字节跳动" className="w-full px-2 py-1.5 rounded-md border border-gray-200 text-xs focus:outline-none focus:border-brand-500" />
+            placeholder="如：字节跳动" className="w-full px-2 py-1.5 rounded-[var(--radius-xs)] border border-[var(--border-s)] text-xs focus:outline-none focus:border-brand-500" />
         </div>
         <div>
           <label className="text-[10px] text-gray-400 block mb-0.5">业务线/部门</label>
           <input value={card.department} onChange={(e) => onChange(card.id, "department", e.target.value)}
-            placeholder="如：抖音电商" className="w-full px-2 py-1.5 rounded-md border border-gray-200 text-xs focus:outline-none focus:border-brand-500" />
+            placeholder="如：抖音电商" className="w-full px-2 py-1.5 rounded-[var(--radius-xs)] border border-[var(--border-s)] text-xs focus:outline-none focus:border-brand-500" />
         </div>
       </div>
       <div className="grid grid-cols-2 gap-2">
         <div>
           <label className="text-[10px] text-gray-400 block mb-0.5">职位</label>
           <input value={card.position} onChange={(e) => onChange(card.id, "position", e.target.value)}
-            placeholder="如：AI产品经理" className="w-full px-2 py-1.5 rounded-md border border-gray-200 text-xs focus:outline-none focus:border-brand-500" />
+            placeholder="如：AI产品经理" className="w-full px-2 py-1.5 rounded-[var(--radius-xs)] border border-[var(--border-s)] text-xs focus:outline-none focus:border-brand-500" />
         </div>
         <div>
           <label className="text-[10px] text-gray-400 block mb-0.5">薪资福利</label>
           <input value={card.salary} onChange={(e) => onChange(card.id, "salary", e.target.value)}
-            placeholder="如：25k/月, 15薪" className="w-full px-2 py-1.5 rounded-md border border-gray-200 text-xs focus:outline-none focus:border-brand-500" />
+            placeholder="如：25k/月, 15薪" className="w-full px-2 py-1.5 rounded-[var(--radius-xs)] border border-[var(--border-s)] text-xs focus:outline-none focus:border-brand-500" />
         </div>
       </div>
       <div>
         <label className="text-[10px] text-gray-400 block mb-0.5">优缺点/备注</label>
         <textarea value={card.notes} onChange={(e) => onChange(card.id, "notes", e.target.value)}
           placeholder="如：base 北京, 业务前景好, 压力大..." rows={2}
-          className="w-full px-2 py-1.5 rounded-md border border-gray-200 text-xs resize-none focus:outline-none focus:border-brand-500" />
+          className="w-full px-2 py-1.5 rounded-[var(--radius-xs)] border border-[var(--border-s)] text-xs resize-none focus:outline-none focus:border-brand-500" />
       </div>
     </div>
   );
@@ -246,7 +246,7 @@ function ExperienceInputCard({ card, index, onChange, onRemove, canRemove }: {
   onRemove: (id: number) => void; canRemove: boolean;
 }) {
   return (
-    <div className="p-4 rounded-lg border border-gray-200 bg-white space-y-2.5 relative">
+    <div className="p-4 rounded-[var(--radius-xs)] border border-[var(--border-s)] bg-[var(--surface-solid)] space-y-2.5 relative">
       {canRemove && (
         <button onClick={() => onRemove(card.id)}
           className="absolute top-2 right-2 w-6 h-6 rounded-full hover:bg-red-50 text-gray-400 hover:text-red-500 flex items-center justify-center transition text-xs">
@@ -258,24 +258,24 @@ function ExperienceInputCard({ card, index, onChange, onRemove, canRemove }: {
         <div>
           <label className="text-[10px] text-gray-400 block mb-0.5">公司</label>
           <input value={card.company} onChange={(e) => onChange(card.id, "company", e.target.value)}
-            placeholder="如：字节跳动" className="w-full px-2 py-1.5 rounded-md border border-gray-200 text-xs focus:outline-none focus:border-brand-500" />
+            placeholder="如：字节跳动" className="w-full px-2 py-1.5 rounded-[var(--radius-xs)] border border-[var(--border-s)] text-xs focus:outline-none focus:border-brand-500" />
         </div>
         <div>
           <label className="text-[10px] text-gray-400 block mb-0.5">业务/部门</label>
           <input value={card.department} onChange={(e) => onChange(card.id, "department", e.target.value)}
-            placeholder="如：抖音电商" className="w-full px-2 py-1.5 rounded-md border border-gray-200 text-xs focus:outline-none focus:border-brand-500" />
+            placeholder="如：抖音电商" className="w-full px-2 py-1.5 rounded-[var(--radius-xs)] border border-[var(--border-s)] text-xs focus:outline-none focus:border-brand-500" />
         </div>
         <div>
           <label className="text-[10px] text-gray-400 block mb-0.5">职位</label>
           <input value={card.position} onChange={(e) => onChange(card.id, "position", e.target.value)}
-            placeholder="如：产品运营" className="w-full px-2 py-1.5 rounded-md border border-gray-200 text-xs focus:outline-none focus:border-brand-500" />
+            placeholder="如：产品运营" className="w-full px-2 py-1.5 rounded-[var(--radius-xs)] border border-[var(--border-s)] text-xs focus:outline-none focus:border-brand-500" />
         </div>
       </div>
       <div>
         <label className="text-[10px] text-gray-400 block mb-0.5">具体工作内容</label>
         <textarea value={card.description} onChange={(e) => onChange(card.id, "description", e.target.value)}
           placeholder="如：负责抖音电商活动策划，用户增长10%..." rows={3}
-          className="w-full px-2 py-1.5 rounded-md border border-gray-200 text-xs resize-none focus:outline-none focus:border-brand-500" />
+          className="w-full px-2 py-1.5 rounded-[var(--radius-xs)] border border-[var(--border-s)] text-xs resize-none focus:outline-none focus:border-brand-500" />
       </div>
     </div>
   );
@@ -535,12 +535,12 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
 
   return (
     <div className="min-h-screen">
-      <header className="sticky top-0 z-40 backdrop-blur-xl bg-white/60 border-b border-black/5">
+      <header className="sticky top-0 z-40 backdrop-blur-xl bg-[var(--surface-solid)]/60 border-b border-[var(--border)]">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <a href="/" className="text-[15px] font-bold text-gray-900 hover:text-brand-600 transition">← Career Search</a>
+            <a href="/" className="text-[15px] font-black tracking-tight text-brand-500 hover:text-brand-600 transition">← Career Search</a>
             <span className="text-gray-300">·</span>
-            <span className="text-[14px] font-medium text-gray-700">AI 求职工具</span>
+            <span className="text-[15px] font-medium text-gray-500">AI 求职工具</span>
           </div>
         </div>
       </header>
@@ -550,7 +550,7 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
           <div className="card p-12 text-center">
             <h2 className="text-lg font-bold text-gray-900 mb-2">请先登录</h2>
             <p className="text-sm text-gray-500 mb-4">登录后即可使用 AI 工具，设置画像可获得更精准的结果</p>
-            <a href="/profile/" className="px-4 py-2 rounded-lg text-sm font-medium bg-brand-500 text-white hover:bg-brand-600 transition">去登录</a>
+            <a href="/profile/" className="px-4 py-2 rounded-[var(--radius-xs)] text-sm font-medium bg-brand-500 text-white hover:bg-brand-600 transition">去登录</a>
           </div>
         ) : (
           <>
@@ -582,11 +582,12 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
                       runInterviewDirect();
                     }
                   }}
-                  className={`card p-4 text-left transition ${active === s.key ? "border-brand-500 shadow-md" : "hover:border-gray-300"}`}
+                  className={`card p-4 text-left transition ${active === s.key ? "border-brand-500 shadow-md" : "hover:border-[var(--border-s)]"}`}
                 >
-                  <div className="text-2xl mb-2">{s.icon}</div>
-                  <div className="text-sm font-semibold text-gray-900">{s.label}</div>
+                  <div className="text-3xl mb-2">{s.icon}</div>
+                  <div className="text-sm font-extrabold text-gray-900">{s.label}</div>
                   <div className="text-[11px] text-gray-500 mt-1">{s.desc}</div>
+                  <div className="text-[11px] text-brand-500 font-semibold mt-2">开始使用 →</div>
                 </button>
               ))}
             </div>
@@ -597,11 +598,11 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
                 <h3 className="text-sm font-bold text-gray-900">{SKILLS.find((s) => s.key === active)?.label}</h3>
 
                 {prefs ? (
-                <div className="p-3 rounded-lg bg-brand-50/60 border border-brand-100 flex items-start gap-3">
+                <div className="p-3 rounded-[var(--radius-xs)] bg-brand-50/60 border border-brand-100 flex items-start gap-3">
                   <div className="shrink-0 w-8 h-8 rounded-full bg-brand-500 text-white flex items-center justify-center text-sm font-bold">AI</div>
                   <div className="flex-1 min-w-0">
-                    <div className="text-xs font-medium text-brand-700 mb-1">已自动加载你的画像</div>
-                    <div className="text-[11px] text-brand-600 truncate">
+                    <div className="text-xs font-medium text-brand-500 mb-1">已自动加载你的画像</div>
+                    <div className="text-[11px] text-brand-500 truncate">
                       {[prefs?.school, prefs?.major, prefs?.degree].filter(Boolean).join(" · ")}
                       {(prefs?.skills?.length ?? 0) > 0 && ` · ${prefs!.skills!.slice(0, 3).join(", ")}${prefs!.skills!.length > 3 ? "..." : ""}`}
                     </div>
@@ -609,10 +610,10 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
                       <div className="text-[11px] text-brand-500 mt-0.5">{prefs!.experiences?.length ?? prefs!.experience!.length} 段经历已就绪</div>
                     )}
                   </div>
-                  <a href="/profile/" className="shrink-0 text-[11px] text-brand-600 hover:text-brand-700 underline">修改</a>
+                  <a href="/profile/" className="shrink-0 text-[11px] text-brand-500 hover:text-brand-600 underline">修改</a>
                 </div>
                 ) : (
-                <div className="p-3 rounded-lg bg-amber-50/60 border border-amber-100 flex items-start gap-3">
+                <div className="p-3 rounded-[var(--radius-xs)] bg-amber-50/60 border border-amber-100 flex items-start gap-3">
                   <div className="shrink-0 w-8 h-8 rounded-full bg-amber-400 text-white flex items-center justify-center text-sm font-bold">!</div>
                   <div className="flex-1 min-w-0">
                     <div className="text-xs font-medium text-amber-700 mb-1">未设置画像</div>
@@ -630,12 +631,12 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
                         value={jobSearchQuery}
                         onChange={(e) => setJobSearchQuery(e.target.value)}
                         placeholder="搜索公司、岗位名、城市..."
-                        className="w-full pl-8 pr-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:border-brand-500"
+                        className="w-full pl-8 pr-3 py-2 rounded-[var(--radius-xs)] border border-[var(--border-s)] text-sm focus:outline-none focus:border-brand-500"
                       />
                       <svg className="absolute left-2.5 top-2.5 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
                     </div>
                     {searchedJobs.length > 0 && (
-                      <div className="max-h-[200px] overflow-y-auto rounded-lg border border-gray-200 divide-y divide-gray-50">
+                      <div className="max-h-[200px] overflow-y-auto rounded-[var(--radius-xs)] border border-[var(--border-s)] divide-y divide-gray-50">
                         {searchedJobs.map((j) => (
                           <button
                             key={j.id}
@@ -643,7 +644,7 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
                               setJobInput(`${j.company} - ${j.title}\n${j.description ?? ""}\n技能要求: ${j.aiTags?.skills.join(", ") ?? ""}`);
                               setJobSearchQuery("");
                             }}
-                            className="w-full px-3 py-2 text-left hover:bg-brand-50/50 transition flex items-center justify-between gap-2"
+                            className="w-full px-3 py-2 text-left hover:bg-brand-50 transition flex items-center justify-between gap-2"
                           >
                             <div className="min-w-0">
                               <div className="text-xs font-medium text-gray-900 truncate">{j.company} · {j.title}</div>
@@ -654,7 +655,7 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
                                 ))}
                               </div>
                             </div>
-                            <span className="shrink-0 text-[10px] text-brand-600 font-medium">导入</span>
+                            <span className="shrink-0 text-[10px] text-brand-500 font-medium">导入</span>
                           </button>
                         ))}
                       </div>
@@ -664,7 +665,7 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
                       onChange={(e) => setJobInput(e.target.value)}
                       placeholder="如：字节跳动 AI产品经理，或粘贴完整 JD..."
                       rows={3}
-                      className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm resize-none focus:outline-none focus:border-brand-500"
+                      className="w-full px-3 py-2 rounded-[var(--radius-xs)] border border-[var(--border-s)] text-sm resize-none focus:outline-none focus:border-brand-500"
                     />
                   </div>
                 )}
@@ -672,13 +673,13 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
                 {active === "resume-optimize" && (
                   <div className="space-y-3">
                     <label className="text-xs text-gray-500 block">你的经历（每段经历一张卡片）</label>
-                    <label className={`flex items-center justify-center gap-2 py-3 rounded-lg border border-dashed cursor-pointer transition ${resumeUploading ? "border-brand-400 bg-brand-50" : "border-gray-300 hover:border-brand-400 hover:bg-brand-50/50"}`}>
+                    <label className={`flex items-center justify-center gap-2 py-3 rounded-[var(--radius-xs)] border border-dashed cursor-pointer transition ${resumeUploading ? "border-brand-400 bg-brand-50" : "border-[var(--border-s)] hover:border-brand-400 hover:bg-brand-50/50"}`}>
                       <input type="file" accept=".pdf" className="hidden" disabled={resumeUploading}
                         onChange={(e) => { const f = e.target.files?.[0]; if (f) handleResumeUpload(f); e.target.value = ""; }} />
                       {resumeUploading ? (
                         <>
                           <div className="w-4 h-4 border-2 border-brand-500/30 border-t-brand-500 rounded-full animate-spin" />
-                          <span className="text-xs text-brand-600 font-medium">解析中...</span>
+                          <span className="text-xs text-brand-500 font-medium">解析中...</span>
                         </>
                       ) : (
                         <>
@@ -697,7 +698,7 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
                     </div>
                     {expCards.length < 6 && (
                       <button onClick={() => setExpCards((prev) => [...prev, createExpCard()])}
-                        className="w-full py-2 rounded-lg border border-dashed border-gray-300 text-xs text-gray-500 hover:border-brand-400 hover:text-brand-600 transition">
+                        className="w-full py-2 rounded-[var(--radius-xs)] border border-dashed border-[var(--border-s)] text-xs text-gray-500 hover:border-brand-400 hover:text-brand-600 transition">
                         + 添加经历
                       </button>
                     )}
@@ -717,7 +718,7 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
                     </div>
                     {offerCards.length < 5 && (
                       <button onClick={() => setOfferCards((prev) => [...prev, createCard()])}
-                        className="w-full py-2 rounded-lg border border-dashed border-gray-300 text-xs text-gray-500 hover:border-brand-400 hover:text-brand-600 transition">
+                        className="w-full py-2 rounded-[var(--radius-xs)] border border-dashed border-[var(--border-s)] text-xs text-gray-500 hover:border-brand-400 hover:text-brand-600 transition">
                         + 添加 Offer
                       </button>
                     )}
@@ -730,11 +731,11 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
                     <div className="relative">
                       <input value={jobSearchQuery} onChange={(e) => setJobSearchQuery(e.target.value)}
                         placeholder="搜索公司/岗位名导入到卡片..."
-                        className="w-full pl-8 pr-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:border-brand-500" />
+                        className="w-full pl-8 pr-3 py-2 rounded-[var(--radius-xs)] border border-[var(--border-s)] text-sm focus:outline-none focus:border-brand-500" />
                       <svg className="absolute left-2.5 top-2.5 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
                     </div>
                     {searchedJobs.length > 0 && (
-                      <div className="max-h-[200px] overflow-y-auto rounded-lg border border-gray-200 divide-y divide-gray-50">
+                      <div className="max-h-[200px] overflow-y-auto rounded-[var(--radius-xs)] border border-[var(--border-s)] divide-y divide-gray-50">
                         {searchedJobs.map((j) => (
                           <button key={j.id} onClick={() => {
                             const emptyIdx = jdCards.findIndex((c) => !c.company && !c.position);
@@ -745,7 +746,7 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
                               setJdCards((prev) => [...prev, { ...createCard(), ...filled }]);
                             }
                             setJobSearchQuery("");
-                          }} className="w-full px-3 py-2 text-left hover:bg-brand-50/50 transition flex items-center justify-between gap-2">
+                          }} className="w-full px-3 py-2 text-left hover:bg-brand-50 transition flex items-center justify-between gap-2">
                             <div className="min-w-0">
                               <div className="text-xs font-medium text-gray-900 truncate">{j.company} · {j.title}</div>
                               <div className="flex items-center gap-1.5 mt-0.5">
@@ -755,7 +756,7 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
                                 ))}
                               </div>
                             </div>
-                            <span className="shrink-0 text-[10px] text-brand-600 font-medium">导入</span>
+                            <span className="shrink-0 text-[10px] text-brand-500 font-medium">导入</span>
                           </button>
                         ))}
                       </div>
@@ -770,19 +771,19 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
                     </div>
                     {jdCards.length < 5 && (
                       <button onClick={() => setJdCards((prev) => [...prev, createCard()])}
-                        className="w-full py-2 rounded-lg border border-dashed border-gray-300 text-xs text-gray-500 hover:border-brand-400 hover:text-brand-600 transition">
+                        className="w-full py-2 rounded-[var(--radius-xs)] border border-dashed border-[var(--border-s)] text-xs text-gray-500 hover:border-brand-400 hover:text-brand-600 transition">
                         + 添加岗位
                       </button>
                     )}
                   </div>
                 )}
 
-                {error && <div className="p-3 rounded-lg bg-red-50 text-xs text-red-600">{error}</div>}
+                {error && <div className="p-3 rounded-[var(--radius-xs)] bg-red-50 text-xs text-red-600">{error}</div>}
 
                 <button
                   onClick={run}
                   disabled={loading}
-                  className="w-full py-2.5 rounded-lg text-sm font-semibold text-white bg-brand-500 hover:bg-brand-600 disabled:opacity-50 shadow-sm transition"
+                  className="w-full py-2.5 rounded-[var(--radius-xs)] text-sm font-semibold text-white bg-brand-500 hover:bg-brand-600 disabled:opacity-50 shadow-sm transition"
                 >
                   {loading ? "AI 生成中..." : "生成"}
                 </button>
@@ -794,15 +795,15 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
               <div className="space-y-4">
                 {loading && !interviewResult && (
                   <div className="card p-12 text-center">
-                    <div className="text-brand-600 font-medium text-sm">AI 正在根据你的画像生成面试题...</div>
+                    <div className="text-brand-500 font-medium text-sm">AI 正在根据你的画像生成面试题...</div>
                     <div className="text-[11px] text-gray-400 mt-2">{[prefs?.school, prefs?.major, ...(prefs?.targetRoles ?? []).slice(0, 2)].filter(Boolean).join(" · ") || "通用面试题"}</div>
                   </div>
                 )}
 
                 {error && !interviewResult && (
                   <div className="card p-5">
-                    <div className="p-3 rounded-lg bg-red-50 text-xs text-red-600 mb-3">{error}</div>
-                    <button onClick={runInterviewDirect} className="w-full py-2.5 rounded-lg text-sm font-semibold text-white bg-brand-500 hover:bg-brand-600 shadow-sm transition">
+                    <div className="p-3 rounded-[var(--radius-xs)] bg-red-50 text-xs text-red-600 mb-3">{error}</div>
+                    <button onClick={runInterviewDirect} className="w-full py-2.5 rounded-[var(--radius-xs)] text-sm font-semibold text-white bg-brand-500 hover:bg-brand-600 shadow-sm transition">
                       重新生成
                     </button>
                   </div>
@@ -814,7 +815,7 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
                       <h3 className="text-sm font-bold text-gray-900">面试题（{interviewResult.length} 道）</h3>
                       <button
                         onClick={() => setExpandedQuestions(expandedQuestions.size === interviewResult.length ? new Set() : new Set(interviewResult.map((_, i) => i)))}
-                        className="text-[11px] text-brand-600 hover:text-brand-700"
+                        className="text-[11px] text-brand-500 hover:text-brand-600"
                       >
                         {expandedQuestions.size === interviewResult.length ? "全部收起" : "展开全部答案"}
                       </button>
@@ -822,22 +823,22 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
                     {interviewResult.map((q, i) => {
                       const isExpanded = expandedQuestions.has(i);
                       return (
-                        <div key={i} className="rounded-lg border border-gray-100 overflow-hidden">
+                        <div key={i} className="rounded-[var(--radius-xs)] border border-[var(--border)] overflow-hidden">
                           <button
                             onClick={() => setExpandedQuestions((prev) => {
                               const next = new Set(prev);
                               if (next.has(i)) next.delete(i); else next.add(i);
                               return next;
                             })}
-                            className="w-full p-3 text-left flex items-start gap-2 hover:bg-gray-50/50 transition"
+                            className="w-full p-3 text-left flex items-start gap-2 hover:bg-brand-50 transition"
                           >
-                            <span className="shrink-0 w-6 h-6 rounded-full bg-brand-50 text-brand-600 text-xs font-bold flex items-center justify-center mt-0.5">{i + 1}</span>
+                            <span className="shrink-0 w-6 h-6 rounded-full bg-brand-50 text-brand-500 text-xs font-bold flex items-center justify-center mt-0.5">{i + 1}</span>
                             <div className="flex-1 min-w-0">
                               <div className="text-sm font-medium text-gray-900">{q.question}</div>
                               <div className="flex gap-2 mt-1.5">
                                 <span className={`text-[10px] px-2 py-0.5 rounded-full ${
                                   q.category === "技术" ? "bg-blue-50 text-blue-600" :
-                                  q.category === "业务" ? "bg-purple-50 text-purple-600" :
+                                  q.category === "业务" ? "bg-brand-50 text-brand-500" :
                                   q.category === "行为" ? "bg-green-50 text-green-600" :
                                   "bg-amber-50 text-amber-600"
                                 }`}>{q.category}</span>
@@ -851,12 +852,12 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
                             <span className={`shrink-0 text-gray-400 text-xs transition-transform ${isExpanded ? "rotate-180" : ""}`}>▼</span>
                           </button>
                           {isExpanded && (
-                            <div className="px-3 pb-3 pt-0 ml-8 mr-3 space-y-2 border-t border-gray-50">
+                            <div className="px-3 pb-3 pt-0 ml-8 mr-3 space-y-2 border-t border-[var(--border)]">
                               <div className="pt-2">
-                                <div className="text-[11px] font-semibold text-brand-700 mb-1">回答要点</div>
+                                <div className="text-[11px] font-semibold text-brand-500 mb-1">回答要点</div>
                                 <div className="text-xs text-gray-600 leading-relaxed">{q.tips}</div>
                               </div>
-                              <div className="p-2.5 rounded-lg bg-gray-50">
+                              <div className="p-2.5 rounded-[var(--radius-xs)] bg-[var(--surface)]">
                                 <div className="text-[11px] font-semibold text-gray-700 mb-1">参考答案</div>
                                 <div className="text-xs text-gray-600 leading-relaxed whitespace-pre-line">{q.sample}</div>
                               </div>
@@ -876,14 +877,14 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
                       onChange={(e) => setInterviewFollowupInput(e.target.value)}
                       placeholder="如：再来几道技术题 / 针对字节跳动追问 / 考察数据分析能力的题 / 行为面试题..."
                       rows={2}
-                      className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm resize-none focus:outline-none focus:border-brand-500"
+                      className="w-full px-3 py-2 rounded-[var(--radius-xs)] border border-[var(--border-s)] text-sm resize-none focus:outline-none focus:border-brand-500"
                     />
                     <div className="flex flex-wrap gap-1.5">
                       <span className="text-[10px] text-gray-400">快速追问：</span>
                       {["再来几道技术题", "行为面试题", "压力面试题", "HR 面常见题"].map((t) => (
                         <button key={t} onClick={() => runInterviewFollowup(t)}
                           disabled={interviewFollowupLoading}
-                          className="text-[10px] px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 hover:bg-brand-50 hover:text-brand-600 transition disabled:opacity-50">
+                          className="text-[10px] px-2 py-0.5 rounded-full bg-brand-50 text-brand-500 hover:bg-brand-100 hover:text-brand-600 transition disabled:opacity-50">
                           {t}
                         </button>
                       ))}
@@ -891,7 +892,7 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
                     <button
                       onClick={() => runInterviewFollowup()}
                       disabled={interviewFollowupLoading || !interviewFollowupInput.trim()}
-                      className="w-full py-2.5 rounded-lg text-sm font-semibold text-white bg-brand-500 hover:bg-brand-600 disabled:opacity-50 shadow-sm transition"
+                      className="w-full py-2.5 rounded-[var(--radius-xs)] text-sm font-semibold text-white bg-brand-500 hover:bg-brand-600 disabled:opacity-50 shadow-sm transition"
                     >
                       {interviewFollowupLoading ? "AI 生成中..." : "追问生成"}
                     </button>
@@ -907,7 +908,7 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
                 <div className="flex items-center gap-4">
                   <div className="flex items-center gap-2">
                     <span className="text-xs text-gray-500">原简历</span>
-                    <span className={`text-xl font-bold ${optimizeResult.originalScore >= 60 ? "text-amber-600" : "text-red-500"}`}>{optimizeResult.originalScore}分</span>
+                    <span className={`text-xl font-bold font-mono ${optimizeResult.originalScore >= 60 ? "text-amber-600" : "text-red-500"}`}>{optimizeResult.originalScore}分</span>
                   </div>
                   <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden relative">
                     <div className="absolute h-full bg-gray-300 rounded-full" style={{ width: `${optimizeResult.originalScore}%` }} />
@@ -915,7 +916,7 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-xs text-gray-500">优化版</span>
-                    <span className="text-xl font-bold text-brand-600">{optimizeResult.optimizedScore}分</span>
+                    <span className="text-xl font-bold font-mono text-brand-500">{optimizeResult.optimizedScore}分</span>
                   </div>
                 </div>
 
@@ -936,14 +937,14 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
                             (prefs ? buildSectionsFromPrefs(prefs) : []);
                           if (sections.length) setDisplaySections(sections.map((s) => ({ ...s })));
                         }}
-                        className="px-3 py-1.5 rounded-lg text-xs font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 transition"
+                        className="px-3 py-1.5 rounded-[var(--radius-xs)] text-xs font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 transition"
                       >
                         重置
                       </button>
                     )}
                     <button
                       onClick={applyAll}
-                      className="px-3 py-1.5 rounded-lg text-xs font-semibold text-white bg-red-500 hover:bg-red-600 transition"
+                      className="px-3 py-1.5 rounded-[var(--radius-xs)] text-xs font-semibold text-white bg-red-500 hover:bg-red-600 transition"
                     >
                       一键全部应用
                     </button>
@@ -964,7 +965,7 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
                           {suggestions.map((s) => {
                             const applied = appliedIds.has(s.id);
                             return (
-                              <div key={s.id} className={`p-3 rounded-lg border transition ${applied ? "border-green-200 bg-green-50/50" : "border-gray-100 bg-white"}`}>
+                              <div key={s.id} className={`p-3 rounded-[var(--radius-xs)] border transition ${applied ? "border-green-200 bg-green-50/50" : "border-[var(--border)] bg-[var(--surface-solid)]"}`}>
                                 <div className="flex items-start justify-between gap-2 mb-2">
                                   <div className="flex items-center gap-2">
                                     <span className={`shrink-0 w-6 h-6 rounded-full text-white text-[10px] font-bold flex items-center justify-center ${applied ? "bg-green-500" : "bg-red-500"}`}>
@@ -975,17 +976,17 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
                                   <span className="shrink-0 text-[10px] font-bold text-red-500 bg-red-50 px-1.5 py-0.5 rounded">{s.impact}</span>
                                 </div>
                                 <div className="flex flex-wrap gap-1 mb-2">
-                                  {s.tags.map((t) => <span key={t} className="text-[10px] px-1.5 py-0.5 rounded bg-gray-100 text-gray-600">{t}</span>)}
+                                  {s.tags.map((t) => <span key={t} className="text-[10px] px-1.5 py-0.5 rounded bg-brand-50 text-brand-500">{t}</span>)}
                                 </div>
                                 <div className="text-[11px] text-gray-400 mb-1">BEFORE</div>
                                 <div className="text-xs text-gray-500 line-through mb-2">{s.original}</div>
-                                <div className="text-[11px] text-brand-600 mb-1">AFTER</div>
+                                <div className="text-[11px] text-brand-500 mb-1">AFTER</div>
                                 <div className="text-xs text-gray-900 font-medium mb-2">{s.improved}</div>
                                 <div className="text-[11px] text-gray-400 mb-2">{s.reason}</div>
                                 {!applied && (
                                   <button
                                     onClick={() => applySuggestion(s)}
-                                    className="text-[11px] px-3 py-1 rounded-md bg-brand-500 text-white hover:bg-brand-600 transition"
+                                    className="text-[11px] px-3 py-1 rounded-[var(--radius-xs)] bg-brand-500 text-white hover:bg-brand-600 transition"
                                   >
                                     应用此建议
                                   </button>
@@ -999,7 +1000,7 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
 
                     {/* Direction Advice Panel */}
                     {optimizeResult.directionAdvice && (
-                      <div className="mt-4 p-4 rounded-lg border border-gray-200 bg-gray-50/50 space-y-3">
+                      <div className="mt-4 p-4 rounded-[var(--radius-xs)] border border-[var(--border)] bg-[var(--surface)] space-y-3">
                         <h4 className="text-xs font-bold text-gray-800">方向参考</h4>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                           <div>
@@ -1047,8 +1048,8 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
 
                   {/* Right: Resume preview + export */}
                   <div className="lg:max-h-[700px] lg:overflow-y-auto">
-                    <div className="border border-gray-200 rounded-lg overflow-hidden bg-white">
-                      <div className="px-5 py-3 bg-gray-50 border-b border-gray-200 flex items-center justify-between gap-2">
+                    <div className="border border-[var(--border)] rounded-[var(--radius-xs)] overflow-hidden bg-[var(--surface-solid)]">
+                      <div className="px-5 py-3 bg-[var(--surface)] border-b border-[var(--border)] flex items-center justify-between gap-2">
                         <span className="text-xs font-bold text-gray-700">
                           {appliedIds.size === optimizeResult.suggestions.length ? "优化版简历" : "简历预览"}
                           <span className="ml-1.5 text-[10px] font-normal text-gray-400">{appliedIds.size}/{optimizeResult.suggestions.length} 处已应用</span>
@@ -1056,13 +1057,13 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
                         <div className="flex items-center gap-1.5">
                           <button
                             onClick={() => exportPDF(displaySections, prefs?.school ?? "简历")}
-                            className="text-[11px] px-2.5 py-1 rounded-md bg-brand-500 text-white hover:bg-brand-600 font-medium transition"
+                            className="text-[11px] px-2.5 py-1 rounded-[var(--radius-xs)] bg-brand-500 text-white hover:bg-brand-600 font-medium transition"
                           >
                             PDF
                           </button>
                           <button
                             onClick={() => exportWord(displaySections, prefs?.school ?? "简历")}
-                            className="text-[11px] px-2.5 py-1 rounded-md bg-blue-500 text-white hover:bg-blue-600 font-medium transition"
+                            className="text-[11px] px-2.5 py-1 rounded-[var(--radius-xs)] bg-blue-500 text-white hover:bg-blue-600 font-medium transition"
                           >
                             Word
                           </button>
@@ -1071,20 +1072,20 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
                               const text = displaySections.map((s) => `【${s.title}】\n${s.content}`).join("\n\n");
                               navigator.clipboard.writeText(text).then(() => alert("已复制到剪贴板"));
                             }}
-                            className="text-[11px] px-2.5 py-1 rounded-md bg-gray-200 text-gray-700 hover:bg-gray-300 font-medium transition"
+                            className="text-[11px] px-2.5 py-1 rounded-[var(--radius-xs)] bg-gray-200 text-gray-700 hover:bg-gray-300 font-medium transition"
                           >
                             复制
                           </button>
                         </div>
                       </div>
                       {displaySections.length > 0 ? displaySections.map((s, i) => (
-                        <div key={i} className={`px-5 py-3 ${i > 0 ? "border-t border-gray-100" : ""}`}>
+                        <div key={i} className={`px-5 py-3 ${i > 0 ? "border-t border-[var(--border)]" : ""}`}>
                           <div className="text-xs font-bold text-gray-800 mb-1.5">{s.title}</div>
                           <textarea
                             value={s.content}
                             onChange={(e) => setDisplaySections((prev) => prev.map((sec, idx) => idx === i ? { ...sec, content: e.target.value } : sec))}
                             rows={Math.max(3, s.content.split("\n").length + 1)}
-                            className="w-full text-xs text-gray-600 leading-relaxed resize-y border border-transparent rounded px-1 py-0.5 hover:border-gray-200 focus:border-brand-300 focus:outline-none focus:ring-1 focus:ring-brand-200 transition"
+                            className="w-full text-xs text-gray-600 leading-relaxed resize-y border border-transparent rounded-[var(--radius-xs)] px-1 py-0.5 hover:border-[var(--border-s)] focus:border-brand-300 focus:outline-none focus:ring-1 focus:ring-brand-200 transition"
                           />
                         </div>
                       )) : (
@@ -1096,17 +1097,17 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
                     </div>
 
                     {displaySections.length > 0 && (
-                      <div className="mt-4 border border-gray-200 rounded-lg p-4 space-y-3">
+                      <div className="mt-4 border border-[var(--border)] rounded-[var(--radius-xs)] p-4 space-y-3">
                         <h4 className="text-xs font-bold text-gray-700">AI 修改</h4>
                         <textarea
                           value={resumeRefineInput}
                           onChange={(e) => setResumeRefineInput(e.target.value)}
                           placeholder="如：突出量化成果 / 加强技术描述 / 更简洁 / 优化排版..."
                           rows={2}
-                          className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm resize-none focus:outline-none focus:border-brand-500"
+                          className="w-full px-3 py-2 rounded-[var(--radius-xs)] border border-[var(--border-s)] text-sm resize-none focus:outline-none focus:border-brand-500"
                         />
                         {resumeRefineChanges && (
-                          <div className="px-3 py-2 rounded-lg bg-green-50 border border-green-100 text-xs text-green-700">
+                          <div className="px-3 py-2 rounded-[var(--radius-xs)] bg-green-50 border border-green-100 text-xs text-green-700">
                             本次修改：{resumeRefineChanges}
                           </div>
                         )}
@@ -1115,7 +1116,7 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
                           {["更专业", "更简洁", "突出量化成果", "加强技术描述", "突出领导力", "优化排版"].map((t) => (
                             <button key={t} onClick={() => runResumeRefine(t)}
                               disabled={resumeRefineLoading}
-                              className="text-[10px] px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 hover:bg-brand-50 hover:text-brand-600 transition disabled:opacity-50">
+                              className="text-[10px] px-2 py-0.5 rounded-full bg-brand-50 text-brand-500 hover:bg-brand-100 hover:text-brand-600 transition disabled:opacity-50">
                               {t}
                             </button>
                           ))}
@@ -1123,7 +1124,7 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
                         <button
                           onClick={() => runResumeRefine()}
                           disabled={resumeRefineLoading || !resumeRefineInput.trim()}
-                          className="w-full py-2.5 rounded-lg text-sm font-semibold text-white bg-brand-500 hover:bg-brand-600 disabled:opacity-50 shadow-sm transition"
+                          className="w-full py-2.5 rounded-[var(--radius-xs)] text-sm font-semibold text-white bg-brand-500 hover:bg-brand-600 disabled:opacity-50 shadow-sm transition"
                         >
                           {resumeRefineLoading ? "AI 修改中..." : "AI 修改"}
                         </button>
@@ -1134,7 +1135,7 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
 
                 {/* Keywords + tips */}
                 <div className="flex flex-wrap gap-1.5">
-                  {optimizeResult.keywords.map((k) => <span key={k} className="text-[10px] px-2 py-0.5 rounded-full bg-brand-50 text-brand-600">{k}</span>)}
+                  {optimizeResult.keywords.map((k) => <span key={k} className="text-[10px] px-2 py-0.5 rounded-full bg-brand-50 text-brand-500">{k}</span>)}
                 </div>
                 {optimizeResult.tips && <p className="text-xs text-gray-500"><strong>投递建议：</strong>{optimizeResult.tips}</p>}
               </div>
@@ -1147,13 +1148,13 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
                   <div className="flex items-center gap-1.5">
                     <button
                       onClick={() => navigator.clipboard.writeText(letterText).then(() => alert("已复制"))}
-                      className="text-[11px] px-2.5 py-1 rounded-md bg-gray-200 text-gray-700 hover:bg-gray-300 font-medium transition"
+                      className="text-[11px] px-2.5 py-1 rounded-[var(--radius-xs)] bg-gray-200 text-gray-700 hover:bg-gray-300 font-medium transition"
                     >
                       复制
                     </button>
                     <button
                       onClick={() => exportWord([{ title: "求职信", content: letterText }], "求职信")}
-                      className="text-[11px] px-2.5 py-1 rounded-md bg-blue-500 text-white hover:bg-blue-600 font-medium transition"
+                      className="text-[11px] px-2.5 py-1 rounded-[var(--radius-xs)] bg-blue-500 text-white hover:bg-blue-600 font-medium transition"
                     >
                       Word
                     </button>
@@ -1164,35 +1165,35 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
                   value={letterText}
                   onChange={(e) => setLetterText(e.target.value)}
                   rows={14}
-                  className="w-full px-4 py-3 rounded-lg border border-gray-200 text-sm text-gray-700 leading-relaxed resize-y focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-200"
+                  className="w-full px-4 py-3 rounded-[var(--radius-xs)] border border-[var(--border-s)] text-sm text-gray-700 leading-relaxed resize-y focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-200"
                 />
 
                 {letterChanges && (
-                  <div className="px-3 py-2 rounded-lg bg-green-50 border border-green-100 text-xs text-green-700">
+                  <div className="px-3 py-2 rounded-[var(--radius-xs)] bg-green-50 border border-green-100 text-xs text-green-700">
                     本次修改：{letterChanges}
                   </div>
                 )}
 
                 <div className="flex flex-wrap gap-1.5">
-                  {letterResult.highlights.map((h) => <span key={h} className="text-[10px] px-2 py-0.5 rounded-full bg-brand-50 text-brand-600">{h}</span>)}
+                  {letterResult.highlights.map((h) => <span key={h} className="text-[10px] px-2 py-0.5 rounded-full bg-brand-50 text-brand-500">{h}</span>)}
                 </div>
                 {letterResult.tips && <p className="text-xs text-gray-500">{letterResult.tips}</p>}
 
-                <div className="border-t border-gray-100 pt-3 space-y-3">
+                <div className="border-t border-[var(--border)] pt-3 space-y-3">
                   <h4 className="text-xs font-bold text-gray-700">AI 修改</h4>
                   <textarea
                     value={letterRefineInput}
                     onChange={(e) => setLetterRefineInput(e.target.value)}
                     placeholder="如：让开头更有吸引力 / 突出Python技能 / 语气更正式 / 缩短到300字..."
                     rows={2}
-                    className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm resize-none focus:outline-none focus:border-brand-500"
+                    className="w-full px-3 py-2 rounded-[var(--radius-xs)] border border-[var(--border-s)] text-sm resize-none focus:outline-none focus:border-brand-500"
                   />
                   <div className="flex flex-wrap gap-1.5">
                     <span className="text-[10px] text-gray-400">快速修改：</span>
                     {["更正式", "更简洁", "突出实习经历", "加强技术能力描述", "调整开头更有吸引力", "缩短到300字"].map((t) => (
                       <button key={t} onClick={() => runLetterRefine(t)}
                         disabled={letterRefineLoading}
-                        className="text-[10px] px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 hover:bg-brand-50 hover:text-brand-600 transition disabled:opacity-50">
+                        className="text-[10px] px-2 py-0.5 rounded-full bg-brand-50 text-brand-500 hover:bg-brand-100 hover:text-brand-600 transition disabled:opacity-50">
                         {t}
                       </button>
                     ))}
@@ -1200,7 +1201,7 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
                   <button
                     onClick={() => runLetterRefine()}
                     disabled={letterRefineLoading || !letterRefineInput.trim()}
-                    className="w-full py-2.5 rounded-lg text-sm font-semibold text-white bg-brand-500 hover:bg-brand-600 disabled:opacity-50 shadow-sm transition"
+                    className="w-full py-2.5 rounded-[var(--radius-xs)] text-sm font-semibold text-white bg-brand-500 hover:bg-brand-600 disabled:opacity-50 shadow-sm transition"
                   >
                     {letterRefineLoading ? "AI 修改中..." : "AI 修改"}
                   </button>
@@ -1209,7 +1210,7 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
                 <button
                   onClick={run}
                   disabled={loading}
-                  className="w-full py-2 rounded-lg text-xs font-medium text-gray-500 border border-gray-200 hover:bg-gray-50 transition"
+                  className="w-full py-2 rounded-[var(--radius-xs)] text-xs font-medium text-gray-500 border border-[var(--border-s)] hover:bg-[var(--surface)] transition"
                 >
                   重新生成（从零开始）
                 </button>
@@ -1220,13 +1221,13 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
               <div className="card p-5 space-y-4">
                 <h3 className="text-sm font-bold text-gray-900">Offer 对比分析</h3>
                 {offerCards.filter((c) => c.company || c.position).map((card, cardIdx) => (
-                  <div key={card.id} className="rounded-xl border border-gray-200 overflow-hidden">
-                    <div className="px-4 py-2.5 bg-gray-50 border-b border-gray-100 flex items-center gap-2">
+                  <div key={card.id} className="rounded-[var(--radius-sm)] border border-[var(--border)] overflow-hidden">
+                    <div className="px-4 py-2.5 bg-[var(--surface)] border-b border-[var(--border)] flex items-center gap-2">
                       <span className="w-6 h-6 rounded-full bg-brand-500 text-white text-xs font-bold flex items-center justify-center">{cardIdx + 1}</span>
                       <span className="text-sm font-bold text-gray-900">{card.company}</span>
                       {card.department && <span className="text-xs text-gray-500">{card.department}</span>}
                       <span className="text-xs text-gray-500">{card.position}</span>
-                      {card.salary && <span className="text-xs text-brand-600 ml-auto">{card.salary}</span>}
+                      {card.salary && <span className="text-xs text-brand-500 font-mono ml-auto">{card.salary}</span>}
                     </div>
                     <div className="p-4 space-y-2">
                       {offerResult.comparison.map((c) => (
@@ -1241,17 +1242,17 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
                     </div>
                   </div>
                 ))}
-                <div className="p-4 rounded-xl bg-brand-50 border border-brand-100">
-                  <div className="text-sm font-bold text-brand-700 mb-1">推荐：{offerResult.recommendation}</div>
-                  <div className="text-xs text-brand-600 leading-relaxed">{offerResult.reason}</div>
+                <div className="p-4 rounded-[var(--radius-sm)] bg-brand-50 border border-brand-100">
+                  <div className="text-sm font-bold text-brand-500 mb-1">推荐：{offerResult.recommendation}</div>
+                  <div className="text-xs text-brand-500 leading-relaxed">{offerResult.reason}</div>
                 </div>
-                {offerResult.risks && <div className="text-xs text-gray-600 bg-amber-50 rounded-lg p-3 border border-amber-100"><strong className="text-amber-700">风险提示：</strong>{offerResult.risks}</div>}
-                {offerResult.negotiation && <div className="text-xs text-gray-600 bg-blue-50 rounded-lg p-3 border border-blue-100"><strong className="text-blue-700">谈薪建议：</strong>{offerResult.negotiation}</div>}
+                {offerResult.risks && <div className="text-xs text-gray-600 bg-amber-50 rounded-[var(--radius-xs)] p-3 border border-amber-100"><strong className="text-amber-700">风险提示：</strong>{offerResult.risks}</div>}
+                {offerResult.negotiation && <div className="text-xs text-gray-600 bg-blue-50 rounded-[var(--radius-xs)] p-3 border border-blue-100"><strong className="text-blue-700">谈薪建议：</strong>{offerResult.negotiation}</div>}
                 <button onClick={() => {
                   navigator.clipboard.writeText(formatForXiaohongshu(offerResult, offerCards));
                   setShareToast(true); setTimeout(() => setShareToast(false), 2000);
                   window.open("https://www.xiaohongshu.com/explore", "_blank");
-                }} className="w-full py-2 rounded-lg text-xs font-medium text-red-600 border border-red-200 bg-red-50 hover:bg-red-100 transition flex items-center justify-center gap-1.5">
+                }} className="w-full py-2 rounded-[var(--radius-xs)] text-xs font-medium text-red-600 border border-red-200 bg-red-50 hover:bg-red-100 transition flex items-center justify-center gap-1.5">
                   📕 分享到小红书（复制文案并跳转）
                 </button>
                 {shareToast && <div className="text-xs text-green-600 text-center">已复制到剪贴板，正在跳转小红书...</div>}
@@ -1271,7 +1272,7 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
                         strokeDasharray={`${jdMatchResult.matchScore * 2.64} 264`}
                         transform="rotate(-90 50 50)"
                       />
-                      <text x="50" y="46" textAnchor="middle" className="text-2xl font-bold" fill="currentColor" fontSize="22">{jdMatchResult.matchScore}</text>
+                      <text x="50" y="46" textAnchor="middle" className="text-2xl font-bold font-mono" fill="currentColor" fontSize="22">{jdMatchResult.matchScore}</text>
                       <text x="50" y="62" textAnchor="middle" fill="#94a3b8" fontSize="10">匹配度</text>
                     </svg>
                   </div>
@@ -1281,7 +1282,7 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
                       <div key={m.name} className="space-y-1">
                         <div className="flex items-center justify-between">
                           <span className="text-xs text-gray-700 font-medium">{m.name}</span>
-                          <span className={`text-xs font-bold ${m.score >= 80 ? "text-green-600" : m.score >= 60 ? "text-amber-600" : "text-red-500"}`}>{m.score}</span>
+                          <span className={`text-xs font-bold font-mono ${m.score >= 80 ? "text-green-600" : m.score >= 60 ? "text-amber-600" : "text-red-500"}`}>{m.score}</span>
                         </div>
                         <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
                           <div className={`h-full rounded-full transition-all ${m.score >= 80 ? "bg-green-500" : m.score >= 60 ? "bg-amber-500" : "bg-red-400"}`} style={{ width: `${m.score}%` }} />
@@ -1314,7 +1315,7 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
                   <div className="space-y-1.5">
                     {jdMatchResult.suggestions.map((s, i) => (
                       <div key={i} className="flex gap-2 text-xs text-gray-600">
-                        <span className="shrink-0 w-5 h-5 rounded-full bg-brand-50 text-brand-600 text-[10px] font-bold flex items-center justify-center">{i + 1}</span>
+                        <span className="shrink-0 w-5 h-5 rounded-full bg-brand-50 text-brand-500 text-[10px] font-bold flex items-center justify-center">{i + 1}</span>
                         <span>{s}</span>
                       </div>
                     ))}
@@ -1329,7 +1330,7 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
                 <h3 className="text-sm font-bold text-gray-900">岗位匹配排名</h3>
                 <div className="space-y-3">
                   {jdCompareResult.rankings.map((r) => (
-                    <div key={r.rank} className="p-4 rounded-lg border border-gray-100 flex items-start gap-4">
+                    <div key={r.rank} className="p-4 rounded-[var(--radius-xs)] border border-[var(--border)] bg-[var(--surface-solid)] flex items-start gap-4">
                       <div className="flex-none">
                         <svg width="56" height="56" viewBox="0 0 56 56">
                           <circle cx="28" cy="28" r="23" fill="none" stroke="#e2e8f0" strokeWidth="5" />
@@ -1344,7 +1345,7 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
-                          <span className="text-xs font-bold text-brand-600 bg-brand-50 px-1.5 py-0.5 rounded">#{r.rank}</span>
+                          <span className="text-xs font-bold font-mono text-brand-500 bg-brand-50 px-1.5 py-0.5 rounded">#{r.rank}</span>
                           <span className="text-sm font-bold text-gray-900 truncate">{r.company}</span>
                           <span className="text-xs text-gray-500 truncate">{r.position}</span>
                           <span className={`ml-auto text-[10px] px-2 py-0.5 rounded-full font-medium ${
@@ -1361,16 +1362,16 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
                     </div>
                   ))}
                 </div>
-                <div className="p-4 rounded-lg bg-brand-50">
-                  <div className="text-xs font-bold text-brand-700 mb-1">投递策略</div>
-                  <div className="text-xs text-brand-600">{jdCompareResult.strategy}</div>
+                <div className="p-4 rounded-[var(--radius-xs)] bg-brand-50">
+                  <div className="text-xs font-bold text-brand-500 mb-1">投递策略</div>
+                  <div className="text-xs text-brand-500">{jdCompareResult.strategy}</div>
                 </div>
                 <div className="text-xs text-gray-500"><strong>时间规划：</strong>{jdCompareResult.timeline}</div>
                 <button onClick={() => {
                   navigator.clipboard.writeText(formatForXiaohongshu(jdCompareResult, jdCards));
                   setShareToast(true); setTimeout(() => setShareToast(false), 2000);
                   window.open("https://www.xiaohongshu.com/explore", "_blank");
-                }} className="w-full py-2 rounded-lg text-xs font-medium text-red-600 border border-red-200 bg-red-50 hover:bg-red-100 transition flex items-center justify-center gap-1.5">
+                }} className="w-full py-2 rounded-[var(--radius-xs)] text-xs font-medium text-red-600 border border-red-200 bg-red-50 hover:bg-red-100 transition flex items-center justify-center gap-1.5">
                   📕 分享到小红书（复制文案并跳转）
                 </button>
                 {shareToast && <div className="text-xs text-green-600 text-center">已复制到剪贴板，正在跳转小红书...</div>}

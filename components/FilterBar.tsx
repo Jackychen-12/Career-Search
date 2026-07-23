@@ -34,8 +34,8 @@ function Pill({
       onClick={onClick}
       className={`shrink-0 px-3 h-[30px] inline-flex items-center whitespace-nowrap rounded-full text-[13px] font-medium transition-all ${
         active
-          ? "bg-brand-50 text-brand-600 shadow-sm border border-brand-200"
-          : "text-gray-600 border border-gray-200 hover:border-gray-400 hover:text-gray-800 hover:bg-gray-50"
+          ? "bg-brand-500 text-white border-transparent shadow-sm"
+          : "text-gray-500 border border-[var(--border)] hover:border-brand-500 hover:text-brand-500"
       }`}
     >
       {children}
@@ -90,7 +90,7 @@ export default function FilterBar({
           value={state.keyword}
           onChange={(e) => onChange({ keyword: e.target.value })}
           placeholder="搜索公司、岗位、城市..."
-          className="w-full h-9 pl-9 pr-3 rounded-full border border-gray-200/80 bg-white/80 text-sm focus:outline-none focus:ring-2 focus:ring-gray-300/50 focus:border-gray-400 transition"
+          className="w-full h-9 pl-9 pr-3 rounded-[var(--radius-xs)] border border-[var(--border-s)] bg-white/80 text-sm focus:outline-none focus:ring-2 focus:ring-gray-300/50 focus:border-gray-400 transition"
         />
       </div>
 

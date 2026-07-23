@@ -98,16 +98,16 @@ export default function EventsClient({ events, articles = [] }: { events: Campus
   const pagedArticles = filteredArticles.slice((clampedPage - 1) * ARTICLES_PER_PAGE, clampedPage * ARTICLES_PER_PAGE);
 
   return (
-    <div className="min-h-screen bg-gray-50/50">
-      <header className="sticky top-0 z-40 backdrop-blur-xl bg-white/80 border-b border-black/5 shadow-sm">
+    <div className="min-h-screen">
+      <header className="sticky top-0 z-40 backdrop-blur-xl bg-[var(--surface-solid)]/80 border-b border-[var(--border)] shadow-sm">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <a href="/" className="text-[15px] font-bold text-gray-900 hover:text-gray-600 transition flex items-center gap-1.5">
+            <a href="/" className="text-[15px] font-black tracking-tight text-gray-900 hover:text-gray-600 transition flex items-center gap-1.5">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="text-gray-500"><path d="M15 18l-6-6 6-6" /></svg>
               Career Search
             </a>
             <span className="text-gray-300">·</span>
-            <span className="text-[15px] font-semibold text-gray-700">宣讲 & 资讯</span>
+            <span className="text-[15px] font-black tracking-tight text-gray-700">宣讲 & 资讯</span>
           </div>
           <span className="text-xs text-gray-400">{events.length} 活动 · {articles.length} 文章</span>
         </div>
@@ -115,11 +115,11 @@ export default function EventsClient({ events, articles = [] }: { events: Campus
 
       <main className="max-w-5xl mx-auto px-4 sm:px-6 py-6 space-y-5">
         {/* Tabs */}
-        <div className="flex gap-0.5 p-0.5 bg-gray-100 rounded-lg w-fit">
-          <button onClick={() => { setTab("events"); setArticlePage(1); }} className={`px-4 py-1.5 rounded-md text-sm font-medium transition ${tab === "events" ? "bg-white text-gray-900 shadow-sm" : "text-gray-500"}`}>
+        <div className="flex gap-0.5 p-1 bg-[var(--surface)] backdrop-blur-[8px] rounded-full border border-[var(--border)] shadow-sm w-fit">
+          <button onClick={() => { setTab("events"); setArticlePage(1); }} className={`px-4 py-1.5 rounded-full text-sm transition ${tab === "events" ? "bg-brand-500 text-white font-bold shadow-sm" : "text-gray-500 font-semibold hover:text-brand-500"}`}>
             宣讲活动（{events.length}）
           </button>
-          <button onClick={() => { setTab("articles"); setArticlePage(1); }} className={`px-4 py-1.5 rounded-md text-sm font-medium transition ${tab === "articles" ? "bg-white text-gray-900 shadow-sm" : "text-gray-500"}`}>
+          <button onClick={() => { setTab("articles"); setArticlePage(1); }} className={`px-4 py-1.5 rounded-full text-sm transition ${tab === "articles" ? "bg-brand-500 text-white font-bold shadow-sm" : "text-gray-500 font-semibold hover:text-brand-500"}`}>
             公众号推送（{articles.length}）
           </button>
         </div>
@@ -134,7 +134,7 @@ export default function EventsClient({ events, articles = [] }: { events: Campus
               value={keyword}
               onChange={(e) => { setKeyword(e.target.value); setArticlePage(1); }}
               placeholder={tab === "events" ? "搜索公司、活动名称..." : "搜索文章标题、公众号..."}
-              className="w-full h-9 pl-9 pr-3 rounded-full border border-gray-200/80 bg-white/80 text-sm focus:outline-none focus:ring-2 focus:ring-gray-300/50 focus:border-gray-400 transition"
+              className="w-full h-9 pl-9 pr-3 rounded-[var(--radius-xs)] border border-[var(--border-s)] bg-[var(--surface-solid)]/80 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition"
             />
           </div>
           {tab === "events" && (
@@ -142,7 +142,7 @@ export default function EventsClient({ events, articles = [] }: { events: Campus
               <div className="flex items-center gap-1.5">
                 <span className="text-xs text-gray-400">来源</span>
                 {(["all", "微信", "清华", "北大"] as const).map((s) => (
-                  <button key={s} onClick={() => setSource(s)} className={`px-3 py-1 rounded-full text-[12px] font-medium transition ${source === s ? "bg-brand-50 text-brand-600 shadow-sm border border-brand-200" : "text-gray-600 hover:bg-gray-100"}`}>
+                  <button key={s} onClick={() => setSource(s)} className={`px-3 py-1 rounded-full text-[12px] font-medium transition ${source === s ? "bg-brand-500 text-white border-transparent" : "border border-[var(--border)] text-gray-500 hover:border-brand-500 hover:text-brand-500"}`}>
                     {s === "all" ? "全部" : s}
                   </button>
                 ))}
@@ -150,7 +150,7 @@ export default function EventsClient({ events, articles = [] }: { events: Campus
               <div className="flex items-center gap-1.5">
                 <span className="text-xs text-gray-400">类型</span>
                 {(["all", "宣讲会", "网申", "笔试", "面试", "其他"] as const).map((t) => (
-                  <button key={t} onClick={() => setTypeFilter(t)} className={`px-3 py-1 rounded-full text-[12px] font-medium transition ${typeFilter === t ? "bg-brand-50 text-brand-600 shadow-sm border border-brand-200" : "text-gray-600 hover:bg-gray-100"}`}>
+                  <button key={t} onClick={() => setTypeFilter(t)} className={`px-3 py-1 rounded-full text-[12px] font-medium transition ${typeFilter === t ? "bg-brand-500 text-white border-transparent" : "border border-[var(--border)] text-gray-500 hover:border-brand-500 hover:text-brand-500"}`}>
                     {t === "all" ? "全部" : t}
                   </button>
                 ))}
@@ -166,7 +166,7 @@ export default function EventsClient({ events, articles = [] }: { events: Campus
         {tab === "events" && (
           filteredEvents.length === 0 ? (
             <div className="card p-12 text-center">
-              <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-gray-100 flex items-center justify-center text-gray-300">
+              <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-[var(--surface)] flex items-center justify-center text-gray-300">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4M8 2v4M3 10h18" /></svg>
               </div>
               <p className="text-sm text-gray-500">暂无符合条件的宣讲活动</p>
@@ -206,7 +206,7 @@ export default function EventsClient({ events, articles = [] }: { events: Campus
         {tab === "articles" && (
           filteredArticles.length === 0 ? (
             <div className="card p-12 text-center">
-              <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-gray-100 flex items-center justify-center text-gray-300">
+              <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-[var(--surface)] flex items-center justify-center text-gray-300">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /></svg>
               </div>
               <p className="text-sm text-gray-500">暂无校招公众号文章</p>
@@ -223,7 +223,7 @@ export default function EventsClient({ events, articles = [] }: { events: Campus
                   <button
                     onClick={() => setArticlePage((p) => Math.max(1, p - 1))}
                     disabled={clampedPage <= 1}
-                    className={`px-3 h-8 rounded-md text-xs border transition ${clampedPage <= 1 ? "border-gray-200 text-gray-300 cursor-not-allowed" : "border-gray-200 text-gray-600 hover:border-gray-400 hover:text-gray-800 bg-white"}`}
+                    className={`px-3 h-8 rounded-[var(--radius-xs)] text-xs border transition ${clampedPage <= 1 ? "border-[var(--border-s)] text-gray-300 cursor-not-allowed" : "border-[var(--border-s)] text-gray-600 hover:border-brand-500 hover:text-brand-500 bg-[var(--surface-solid)]"}`}
                   >
                     ‹ 上一页
                   </button>
@@ -231,7 +231,7 @@ export default function EventsClient({ events, articles = [] }: { events: Campus
                     <button
                       key={p}
                       onClick={() => setArticlePage(p)}
-                      className={`min-w-[34px] h-8 px-2 rounded-md text-xs border transition ${p === clampedPage ? "border-brand-200 bg-brand-50 text-brand-600 shadow-sm font-semibold" : "border-gray-200 text-gray-600 hover:border-gray-400 hover:text-gray-800 bg-white"}`}
+                      className={`min-w-[34px] h-8 px-2 rounded-[var(--radius-xs)] text-xs border transition ${p === clampedPage ? "border-brand-500 bg-brand-500 text-white shadow-sm font-semibold" : "border-[var(--border-s)] text-gray-600 hover:border-brand-500 hover:text-brand-500 bg-[var(--surface-solid)]"}`}
                     >
                       {p}
                     </button>
@@ -239,7 +239,7 @@ export default function EventsClient({ events, articles = [] }: { events: Campus
                   <button
                     onClick={() => setArticlePage((p) => Math.min(articleTotalPages, p + 1))}
                     disabled={clampedPage >= articleTotalPages}
-                    className={`px-3 h-8 rounded-md text-xs border transition ${clampedPage >= articleTotalPages ? "border-gray-200 text-gray-300 cursor-not-allowed" : "border-gray-200 text-gray-600 hover:border-gray-400 hover:text-gray-800 bg-white"}`}
+                    className={`px-3 h-8 rounded-[var(--radius-xs)] text-xs border transition ${clampedPage >= articleTotalPages ? "border-[var(--border-s)] text-gray-300 cursor-not-allowed" : "border-[var(--border-s)] text-gray-600 hover:border-brand-500 hover:text-brand-500 bg-[var(--surface-solid)]"}`}
                   >
                     下一页 ›
                   </button>
@@ -260,12 +260,12 @@ function EventCard({ event, isUpcoming }: { event: CampusEvent; isUpcoming?: boo
   const isUrgent = isUpcoming && days >= 0 && days <= 3;
 
   return (
-    <a href={event.url} target="_blank" rel="noreferrer" className="card p-0 overflow-hidden flex hover:border-gray-300 hover:shadow-md transition block">
+    <a href={event.url} target="_blank" rel="noreferrer" className="card p-0 overflow-hidden flex hover:border-[var(--glass-border)] hover:shadow-md transition block">
       <div className={`w-1 shrink-0 bg-gradient-to-b ${colors.bar}`} />
       <div className="flex items-center gap-4 px-4 py-3 flex-1 min-w-0">
-        <div className={`shrink-0 w-14 h-14 rounded-lg flex flex-col items-center justify-center ${isUpcoming ? "bg-gray-50" : "bg-gray-50"}`}>
-          <span className={`text-lg font-bold ${isUpcoming ? "text-gray-900" : "text-gray-400"}`}>{event.date.slice(8, 10)}</span>
-          <span className="text-[10px] text-gray-500">{event.date.slice(5, 7)}月</span>
+        <div className={`shrink-0 w-14 h-14 rounded-[var(--radius-xs)] flex flex-col items-center justify-center ${isUpcoming ? "bg-[var(--surface)]" : "bg-[var(--surface)]"}`}>
+          <span className={`text-lg font-bold font-mono ${isUpcoming ? "text-gray-900" : "text-gray-400"}`}>{event.date.slice(8, 10)}</span>
+          <span className="text-[10px] text-gray-500 font-mono">{event.date.slice(5, 7)}月</span>
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
@@ -275,14 +275,14 @@ function EventCard({ event, isUpcoming }: { event: CampusEvent; isUpcoming?: boo
           </div>
           <div className="text-xs text-gray-600 mt-1 line-clamp-1">{event.title}</div>
           <div className="flex items-center gap-3 text-[11px] text-gray-500 mt-1 flex-wrap">
-            {event.time && <span>{event.time}</span>}
+            {event.time && <span className="font-mono">{event.time}</span>}
             {event.location && (
               <span className="truncate max-w-[160px] flex items-center gap-0.5">
                 <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" /></svg>
                 {event.location}
               </span>
             )}
-            <span className="text-gray-400">· {event.source}</span>
+            <span className="bg-[rgba(0,0,0,.03)] text-gray-500 rounded-full px-1.5">· {event.source}</span>
           </div>
         </div>
         <div className="shrink-0 flex flex-col items-end gap-1">
@@ -292,7 +292,7 @@ function EventCard({ event, isUpcoming }: { event: CampusEvent; isUpcoming?: boo
                 ? "bg-red-50 text-red-600 animate-pulse"
                 : days <= 7
                   ? "bg-amber-50 text-amber-600"
-                  : "bg-gray-50 text-gray-500"
+                  : "bg-[var(--surface)] text-gray-500"
             }`}>
               {days === 0 ? "今天" : days === 1 ? "明天" : `${days}天后`}
             </span>
@@ -315,9 +315,9 @@ function ArticleCard({ article }: { article: WechatArticle }) {
       href={article.url}
       target="_blank"
       rel="noreferrer"
-      className="card px-4 py-3 flex items-start gap-4 hover:border-gray-300 hover:shadow-sm transition block"
+      className="card px-4 py-3 flex items-start gap-4 hover:border-[var(--glass-border)] hover:shadow-sm transition block"
     >
-      <div className={`shrink-0 w-10 h-10 rounded-lg ${bgColor} flex items-center justify-center text-white text-lg font-bold`}>
+      <div className={`shrink-0 w-10 h-10 rounded-[var(--radius-sm)] ${bgColor} flex items-center justify-center text-white text-lg font-bold`}>
         {firstChar}
       </div>
       <div className="flex-1 min-w-0">

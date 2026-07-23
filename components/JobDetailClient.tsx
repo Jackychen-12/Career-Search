@@ -72,10 +72,10 @@ export default function JobDetailClient({ job, jobs }: { job: Job | null; jobs: 
 
   return (
     <div className="min-h-screen">
-      <header className="sticky top-0 z-40 backdrop-blur-xl bg-white/60 border-b border-black/5">
+      <header className="sticky top-0 z-40 bg-[var(--surface)] backdrop-blur-[8px] [backdrop-filter:blur(8px)_saturate(180%)] border-b border-[var(--border)]">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
           <a href="/" className="text-[15px] font-bold text-gray-900 hover:text-brand-600 transition">← 返回</a>
-          <a href={job.applyUrl} target="_blank" rel="noreferrer" className="px-4 py-1.5 rounded-lg text-sm font-semibold text-white bg-brand-500 hover:bg-brand-600 shadow-sm transition">
+          <a href={job.applyUrl} target="_blank" rel="noreferrer" className="px-4 py-1.5 rounded-[var(--radius-sm)] text-sm font-semibold text-white bg-brand-500 hover:bg-brand-600 shadow-sm transition">
             投递 →
           </a>
         </div>
@@ -86,8 +86,8 @@ export default function JobDetailClient({ job, jobs }: { job: Job | null; jobs: 
         <div className="card p-6">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <h1 className="text-xl font-bold text-gray-900">{job.company}</h1>
-              <h2 className="text-base text-brand-600 font-medium mt-1">{job.title}</h2>
+              <h1 className="text-xl font-extrabold tracking-tight text-gray-900">{job.company}</h1>
+              <h2 className="text-base text-brand-500 font-bold mt-1">{job.title}</h2>
             </div>
             {match && match.score > 0 && (
               <div className="text-center shrink-0">
@@ -101,31 +101,31 @@ export default function JobDetailClient({ job, jobs }: { job: Job | null; jobs: 
 
           <div className="flex flex-wrap gap-2 mt-4">
             <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${CATEGORY_COLORS[job.category]}`}>{job.category}</span>
-            <span className="text-xs px-2.5 py-1 rounded-full bg-gray-100 text-gray-600">{job.jobType}</span>
-            <span className="text-xs px-2.5 py-1 rounded-full bg-gray-100 text-gray-600">{job.location.join(" / ")}</span>
+            <span className="text-xs px-2.5 py-1 rounded-full bg-[rgba(0,0,0,.03)] text-gray-500">{job.jobType}</span>
+            <span className="text-xs px-2.5 py-1 rounded-full bg-[rgba(0,0,0,.03)] text-gray-500">{job.location.join(" / ")}</span>
             {job.salary && <span className="text-xs px-2.5 py-1 rounded-full bg-brand-50 text-brand-600 font-medium">{job.salary}</span>}
-            {job.requirements && <span className="text-xs px-2.5 py-1 rounded-full bg-gray-100 text-gray-600">{job.requirements}</span>}
-            {job.tags.map((t) => <span key={t} className="text-xs px-2.5 py-1 rounded-full bg-gray-50 text-gray-500">{t}</span>)}
+            {job.requirements && <span className="text-xs px-2.5 py-1 rounded-full bg-[rgba(0,0,0,.03)] text-gray-500">{job.requirements}</span>}
+            {job.tags.map((t) => <span key={t} className="text-xs px-2.5 py-1 rounded-full bg-[rgba(0,0,0,.03)] text-gray-500">{t}</span>)}
           </div>
 
           {/* Time info */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">
-            <div className="bg-gray-50 rounded-lg p-3 text-center">
-              <div className={`text-sm font-bold ${urgent ? "text-red-600" : "text-gray-900"}`}>
+            <div className="bg-[rgba(91,76,255,.02)] rounded-[var(--radius-sm)] border border-[rgba(91,76,255,.06)] p-3 text-center">
+              <div className={`text-sm font-bold font-mono ${urgent ? "text-red-600" : "text-gray-900"}`}>
                 {job.deadline ? job.deadline.slice(0, 10) : "滚动"}
               </div>
               <div className="text-[10px] text-gray-500 mt-0.5">截止日期</div>
             </div>
-            <div className="bg-gray-50 rounded-lg p-3 text-center">
-              <div className="text-sm font-bold text-gray-900">{dl !== null && dl >= 0 ? `${dl} 天` : dl !== null ? "已过" : "—"}</div>
+            <div className="bg-[rgba(91,76,255,.02)] rounded-[var(--radius-sm)] border border-[rgba(91,76,255,.06)] p-3 text-center">
+              <div className="text-sm font-bold font-mono text-gray-900">{dl !== null && dl >= 0 ? `${dl} 天` : dl !== null ? "已过" : "—"}</div>
               <div className="text-[10px] text-gray-500 mt-0.5">剩余</div>
             </div>
-            <div className="bg-gray-50 rounded-lg p-3 text-center">
-              <div className="text-sm font-bold text-gray-900">{job.firstSeen.slice(0, 10)}</div>
+            <div className="bg-[rgba(91,76,255,.02)] rounded-[var(--radius-sm)] border border-[rgba(91,76,255,.06)] p-3 text-center">
+              <div className="text-sm font-bold font-mono text-gray-900">{job.firstSeen.slice(0, 10)}</div>
               <div className="text-[10px] text-gray-500 mt-0.5">收录时间</div>
             </div>
-            <div className="bg-gray-50 rounded-lg p-3 text-center">
-              <div className="text-sm font-bold text-gray-900">{job.postedAt?.slice(0, 10) ?? "—"}</div>
+            <div className="bg-[rgba(91,76,255,.02)] rounded-[var(--radius-sm)] border border-[rgba(91,76,255,.06)] p-3 text-center">
+              <div className="text-sm font-bold font-mono text-gray-900">{job.postedAt?.slice(0, 10) ?? "—"}</div>
               <div className="text-[10px] text-gray-500 mt-0.5">发布时间</div>
             </div>
           </div>
@@ -141,7 +141,7 @@ export default function JobDetailClient({ job, jobs }: { job: Job | null; jobs: 
 
         {/* AI Analysis */}
         {job.aiTags && (
-          <div className="card p-6">
+          <div className="card p-6 border-t-[3px] border-brand-500">
             <h3 className="text-sm font-bold text-gray-900 mb-3">AI 分析</h3>
             <p className="text-sm text-gray-600 mb-3">{job.aiTags.summary}</p>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-3">
@@ -154,7 +154,7 @@ export default function JobDetailClient({ job, jobs }: { job: Job | null; jobs: 
               <span className="text-[10px] text-gray-400">所需技能：</span>
               {job.aiTags.skills.map((s) => {
                 const userHas = prefs?.skills?.some((us) => us.toLowerCase() === s.toLowerCase()) || prefs?.resumeKeywords?.some((uk) => uk.toLowerCase() === s.toLowerCase());
-                return <span key={s} className={`text-[11px] px-2 py-0.5 rounded-full ${userHas ? "bg-brand-100 text-brand-700 font-medium" : "bg-gray-100 text-gray-600"}`}>{s}</span>;
+                return <span key={s} className={`text-[11px] px-2 py-0.5 rounded-full ${userHas ? "bg-brand-50 text-brand-500 font-medium" : "bg-gray-50 text-gray-400"}`}>{s}</span>;
               })}
             </div>
           </div>
@@ -162,7 +162,7 @@ export default function JobDetailClient({ job, jobs }: { job: Job | null; jobs: 
 
         {/* Match reasons */}
         {match && match.reasons.length > 0 && (
-          <div className="card p-6 bg-brand-50/30 border-brand-100">
+          <div className="card p-6 bg-[rgba(91,76,255,.03)] border border-[rgba(91,76,255,.1)]">
             <h3 className="text-sm font-bold text-brand-700 mb-2">匹配理由</h3>
             <div className="space-y-1">
               {match.reasons.map((r, i) => (
@@ -178,12 +178,12 @@ export default function JobDetailClient({ job, jobs }: { job: Job | null; jobs: 
         {/* AI Actions */}
         {prefs && (
           <div className="grid grid-cols-2 gap-3">
-            <button onClick={genInterview} disabled={loading !== null} className="card p-4 text-left hover:border-brand-300 transition">
+            <button onClick={genInterview} disabled={loading !== null} className="card p-4 text-left hover:border-brand-300 hover:-translate-y-0.5 rounded-[var(--radius-sm)] transition">
               <div className="text-lg mb-1">🎯</div>
               <div className="text-sm font-semibold text-gray-900">{loading === "interview" ? "生成中..." : "生成面试题"}</div>
               <div className="text-[11px] text-gray-500 mt-0.5">针对这个岗位的定制面试题</div>
             </button>
-            <button onClick={genLetter} disabled={loading !== null} className="card p-4 text-left hover:border-brand-300 transition">
+            <button onClick={genLetter} disabled={loading !== null} className="card p-4 text-left hover:border-brand-300 hover:-translate-y-0.5 rounded-[var(--radius-sm)] transition">
               <div className="text-lg mb-1">✉️</div>
               <div className="text-sm font-semibold text-gray-900">{loading === "letter" ? "生成中..." : "生成求职信"}</div>
               <div className="text-[11px] text-gray-500 mt-0.5">针对这个岗位的定制求职信</div>
@@ -196,14 +196,14 @@ export default function JobDetailClient({ job, jobs }: { job: Job | null; jobs: 
           <div className="card p-6 space-y-3">
             <h3 className="text-sm font-bold text-gray-900">面试题（{interviewQ.length} 道）</h3>
             {interviewQ.map((q, i) => (
-              <div key={i} className="p-3 rounded-lg border border-gray-100">
+              <div key={i} className="p-3 rounded-[var(--radius-xs)] border border-gray-100">
                 <div className="flex items-start gap-2">
                   <span className="shrink-0 w-6 h-6 rounded-full bg-brand-50 text-brand-600 text-xs font-bold flex items-center justify-center">{i + 1}</span>
                   <div>
                     <div className="text-sm font-medium text-gray-900">{q.question}</div>
                     <div className="flex gap-2 mt-1">
-                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-gray-100">{q.category}</span>
-                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-gray-100">{q.difficulty}</span>
+                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-[rgba(0,0,0,.03)] text-gray-500">{q.category}</span>
+                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-[rgba(0,0,0,.03)] text-gray-500">{q.difficulty}</span>
                     </div>
                     <div className="text-xs text-gray-500 mt-2"><strong>要点：</strong>{q.tips}</div>
                     <div className="text-xs text-gray-400 mt-1"><strong>参考：</strong>{q.sample}</div>
@@ -221,7 +221,7 @@ export default function JobDetailClient({ job, jobs }: { job: Job | null; jobs: 
               <h3 className="text-sm font-bold text-gray-900">求职信</h3>
               <button onClick={() => navigator.clipboard.writeText(coverLetter.letter).then(() => alert("已复制"))} className="text-xs text-brand-600">复制</button>
             </div>
-            <div className="p-4 rounded-lg bg-gray-50 text-sm text-gray-700 whitespace-pre-line leading-relaxed">{coverLetter.letter}</div>
+            <div className="p-4 rounded-[var(--radius-xs)] bg-[var(--surface-solid)] text-sm text-gray-700 whitespace-pre-line leading-relaxed">{coverLetter.letter}</div>
           </div>
         )}
 
@@ -231,7 +231,7 @@ export default function JobDetailClient({ job, jobs }: { job: Job | null; jobs: 
             <h3 className="text-sm font-bold text-gray-900 mb-3">相关岗位</h3>
             <div className="space-y-2">
               {similar.map((j) => (
-                <a key={j.id} href={`/job/${j.id}`} className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-gray-50 transition">
+                <a key={j.id} href={`/job/${j.id}`} className="flex items-center gap-3 p-2.5 rounded-[var(--radius-xs)] hover:bg-[rgba(91,76,255,.03)] transition">
                   <div className="flex-1 min-w-0">
                     <div className="text-sm font-medium text-gray-900">{j.company} · {j.title}</div>
                     <div className="text-xs text-gray-500 mt-0.5">{j.location[0]} · {j.jobType}</div>
@@ -245,7 +245,7 @@ export default function JobDetailClient({ job, jobs }: { job: Job | null; jobs: 
 
         {/* Apply CTA */}
         <div className="text-center py-4">
-          <a href={job.applyUrl} target="_blank" rel="noreferrer" className="inline-block px-8 py-3 rounded-lg text-sm font-semibold text-white bg-brand-500 hover:bg-brand-600 shadow-sm transition">
+          <a href={job.applyUrl} target="_blank" rel="noreferrer" className="inline-block px-8 py-3 rounded-[var(--radius-sm)] text-sm font-bold text-white bg-brand-500 hover:bg-brand-600 shadow-sm transition">
             前往投递 →
           </a>
         </div>

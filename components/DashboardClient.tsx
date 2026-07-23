@@ -17,7 +17,7 @@ function StatCard({ label, value, sub, color }: { label: string; value: string |
   return (
     <div className="stat-card p-4 flex flex-col gap-1">
       <div className="text-[11px] font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">{label}</div>
-      <div className={`text-2xl font-bold tabular-nums ${color}`}>{value}</div>
+      <div className={`text-2xl font-bold font-mono tabular-nums ${color}`}>{value}</div>
       {sub && <div className="text-[11px] text-slate-400">{sub}</div>}
     </div>
   );

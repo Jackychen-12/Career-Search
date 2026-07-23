@@ -31,12 +31,12 @@ export const CITIES = [
 ];
 
 export const CATEGORY_COLORS: Record<Category, string> = {
-  互联网: "bg-slate-100 text-slate-700",
-  金融: "bg-amber-100 text-amber-800",
-  外企: "bg-emerald-50 text-emerald-700",
-  快消: "bg-orange-50 text-orange-700",
-  实体: "bg-stone-100 text-stone-600",
-  管培: "bg-violet-50 text-violet-700",
+  互联网: "bg-[var(--cat-internet-bg)] text-[#5b4cff]",
+  金融: "bg-[var(--cat-finance-bg)] text-[#F59E0B]",
+  外企: "bg-[var(--cat-foreign-bg)] text-[#10B981]",
+  快消: "bg-[var(--cat-fmcg-bg)] text-[#F97316]",
+  实体: "bg-[var(--cat-entity-bg)] text-[#78716c]",
+  管培: "bg-[var(--cat-trainee-bg)] text-[#8B5CF6]",
   其他: "bg-gray-100 text-gray-500",
 };
 

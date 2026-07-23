@@ -67,7 +67,7 @@ export default function ReportClient({ jobs }: { jobs: Job[] }) {
   if (!prefs) {
     return (
       <div className="min-h-screen flex flex-col">
-        <header className="sticky top-0 z-40 backdrop-blur-xl bg-white/60 border-b border-black/5">
+        <header className="sticky top-0 z-40 backdrop-blur-xl bg-[var(--surface-solid)]/60 border-b border-black/5">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 h-14 flex items-center">
             <a href={"/"} className="text-[15px] font-bold text-gray-900">← Career Search</a>
           </div>
@@ -75,9 +75,9 @@ export default function ReportClient({ jobs }: { jobs: Job[] }) {
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
             <div className="text-3xl mb-4">📊</div>
-            <h2 className="text-lg font-bold text-gray-900 mb-2">尚未设置求职画像</h2>
+            <h2 className="text-lg font-black tracking-tight text-gray-900 mb-2">尚未设置求职画像</h2>
             <p className="text-sm text-gray-500 mb-4">请先在首页点击「设置画像」或上传简历，才能生成求职报告。</p>
-            <a href={"/"} className="px-4 py-2 rounded-lg text-sm font-medium bg-brand-500 text-white hover:bg-brand-600 transition">
+            <a href={"/"} className="px-4 py-2 rounded-[var(--radius-xs)] text-sm font-medium bg-brand-500 text-white hover:bg-brand-600 transition">
               返回首页设置
             </a>
           </div>
@@ -91,7 +91,7 @@ export default function ReportClient({ jobs }: { jobs: Job[] }) {
 
   return (
     <div className="min-h-screen">
-      <header className="sticky top-0 z-40 backdrop-blur-xl bg-white/60 border-b border-black/5">
+      <header className="sticky top-0 z-40 backdrop-blur-xl bg-[var(--surface-solid)]/60 border-b border-black/5">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <a href={"/"} className="text-[15px] font-bold text-gray-900 hover:text-brand-600 transition">← Career Search</a>
@@ -118,7 +118,7 @@ export default function ReportClient({ jobs }: { jobs: Job[] }) {
       <main className="max-w-4xl mx-auto px-4 sm:px-6 py-8 space-y-8">
         {/* Profile overview */}
         <section className="card p-6">
-          <h2 className="text-base font-bold text-gray-900 mb-4 flex items-center gap-2">
+          <h2 className="text-base font-black tracking-tight text-gray-900 mb-4 flex items-center gap-2">
             <span className="w-1 h-4 rounded-full bg-brand-500" />
             画像概览
           </h2>
@@ -129,7 +129,7 @@ export default function ReportClient({ jobs }: { jobs: Job[] }) {
             <div><span className="text-gray-400 text-xs">目标方向</span><div className="font-medium">{(prefs.targetRoles ?? []).join("、") || "未设置"}</div></div>
           </div>
           {prefs.summary && (
-            <div className="mt-3 p-3 rounded-lg bg-brand-50/50 text-xs text-brand-600">{prefs.summary}</div>
+            <div className="mt-3 p-3 rounded-[var(--radius-xs)] bg-brand-50/50 text-xs text-brand-600">{prefs.summary}</div>
           )}
           {(prefs.skills ?? []).length > 0 && (
             <div className="mt-3 flex flex-wrap gap-1.5">
@@ -153,11 +153,11 @@ export default function ReportClient({ jobs }: { jobs: Job[] }) {
             </div>
           )}
           {(prefs.experiences ?? []).length > 0 && (
-            <div className="mt-4 border-t border-gray-100 pt-3">
+            <div className="mt-4 border-t border-[var(--border)] pt-3">
               <div className="text-xs font-medium text-gray-700 mb-2">实习/工作经历（{prefs.experiences!.length} 段）</div>
               <div className="space-y-2">
                 {prefs.experiences!.map((exp, i) => (
-                  <div key={i} className="p-2.5 rounded-lg bg-gray-50 border border-gray-100">
+                  <div key={i} className="p-2.5 rounded-[var(--radius-xs)] bg-gray-50 border border-[var(--border)]">
                     <div className="flex items-center gap-2 mb-0.5">
                       <span className="text-xs font-semibold text-gray-900">{exp.company}</span>
                       <span className="text-[11px] text-brand-600">{exp.role}</span>
@@ -177,7 +177,7 @@ export default function ReportClient({ jobs }: { jobs: Job[] }) {
 
         {/* Match distribution */}
         <section className="card p-6">
-          <h2 className="text-base font-bold text-gray-900 mb-4 flex items-center gap-2">
+          <h2 className="text-base font-black tracking-tight text-gray-900 mb-4 flex items-center gap-2">
             <span className="w-1 h-4 rounded-full bg-brand-500" />
             匹配度分布
           </h2>
@@ -191,22 +191,22 @@ export default function ReportClient({ jobs }: { jobs: Job[] }) {
               <button
                 key={b.key}
                 onClick={() => setActiveBucket(activeBucket === b.key ? null : b.key)}
-                className={`text-center p-3 rounded-lg bg-gray-50 transition cursor-pointer hover:bg-gray-100 ${activeBucket === b.key ? `ring-2 ${b.ring}` : ""}`}
+                className={`text-center p-3 rounded-[var(--radius-xs)] bg-gray-50 transition cursor-pointer hover:bg-gray-100 ${activeBucket === b.key ? `ring-2 ${b.ring}` : ""}`}
               >
-                <div className={`inline-block text-lg font-bold px-2 py-0.5 rounded-lg ${b.color}`}>{b.count}</div>
+                <div className={`inline-block text-lg font-bold font-mono px-2 py-0.5 rounded-[var(--radius-xs)] ${b.color}`}>{b.count}</div>
                 <div className="text-[11px] text-gray-500 mt-1">{b.label}</div>
               </button>
             ))}
           </div>
           {/* Bar chart */}
-          <div className="h-4 rounded-full overflow-hidden flex bg-gray-100">
+          <div className="h-[5px] rounded-full overflow-hidden flex bg-gray-100">
             {high.length > 0 && <div className="bg-brand-500 transition-all" style={{ width: `${(high.length / matches.length) * 100}%` }} />}
             {mid.length > 0 && <div className="bg-brand-200 transition-all" style={{ width: `${(mid.length / matches.length) * 100}%` }} />}
             {low.length > 0 && <div className="bg-gray-300 transition-all" style={{ width: `${(low.length / matches.length) * 100}%` }} />}
           </div>
           {/* Expanded bucket job list */}
           {activeBucket && (
-            <div className="mt-4 border-t border-gray-100 pt-4">
+            <div className="mt-4 border-t border-[var(--border)] pt-4">
               <div className="text-xs font-medium text-gray-700 mb-3">
                 {activeBucket === "high" && `高匹配岗位（${high.length}个）`}
                 {activeBucket === "mid" && `中匹配岗位（${mid.length}个）`}
@@ -217,8 +217,8 @@ export default function ReportClient({ jobs }: { jobs: Job[] }) {
                 {(activeBucket === "high" ? high : activeBucket === "mid" ? mid : activeBucket === "low" ? low : none)
                   .slice(0, 20)
                   .map((m) => (
-                    <a key={m.job.id} href={m.job.applyUrl} target="_blank" rel="noreferrer" className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-gray-50 transition">
-                      <span className={`shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                    <a key={m.job.id} href={m.job.applyUrl} target="_blank" rel="noreferrer" className="flex items-center gap-3 p-2.5 rounded-[var(--radius-xs)] hover:bg-gray-50 transition">
+                      <span className={`shrink-0 text-[10px] font-bold font-mono px-2 py-0.5 rounded-full ${
                         m.score > 0.6 ? "bg-brand-500 text-white" : m.score > 0.3 ? "bg-brand-50 text-brand-600" : "bg-gray-100 text-gray-500"
                       }`}>
                         {Math.round(m.score * 100)}%
@@ -242,13 +242,13 @@ export default function ReportClient({ jobs }: { jobs: Job[] }) {
 
         {/* Resume optimization tips — placed prominently after match distribution */}
         <section className="card p-6">
-          <h2 className="text-base font-bold text-gray-900 mb-4 flex items-center gap-2">
+          <h2 className="text-base font-black tracking-tight text-gray-900 mb-4 flex items-center gap-2">
             <span className="w-1 h-4 rounded-full bg-brand-500" />
             简历优化建议
           </h2>
           <div className="space-y-3">
             {skillGaps.length > 0 && (
-              <div className="p-3 rounded-lg bg-amber-50 border border-amber-100">
+              <div className="p-3 rounded-[var(--radius-xs)] bg-amber-50 border border-amber-100">
                 <div className="text-xs font-medium text-amber-800 mb-1">补充热门技能关键词</div>
                 <div className="text-xs text-amber-700">
                   你的简历中缺少以下市场高需求技能：<strong>{skillGaps.slice(0, 5).map((s) => s.skill).join("、")}</strong>。
@@ -257,7 +257,7 @@ export default function ReportClient({ jobs }: { jobs: Job[] }) {
               </div>
             )}
             {(prefs.targetRoles ?? []).length > 0 && (
-              <div className="p-3 rounded-lg bg-brand-50/50 border border-brand-100">
+              <div className="p-3 rounded-[var(--radius-xs)] bg-brand-50/50 border border-brand-100">
                 <div className="text-xs font-medium text-brand-800 mb-1">突出目标岗位关键词</div>
                 <div className="text-xs text-brand-700">
                   你的目标岗位是 <strong>{(prefs.targetRoles ?? []).join("、")}</strong>，
@@ -266,7 +266,7 @@ export default function ReportClient({ jobs }: { jobs: Job[] }) {
               </div>
             )}
             {high.length > 0 && (
-              <div className="p-3 rounded-lg bg-gray-50 border border-gray-100">
+              <div className="p-3 rounded-[var(--radius-xs)] bg-gray-50 border border-[var(--border)]">
                 <div className="text-xs font-medium text-gray-800 mb-1">针对性定制</div>
                 <div className="text-xs text-gray-600">
                   你有 {high.length} 个高匹配岗位，Top 3 是 {high.slice(0, 3).map((m) => m.job.company).join("、")}。
@@ -274,7 +274,7 @@ export default function ReportClient({ jobs }: { jobs: Job[] }) {
                 </div>
               </div>
             )}
-            <div className="p-3 rounded-lg bg-gray-50 border border-gray-100">
+            <div className="p-3 rounded-[var(--radius-xs)] bg-gray-50 border border-[var(--border)]">
               <div className="text-xs font-medium text-gray-800 mb-1">STAR 法则</div>
               <div className="text-xs text-gray-600">
                 每段实习/项目经历用 Situation → Task → Action → Result 结构描述，量化成果（如"提升 XX%"、"覆盖 XX 用户"）。
@@ -285,20 +285,20 @@ export default function ReportClient({ jobs }: { jobs: Job[] }) {
 
         {/* Top 10 recommendations */}
         <section className="card p-6">
-          <h2 className="text-base font-bold text-gray-900 mb-4 flex items-center gap-2">
+          <h2 className="text-base font-black tracking-tight text-gray-900 mb-4 flex items-center gap-2">
             <span className="w-1 h-4 rounded-full bg-brand-500" />
             Top 10 推荐岗位
           </h2>
           <div className="space-y-3">
             {matches.slice(0, 10).map((m, i) => (
-              <a key={m.job.id} href={m.job.applyUrl} target="_blank" rel="noreferrer" className="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 transition">
-                <span className={`shrink-0 w-6 h-6 rounded-lg flex items-center justify-center text-xs font-bold ${i < 3 ? "bg-brand-500 text-white" : "bg-gray-100 text-gray-500"}`}>
+              <a key={m.job.id} href={m.job.applyUrl} target="_blank" rel="noreferrer" className="flex items-start gap-3 p-3 rounded-[var(--radius-xs)] hover:bg-gray-50 transition">
+                <span className={`shrink-0 w-6 h-6 rounded-[var(--radius-xs)] flex items-center justify-center text-xs font-bold ${i < 3 ? "bg-brand-500 text-white" : "bg-gray-100 text-gray-500"}`}>
                   {i + 1}
                 </span>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-semibold text-gray-900">{m.job.company}</span>
-                    <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full ${m.score > 0.6 ? "bg-brand-500 text-white" : "bg-brand-50 text-brand-600"}`}>
+                    <span className={`text-[10px] font-semibold font-mono px-1.5 py-0.5 rounded-full ${m.score > 0.6 ? "bg-brand-500 text-white" : "bg-brand-50 text-brand-600"}`}>
                       {Math.round(m.score * 100)}%
                     </span>
                   </div>
@@ -313,42 +313,42 @@ export default function ReportClient({ jobs }: { jobs: Job[] }) {
 
         {/* Skill gap analysis */}
         <section className="card p-6">
-          <h2 className="text-base font-bold text-gray-900 mb-4 flex items-center gap-2">
+          <h2 className="text-base font-black tracking-tight text-gray-900 mb-4 flex items-center gap-2">
             <span className="w-1 h-4 rounded-full bg-brand-500" />
             技能分析
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <h3 className="text-xs font-semibold text-gray-700 mb-2">你已具备的热门技能</h3>
+              <h3 className="text-xs font-extrabold text-gray-700 mb-2">你已具备的热门技能</h3>
               {skillMatches.length === 0 ? (
                 <p className="text-xs text-gray-400">暂无匹配</p>
               ) : (
                 <div className="space-y-1.5">
                   {skillMatches.map((s) => (
                     <div key={s.skill} className="flex items-center gap-2">
-                      <div className="flex-1 h-5 bg-brand-50 rounded overflow-hidden">
-                        <div className="h-full bg-brand-400 rounded" style={{ width: `${Math.min(100, (s.count / topMarketSkills[0].count) * 100)}%` }} />
+                      <div className="flex-1 h-[5px] bg-brand-50 rounded-full overflow-hidden">
+                        <div className="h-full bg-brand-400 rounded-full" style={{ width: `${Math.min(100, (s.count / topMarketSkills[0].count) * 100)}%` }} />
                       </div>
                       <span className="text-[11px] text-gray-700 w-20 truncate">{s.skill}</span>
-                      <span className="text-[10px] text-gray-400 w-8 text-right">{s.count}</span>
+                      <span className="text-[10px] font-mono text-gray-400 w-8 text-right">{s.count}</span>
                     </div>
                   ))}
                 </div>
               )}
             </div>
             <div>
-              <h3 className="text-xs font-semibold text-red-600 mb-2">建议补充的技能</h3>
+              <h3 className="text-xs font-extrabold text-red-600 mb-2">建议补充的技能</h3>
               {skillGaps.length === 0 ? (
                 <p className="text-xs text-gray-400">无明显缺口</p>
               ) : (
                 <div className="space-y-1.5">
                   {skillGaps.slice(0, 8).map((s) => (
                     <div key={s.skill} className="flex items-center gap-2">
-                      <div className="flex-1 h-5 bg-red-50 rounded overflow-hidden">
-                        <div className="h-full bg-red-300 rounded" style={{ width: `${Math.min(100, (s.count / topMarketSkills[0].count) * 100)}%` }} />
+                      <div className="flex-1 h-[5px] bg-red-50 rounded-full overflow-hidden">
+                        <div className="h-full bg-red-300 rounded-full" style={{ width: `${Math.min(100, (s.count / topMarketSkills[0].count) * 100)}%` }} />
                       </div>
                       <span className="text-[11px] text-gray-700 w-20 truncate">{s.skill}</span>
-                      <span className="text-[10px] text-gray-400 w-8 text-right">{s.count}</span>
+                      <span className="text-[10px] font-mono text-gray-400 w-8 text-right">{s.count}</span>
                     </div>
                   ))}
                 </div>
@@ -360,14 +360,14 @@ export default function ReportClient({ jobs }: { jobs: Job[] }) {
         {/* Industry recommendation */}
         {Object.keys(industryDist).length > 0 && (
           <section className="card p-6">
-            <h2 className="text-base font-bold text-gray-900 mb-4 flex items-center gap-2">
+            <h2 className="text-base font-black tracking-tight text-gray-900 mb-4 flex items-center gap-2">
               <span className="w-1 h-4 rounded-full bg-brand-500" />
               推荐优先投递行业
             </h2>
             <div className="flex flex-wrap gap-2">
               {Object.entries(industryDist).sort((a, b) => b[1] - a[1]).map(([ind, count]) => (
-                <div key={ind} className="px-3 py-2 rounded-lg bg-gray-50 text-center">
-                  <div className="text-lg font-bold text-brand-600">{count}</div>
+                <div key={ind} className="px-3 py-2 rounded-[var(--radius-xs)] bg-gray-50 text-center">
+                  <div className="text-lg font-bold font-mono text-brand-600">{count}</div>
                   <div className="text-xs text-gray-600">{ind}</div>
                 </div>
               ))}
@@ -378,15 +378,15 @@ export default function ReportClient({ jobs }: { jobs: Job[] }) {
         {/* Urgent deadlines */}
         {urgentTop.length > 0 && (
           <section className="card p-6">
-            <h2 className="text-base font-bold text-gray-900 mb-4 flex items-center gap-2">
+            <h2 className="text-base font-black tracking-tight text-gray-900 mb-4 flex items-center gap-2">
               <span className="w-1 h-4 rounded-full bg-red-500" />
               投递策略 · 紧急优先
             </h2>
             <p className="text-xs text-gray-500 mb-3">以下匹配岗位即将截止，建议尽快投递：</p>
             <div className="space-y-2">
               {urgentTop.map((m) => (
-                <a key={m.job.id} href={m.job.applyUrl} target="_blank" rel="noreferrer" className="flex items-center gap-3 p-2.5 rounded-lg border border-gray-100 hover:border-brand-300 transition">
-                  <span className="shrink-0 text-xs font-bold text-red-600 bg-red-50 px-2 py-1 rounded">
+                <a key={m.job.id} href={m.job.applyUrl} target="_blank" rel="noreferrer" className="flex items-center gap-3 p-2.5 rounded-[var(--radius-xs)] border border-[var(--border)] hover:border-brand-300 transition">
+                  <span className="shrink-0 text-xs font-bold font-mono text-red-600 bg-red-50 px-2 py-1 rounded">
                     {m.daysLeft}天
                   </span>
                   <div className="flex-1 min-w-0">
@@ -402,14 +402,14 @@ export default function ReportClient({ jobs }: { jobs: Job[] }) {
 
         {/* Interview prep */}
         <section className="card p-6">
-          <h2 className="text-base font-bold text-gray-900 mb-4 flex items-center gap-2">
+          <h2 className="text-base font-black tracking-tight text-gray-900 mb-4 flex items-center gap-2">
             <span className="w-1 h-4 rounded-full bg-brand-500" />
             面试题预测
           </h2>
           <p className="text-xs text-gray-500 mb-3">基于你的目标岗位和技能，可能会被问到的面试题：</p>
           <div className="space-y-2">
             {generateInterviewQuestions(prefs, matches.slice(0, 5).map((m) => m.job)).map((q, i) => (
-              <div key={i} className="p-3 rounded-lg border border-gray-100 hover:border-brand-200 transition">
+              <div key={i} className="p-3 rounded-[var(--radius-xs)] border border-[var(--border)] hover:border-brand-200 transition">
                 <div className="flex items-start gap-2">
                   <span className="shrink-0 w-5 h-5 rounded-full bg-brand-50 text-brand-600 text-[10px] font-bold flex items-center justify-center mt-0.5">{i + 1}</span>
                   <div>

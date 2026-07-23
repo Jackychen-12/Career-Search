@@ -14,6 +14,14 @@ const config: Config = {
           600: "#4a3de6",
           700: "#3a2ecc",
         },
+        coral: {
+          DEFAULT: "#FF6B4A",
+          light: "rgba(255,107,74,0.10)",
+        },
+        cyan: {
+          DEFAULT: "#1ABCFE",
+          light: "rgba(26,188,254,0.10)",
+        },
         nav: {
           DEFAULT: "#1f2937",
           light: "#f3f4f6",
@@ -21,6 +29,8 @@ const config: Config = {
       },
       fontFamily: {
         sans: [
+          "Inter",
+          "system-ui",
           "-apple-system",
           "BlinkMacSystemFont",
           "PingFang SC",
@@ -28,6 +38,17 @@ const config: Config = {
           "Microsoft YaHei",
           "sans-serif",
         ],
+        mono: [
+          "SF Mono",
+          "Roboto Mono",
+          "Fira Code",
+          "monospace",
+        ],
+      },
+      borderRadius: {
+        aurora: "16px",
+        "aurora-sm": "12px",
+        "aurora-xs": "8px",
       },
     },
   },

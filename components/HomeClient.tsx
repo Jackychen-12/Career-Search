@@ -19,10 +19,10 @@ function SkeletonGrid() {
     <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
       {Array.from({ length: 6 }).map((_, i) => (
         <div key={i} className="card p-4 space-y-3 animate-pulse">
-          <div className="h-4 bg-gray-200 rounded w-3/4" />
-          <div className="h-3 bg-gray-100 rounded w-1/2" />
-          <div className="h-16 bg-gray-50 rounded" />
-          <div className="h-3 bg-gray-100 rounded w-full" />
+          <div className="h-4 bg-[rgba(0,0,0,.06)] rounded w-3/4" />
+          <div className="h-3 bg-[rgba(0,0,0,.06)] rounded w-1/2" />
+          <div className="h-16 bg-[rgba(0,0,0,.06)] rounded" />
+          <div className="h-3 bg-[rgba(0,0,0,.06)] rounded w-full" />
         </div>
       ))}
     </div>
@@ -153,22 +153,22 @@ export default function HomeClient({
         {/* Sort bar */}
         <div className="flex items-center justify-between">
           <div className="text-sm text-gray-500">
-            共 <span className="text-gray-800 font-medium">{result.total}</span> 条
+            共 <span className="text-gray-800 font-medium font-mono">{result.total}</span> 条
             {personalized && <span className="text-indigo-600 ml-1">· 个性化排序</span>}
           </div>
           <div className="flex items-center gap-1">
             <button
               onClick={() => setView("list")}
-              className={`px-3 h-8 inline-flex items-center rounded-full text-[13px] transition ${
-                view === "list" ? "bg-brand-50 text-brand-600 shadow-sm border border-brand-200 font-semibold" : "text-gray-500 hover:text-gray-700"
+              className={`px-3 h-8 inline-flex items-center rounded-[var(--radius-xs)] text-[13px] transition ${
+                view === "list" ? "bg-brand-500 text-white font-bold shadow-sm" : "text-gray-500 hover:text-brand-500 hover:bg-brand-50"
               }`}
             >
               列表
             </button>
             <button
               onClick={() => setView("calendar")}
-              className={`px-3 h-8 inline-flex items-center rounded-full text-[13px] transition ${
-                view === "calendar" ? "bg-brand-50 text-brand-600 shadow-sm border border-brand-200 font-semibold" : "text-gray-500 hover:text-gray-700"
+              className={`px-3 h-8 inline-flex items-center rounded-[var(--radius-xs)] text-[13px] transition ${
+                view === "calendar" ? "bg-brand-500 text-white font-bold shadow-sm" : "text-gray-500 hover:text-brand-500 hover:bg-brand-50"
               }`}
             >
               日历
@@ -184,7 +184,7 @@ export default function HomeClient({
             <section>
               {result.items.length === 0 ? (
                 <div className="card p-12 text-center">
-                  <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-gray-100 flex items-center justify-center text-gray-300">
+                  <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-[rgba(0,0,0,.06)] flex items-center justify-center text-gray-400">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="11" cy="11" r="8" /><path d="M21 21l-4.35-4.35" /></svg>
                   </div>
                   <p className="text-sm text-gray-500">没有符合条件的岗位</p>
@@ -222,7 +222,7 @@ export default function HomeClient({
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-gray-200/50 mt-12 bg-white/30">
+      <footer className="border-t border-[var(--border)] mt-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 text-xs text-gray-400 flex flex-wrap items-center justify-between gap-3">
           <span>数据来自公开招聘信息，投递以官方页面为准</span>
           <div className="flex items-center gap-4">
