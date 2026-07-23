@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
+import { createPortal } from "react-dom";
 import dynamic from "next/dynamic";
 import { loadTracking, saveTracking, removeTracking, type TrackingData, type TrackingEntry, type TrackingStatus } from "@/lib/tracker";
 import { loadInterviews, saveInterview, updateInterview, deleteInterview } from "@/lib/interviews";
@@ -211,12 +212,19 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
-      if (!(e.target as HTMLElement).closest("[data-status-dd]")) setStatusDropdownId(null);
       if (!(e.target as HTMLElement).closest("[data-filter-dd]")) setFilterDropdownOpen(false);
     }
     document.addEventListener("click", handleClickOutside);
     return () => document.removeEventListener("click", handleClickOutside);
   }, []);
+
+  useEffect(() => {
+    if (!statusDropdownId) return;
+    const close = () => { setStatusDropdownId(null); setStatusDropdownPos(null); };
+    window.addEventListener("scroll", close, true);
+    window.addEventListener("resize", close);
+    return () => { window.removeEventListener("scroll", close, true); window.removeEventListener("resize", close); };
+  }, [statusDropdownId]);
 
   async function updateEntry(itemId: string, patch: Partial<TrackingEntry>) {
     if (itemId.startsWith("iv-")) return;
@@ -1179,12 +1187,12 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
         />
       )}
 
-      {/* Fixed-position status dropdown portal (escapes overflow-x-auto) */}
-      {statusDropdownId && statusDropdownPos && (
+      {/* Status dropdown rendered via createPortal into document.body */}
+      {statusDropdownId && statusDropdownPos && typeof document !== "undefined" && createPortal(
         <>
-          <div className="fixed inset-0 z-[99]" onClick={() => { setStatusDropdownId(null); setStatusDropdownPos(null); }} />
+          <div className="fixed inset-0 z-[9999]" onClick={() => { setStatusDropdownId(null); setStatusDropdownPos(null); }} />
           <div
-            className="fixed bg-[var(--surface-solid)] rounded-[var(--radius-xs)] border border-[var(--border-s)] shadow-[0_8px_24px_rgba(0,0,0,0.12)] p-1 min-w-[120px] z-[100]"
+            className="fixed bg-[var(--surface-solid)] rounded-[var(--radius-xs)] border border-[var(--border-s)] shadow-[0_8px_24px_rgba(0,0,0,0.12)] p-1 min-w-[120px] z-[10000]"
             style={{ top: statusDropdownPos.top, left: statusDropdownPos.left }}
           >
             {Object.entries(STATUS_CONFIG).map(([k, v]) => (
@@ -1195,7 +1203,8 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
               </button>
             ))}
           </div>
-        </>
+        </>,
+        document.body
       )}
     </div>
   );
