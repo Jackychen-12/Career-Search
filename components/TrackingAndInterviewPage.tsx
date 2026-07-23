@@ -649,7 +649,7 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
                 {/* ── Table View ── */}
                 {subView === "table" && (
                   <div className="animate-fadeIn">
-                    <div className="bg-[var(--surface)] backdrop-blur-[8px] [backdrop-filter:blur(8px)_saturate(180%)] [-webkit-backdrop-filter:blur(8px)_saturate(180%)] rounded-[var(--radius)] border border-[rgba(255,255,255,0.6)] shadow-[var(--shadow)] overflow-hidden">
+                    <div className="bg-[var(--surface)] backdrop-blur-[8px] [backdrop-filter:blur(8px)_saturate(180%)] [-webkit-backdrop-filter:blur(8px)_saturate(180%)] rounded-[var(--radius)] border border-[rgba(255,255,255,0.6)] shadow-[var(--shadow)]">
                       <div className="overflow-x-auto">
                         <table className="w-full border-collapse min-w-[920px]">
                           <thead>
@@ -1163,7 +1163,7 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
             <div className="text-center">
               <button onClick={handleAnalyze} disabled={aiLoading}
                 className="px-7 py-2.5 rounded-[var(--radius)] text-[13px] font-bold text-brand-500 bg-[var(--primary-light)] border border-[rgba(91,76,255,0.2)] hover:bg-brand-500 hover:text-white transition disabled:opacity-60">
-                {aiLoading ? "AI 分析中..." : "&#10024; 重新分析"}
+                {aiLoading ? "AI 分析中..." : "✨ 重新分析"}
               </button>
             </div>
           </div>

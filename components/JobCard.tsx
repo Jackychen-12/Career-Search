@@ -151,21 +151,10 @@ function SmartAnalysis({ job, matchResult }: { job: Job; matchResult?: MatchResu
         </div>
       ) : (
         <div className="flex flex-wrap gap-x-3 gap-y-0.5 mb-1.5">
-          {dimensions.slice(0, 4).map((d) => (
+          {dimensions.slice(0, 6).map((d) => (
             <span key={d.label} className="text-[10px]">
               <span className="text-[var(--text-t)]">{d.label}</span>{" "}
               <span className={`font-medium ${d.color}`}>{d.value}</span>
-            </span>
-          ))}
-        </div>
-      )}
-
-      {/* Skill tags — always show if available */}
-      {skillTags.length > 0 && (
-        <div className="flex flex-wrap gap-1">
-          {skillTags.map((s) => (
-            <span key={s} className="text-[9px] px-1.5 py-0.5 rounded bg-[rgba(0,0,0,0.04)] border border-[var(--border)] text-[var(--text)]">
-              {s}
             </span>
           ))}
         </div>
