@@ -95,6 +95,7 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
   const [sortAsc, setSortAsc] = useState(true);
   const [checkedIds, setCheckedIds] = useState<Set<string>>(new Set());
   const [statusDropdownId, setStatusDropdownId] = useState<string | null>(null);
+  const [statusDropdownPos, setStatusDropdownPos] = useState<{ top: number; left: number } | null>(null);
   const [filterDropdownOpen, setFilterDropdownOpen] = useState(false);
 
   useEffect(() => {
@@ -649,7 +650,7 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
                 {subView === "table" && (
                   <div className="animate-fadeIn">
                     <div className="bg-[var(--surface)] backdrop-blur-[8px] [backdrop-filter:blur(8px)_saturate(180%)] [-webkit-backdrop-filter:blur(8px)_saturate(180%)] rounded-[var(--radius)] border border-[rgba(255,255,255,0.6)] shadow-[var(--shadow)]">
-                      <div className="overflow-x-auto overflow-y-visible">
+                      <div className="overflow-x-auto">
                         <table className="w-full border-collapse min-w-[920px]">
                           <thead>
                             <tr>
@@ -703,22 +704,21 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
                                   <td className={`p-[9px_12px] text-xs border-b border-[var(--border)] align-middle whitespace-nowrap text-[var(--text-s)] ${rowIdx % 2 === 1 ? "bg-[rgba(0,0,0,0.015)]" : ""}`}>{item.title}</td>
                                   <td className={`p-[9px_12px] text-xs border-b border-[var(--border)] align-middle whitespace-nowrap ${rowIdx % 2 === 1 ? "bg-[rgba(0,0,0,0.015)]" : ""}`}>
                                     <div className="relative" data-status-dd>
-                                      <span onClick={(e) => { e.stopPropagation(); setStatusDropdownId(statusDropdownId === item.id ? null : item.id); }}
+                                      <span onClick={(e) => {
+                                        e.stopPropagation();
+                                        if (statusDropdownId === item.id) {
+                                          setStatusDropdownId(null);
+                                          setStatusDropdownPos(null);
+                                        } else {
+                                          const rect = e.currentTarget.getBoundingClientRect();
+                                          setStatusDropdownPos({ top: rect.bottom + 3, left: rect.left });
+                                          setStatusDropdownId(item.id);
+                                        }
+                                      }}
                                         className={`inline-flex items-center gap-[3px] px-2.5 py-0.5 rounded-full text-[11px] font-semibold cursor-pointer transition hover:scale-[1.03] ${cfg.light} ${cfg.color}`}>
                                         {cfg.label}
                                         <svg className="w-2 h-2 opacity-50" viewBox="0 0 10 10" fill="currentColor"><path d="M2 3.5l3 3 3-3"/></svg>
                                       </span>
-                                      {statusDropdownId === item.id && (
-                                        <div className="absolute top-[calc(100%+3px)] left-0 bg-[var(--surface-solid)] rounded-[var(--radius-xs)] border border-[var(--border-s)] shadow-[0_8px_24px_rgba(0,0,0,0.12)] p-1 min-w-[120px] z-[60]">
-                                          {Object.entries(STATUS_CONFIG).map(([k, v]) => (
-                                            <button key={k} onClick={() => { updateEntry(item.id, { status: k as TrackingStatus }); setStatusDropdownId(null); }}
-                                              className="w-full px-2.5 py-[5px] rounded-[5px] text-[11px] font-semibold flex items-center gap-[5px] hover:bg-[var(--primary-light)] transition text-left">
-                                              <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: v.hex }} />
-                                              {v.label}
-                                            </button>
-                                          ))}
-                                        </div>
-                                      )}
                                     </div>
                                   </td>
                                   <td className={`p-[9px_12px] text-xs border-b border-[var(--border)] align-middle whitespace-nowrap text-[var(--text-s)] ${rowIdx % 2 === 1 ? "bg-[rgba(0,0,0,0.015)]" : ""}`}>{item.entry.appliedAt ?? "-"}</td>
@@ -1177,6 +1177,25 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
           onSave={handleInterviewSave}
           onCancel={() => { setShowForm(false); setEditRecord(undefined); }}
         />
+      )}
+
+      {/* Fixed-position status dropdown portal (escapes overflow-x-auto) */}
+      {statusDropdownId && statusDropdownPos && (
+        <>
+          <div className="fixed inset-0 z-[99]" onClick={() => { setStatusDropdownId(null); setStatusDropdownPos(null); }} />
+          <div
+            className="fixed bg-[var(--surface-solid)] rounded-[var(--radius-xs)] border border-[var(--border-s)] shadow-[0_8px_24px_rgba(0,0,0,0.12)] p-1 min-w-[120px] z-[100]"
+            style={{ top: statusDropdownPos.top, left: statusDropdownPos.left }}
+          >
+            {Object.entries(STATUS_CONFIG).map(([k, v]) => (
+              <button key={k} onClick={() => { updateEntry(statusDropdownId, { status: k as TrackingStatus }); setStatusDropdownId(null); setStatusDropdownPos(null); }}
+                className="w-full px-2.5 py-[5px] rounded-[5px] text-[11px] font-semibold flex items-center gap-[5px] hover:bg-[var(--primary-light)] transition text-left">
+                <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: v.hex }} />
+                {v.label}
+              </button>
+            ))}
+          </div>
+        </>
       )}
     </div>
   );
