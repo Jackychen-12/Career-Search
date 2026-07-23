@@ -18,7 +18,7 @@ export function TrendChart({ data }: TrendProps) {
     <div className="relative">
       {!hasData && (
         <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
-          <span className="text-xs text-gray-400 bg-white/80 px-3 py-1 rounded-full">近 30 天暂无活动数据</span>
+          <span className="text-xs text-[var(--text-t)] bg-[var(--surface)]/80 px-3 py-1 rounded-full">近 30 天暂无活动数据</span>
         </div>
       )}
       <ResponsiveContainer width="100%" height={220}>
@@ -29,20 +29,20 @@ export function TrendChart({ data }: TrendProps) {
             <stop offset="100%" stopColor="#5b4cff" stopOpacity={0} />
           </linearGradient>
           <linearGradient id="gradInterview" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#22c55e" stopOpacity={0.3} />
-            <stop offset="100%" stopColor="#22c55e" stopOpacity={0} />
+            <stop offset="0%" stopColor="#10B981" stopOpacity={0.3} />
+            <stop offset="100%" stopColor="#10B981" stopOpacity={0} />
           </linearGradient>
         </defs>
         <CartesianGrid strokeDasharray="3 3" stroke="rgba(148,163,184,0.15)" />
         <XAxis
           dataKey="label"
-          tick={{ fontSize: 12, fill: "#64748b" }}
+          tick={{ fontSize: 12, fill: "#9CA3AF" }}
           tickLine={false}
           axisLine={false}
           interval="preserveStartEnd"
         />
         <YAxis
-          tick={{ fontSize: 12, fill: "#64748b" }}
+          tick={{ fontSize: 12, fill: "#9CA3AF" }}
           tickLine={false}
           axisLine={false}
           allowDecimals={false}
@@ -76,7 +76,7 @@ export function TrendChart({ data }: TrendProps) {
           type="monotone"
           dataKey="interview"
           name="面试"
-          stroke="#22c55e"
+          stroke="#10B981"
           strokeWidth={2}
           fill="url(#gradInterview)"
           dot={false}

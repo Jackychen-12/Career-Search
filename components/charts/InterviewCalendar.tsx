@@ -47,7 +47,7 @@ export function InterviewCalendar({ heatmap }: CalendarProps) {
           return (
             <div key={i} className="flex-1 flex flex-col items-center justify-end h-full gap-0.5">
               {week.count > 0 && (
-                <span className="text-[10px] font-bold text-brand-600 tabular-nums">
+                <span className="text-[10px] font-bold text-brand-500 tabular-nums font-mono">
                   {week.count}
                 </span>
               )}
@@ -68,8 +68,8 @@ export function InterviewCalendar({ heatmap }: CalendarProps) {
         ))}
       </div>
       <div className="text-right mt-1.5">
-        <span className="text-[11px] text-gray-500">
-          近 12 周共 <strong className="text-gray-800">{totalActivity}</strong> 次活动
+        <span className="text-[11px] text-[var(--text-s)]">
+          近 12 周共 <strong className="text-[var(--text)] font-mono">{totalActivity}</strong> 次活动
         </span>
       </div>
     </div>

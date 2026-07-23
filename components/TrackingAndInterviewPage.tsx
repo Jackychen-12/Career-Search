@@ -12,7 +12,6 @@ import { getSession } from "@/lib/auth";
 import { getOrCreateInbox, loadPendingEmailRecords, confirmEmailRecord, dismissEmailRecord, ACTION_LABELS, type EmailRecord } from "@/lib/emailInbox";
 import type { Job } from "@/lib/types";
 import InterviewForm from "./InterviewForm";
-import CoachPanel from "./CoachPanel";
 import type { TrackedJobOption } from "./InterviewForm";
 
 const FunnelChart = dynamic(() => import("./charts/FunnelChart").then((m) => ({ default: m.FunnelChart })), { ssr: false });
@@ -22,14 +21,14 @@ const InterviewCalendar = dynamic(() => import("./charts/InterviewCalendar").the
 const STATUS_KEYS: TrackingStatus[] = ["applied", "written", "interview", "hr", "offer", "rejected", "withdrawn"];
 
 const STATUS_CONFIG: Record<TrackingStatus, { label: string; color: string; bg: string; order: number; light: string; border: string; hex: string }> = {
-  saved:     { label: "收藏",   color: "text-gray-600",   bg: "bg-gray-400",   order: 0, light: "bg-gray-50",    border: "border-l-gray-400",   hex: "#9ca3af" },
-  applied:   { label: "已投递", color: "text-blue-600",   bg: "bg-blue-500",   order: 1, light: "bg-blue-50",    border: "border-l-blue-400",   hex: "#3b82f6" },
-  written:   { label: "笔试",   color: "text-indigo-600", bg: "bg-indigo-500", order: 2, light: "bg-indigo-50",  border: "border-l-indigo-400", hex: "#6366f1" },
-  interview: { label: "面试",   color: "text-amber-600",  bg: "bg-amber-500",  order: 3, light: "bg-amber-50",   border: "border-l-amber-400",  hex: "#f59e0b" },
-  hr:        { label: "HR面",   color: "text-orange-600", bg: "bg-orange-500", order: 4, light: "bg-orange-50",  border: "border-l-orange-400", hex: "#ea580c" },
-  offer:     { label: "Offer",  color: "text-green-600",  bg: "bg-green-500",  order: 5, light: "bg-green-50",   border: "border-l-green-500",  hex: "#22c55e" },
-  rejected:  { label: "已拒",   color: "text-red-500",    bg: "bg-red-400",    order: 6, light: "bg-red-50",     border: "border-l-red-400",    hex: "#ef4444" },
-  withdrawn: { label: "放弃",   color: "text-gray-400",   bg: "bg-gray-300",   order: 7, light: "bg-gray-50",    border: "border-l-gray-300",   hex: "#94a3b8" },
+  saved:     { label: "收藏",   color: "text-[#9CA3AF]",  bg: "bg-[#9CA3AF]",  order: 0, light: "bg-[rgba(156,163,175,0.10)]", border: "border-l-[#9CA3AF]",  hex: "#9CA3AF" },
+  applied:   { label: "已投递", color: "text-brand-500",   bg: "bg-brand-500",  order: 1, light: "bg-[rgba(91,76,255,0.10)]",   border: "border-l-brand-500",   hex: "#5b4cff" },
+  written:   { label: "笔试",   color: "text-[#F59E0B]",  bg: "bg-[#F59E0B]",  order: 2, light: "bg-[rgba(245,158,11,0.10)]",  border: "border-l-[#F59E0B]",  hex: "#F59E0B" },
+  interview: { label: "面试",   color: "text-[#1ABCFE]",  bg: "bg-[#1ABCFE]",  order: 3, light: "bg-[rgba(26,188,254,0.10)]",  border: "border-l-[#1ABCFE]",  hex: "#1ABCFE" },
+  hr:        { label: "HR面",   color: "text-[#8B5CF6]",  bg: "bg-[#8B5CF6]",  order: 4, light: "bg-[rgba(139,92,246,0.10)]",  border: "border-l-[#8B5CF6]",  hex: "#8B5CF6" },
+  offer:     { label: "Offer",  color: "text-[#10B981]",  bg: "bg-[#10B981]",  order: 5, light: "bg-[rgba(16,185,129,0.10)]",  border: "border-l-[#10B981]",  hex: "#10B981" },
+  rejected:  { label: "已拒",   color: "text-[#F43F5E]",  bg: "bg-[#F43F5E]",  order: 6, light: "bg-[rgba(244,63,94,0.10)]",   border: "border-l-[#F43F5E]",  hex: "#F43F5E" },
+  withdrawn: { label: "放弃",   color: "text-[#94a3b8]",  bg: "bg-[#94a3b8]",  order: 7, light: "bg-[rgba(148,163,184,0.10)]", border: "border-l-[#94a3b8]",  hex: "#94a3b8" },
 };
 
 const KANBAN_COLS: TrackingStatus[] = ["applied", "written", "interview", "hr", "offer"];
@@ -210,17 +209,6 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
 
   const stats = useMemo(() => computeDashboardStats(tracking, interviews), [tracking, interviews]);
 
-  const coachSummaries = useMemo(() => {
-    const trackingLines = activeItems.map(i => `${i.company} ${i.title} [${STATUS_CONFIG[i.status].label}]`).join("\n");
-    const interviewLines = interviews.map(iv => {
-      const rounds = iv.rounds.map(r => `${r.round}${r.date ? " " + r.date : ""}`).join(", ");
-      return `${iv.company} ${iv.position} - ${iv.status} (${rounds})`;
-    }).join("\n");
-    const profileLine = "求职方向: AI 产品经理 / 产品策划";
-    const recentJobs = jobs.slice(0, 20).map(j => `${j.company} ${j.title}`).join("\n");
-    return { tracking: trackingLines, interviews: interviewLines, profile: profileLine, newJobs: recentJobs };
-  }, [activeItems, interviews, jobs]);
-
   useEffect(() => {
     if (overviewOpen && !aiAnalysis && !aiLoading && loggedIn && (activeItems.length > 0 || Object.keys(tracking).length > 0)) {
       handleAnalyze();
@@ -361,7 +349,7 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="card p-12 text-center">
-          <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-gray-100 flex items-center justify-center text-gray-300 text-xl">
+          <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-[rgba(0,0,0,0.04)] flex items-center justify-center text-[var(--text-t)] text-xl">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
           </div>
           <p className="text-sm text-gray-500">请先登录查看求职管理</p>
@@ -377,32 +365,32 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
 
   return (
     <div className="min-h-screen">
-      <header className="sticky top-0 z-40 backdrop-blur-xl bg-white/60 border-b border-black/5">
+      <header className="sticky top-0 z-40 bg-[var(--surface)] backdrop-blur-[8px] [backdrop-filter:blur(8px)_saturate(180%)] [-webkit-backdrop-filter:blur(8px)_saturate(180%)] border-b border-[var(--border)]" style={{ boxShadow: "0 1px 8px rgba(91,76,255,.04)" }}>
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <a href="/" className="text-[15px] font-bold text-gray-900 hover:text-brand-600 transition">← Career Search</a>
-            <span className="text-gray-300">·</span>
-            <div className="flex gap-0.5 p-0.5 bg-gray-100 rounded-lg">
+            <a href="/" className="text-[15px] font-bold text-gray-900 hover:text-brand-500 transition">← Career Search</a>
+            <span className="text-[var(--text-t)]">·</span>
+            <div className="flex gap-0.5 p-[3px] bg-[rgba(0,0,0,0.04)] rounded-[var(--radius-xs)]">
               {mainTabs.map((t) => (
                 <button
                   key={t.key}
                   onClick={() => { setMainTab(t.key); setStatusFilter(null); setEditId(null); }}
-                  className={`px-3.5 py-1 rounded-md text-sm font-medium transition flex items-center gap-1.5 ${mainTab === t.key ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"}`}
+                  className={`px-3.5 py-1 rounded-[6px] text-sm font-medium transition flex items-center gap-1.5 ${mainTab === t.key ? "bg-[var(--surface-solid)] text-gray-900 shadow-[0_1px_3px_rgba(0,0,0,0.08)]" : "text-[var(--text-s)] hover:text-[var(--text)]"}`}
                 >
                   {t.label}
-                  {t.count !== undefined && t.count > 0 && <span className="text-xs text-gray-400">{t.count}</span>}
+                  {t.count !== undefined && t.count > 0 && <span className="text-[11px] text-[var(--text-t)] font-mono">{t.count}</span>}
                 </button>
               ))}
             </div>
           </div>
           <div className="flex items-center gap-3">
             {mainTab === "all" && (activeItems.length > 0 || Object.keys(tracking).length > 0) && (
-              <button onClick={exportExcel} className="text-[13px] text-gray-500 hover:text-gray-700">导出 Excel</button>
+              <button onClick={exportExcel} className="text-[13px] text-[var(--text-s)] hover:text-[var(--text)]">导出 Excel</button>
             )}
             {mainTab === "all" && (
               <button
                 onClick={openEmailSetup}
-                className="px-3 py-1.5 rounded-lg border border-gray-200 text-sm text-gray-600 hover:text-brand-600 hover:border-brand-300 transition flex items-center gap-1.5"
+                className="px-3 py-1.5 rounded-[var(--radius-xs)] border border-[var(--border)] text-sm text-[var(--text-s)] hover:text-brand-500 hover:border-brand-500 hover:bg-[var(--primary-light)] transition flex items-center gap-1.5"
               >
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
                 邮件同步
@@ -411,7 +399,7 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
             {mainTab === "all" && (
               <button
                 onClick={() => { setEditRecord(undefined); setShowForm(true); }}
-                className="px-3.5 py-1.5 rounded-lg bg-brand-600 text-white text-sm font-medium hover:bg-brand-700 transition"
+                className="px-3.5 py-1.5 rounded-[var(--radius-xs)] bg-brand-500 text-white text-sm font-semibold hover:bg-brand-600 transition"
               >
                 + 新增记录
               </button>
@@ -423,7 +411,7 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
       <main className="max-w-6xl mx-auto px-4 sm:px-6 py-6 space-y-6">
         {/* ═══ 邮件同步设置面板 ═══ */}
         {showEmailSetup && (
-          <div className="card p-5 rounded-2xl border border-brand-100 bg-brand-50/30 space-y-4 animate-fadeIn">
+          <div className="card p-5 space-y-4 animate-fadeIn">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5b4cff" strokeWidth="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
@@ -442,10 +430,10 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
                 <div>
                   <p className="text-xs text-gray-500 mb-1.5">你的专属转发地址：</p>
                   <div className="flex items-center gap-2">
-                    <code className="flex-1 px-3 py-2 bg-white rounded-lg border border-gray-200 text-sm font-mono text-gray-800 select-all">{inboxAddress}</code>
+                    <code className="flex-1 px-3 py-2 bg-[rgba(0,0,0,0.02)] rounded-[var(--radius-xs)] border border-[var(--border-s)] text-sm font-mono text-[var(--text)] tracking-wider select-all">{inboxAddress}</code>
                     <button
                       onClick={() => { navigator.clipboard.writeText(inboxAddress); setCopiedInbox(true); setTimeout(() => setCopiedInbox(false), 2000); }}
-                      className="px-3 py-2 rounded-lg bg-brand-600 text-white text-xs font-medium hover:bg-brand-700 transition shrink-0"
+                      className="px-3 py-2 rounded-[var(--radius-xs)] bg-brand-500 text-white text-xs font-semibold hover:bg-brand-600 transition shrink-0"
                     >
                       {copiedInbox ? "已复制" : "复制"}
                     </button>
@@ -467,7 +455,7 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
                     <button
                       key={provider}
                       onClick={() => setEmailGuide(emailGuide === provider ? null : provider)}
-                      className={`px-2.5 py-1 rounded-md text-xs transition ${emailGuide === provider ? "bg-brand-600 text-white" : "bg-white border border-gray-200 text-gray-600 hover:border-brand-300"}`}
+                      className={`px-2.5 py-1 rounded-full text-xs transition ${emailGuide === provider ? "bg-[var(--primary-light)] text-brand-500 border border-brand-500" : "border border-[var(--border)] text-[var(--text-s)] hover:border-brand-500 hover:text-brand-500"}`}
                     >
                       {provider}教程
                     </button>
@@ -475,8 +463,8 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
                 </div>
 
                 {emailGuide === "QQ邮箱" && (
-                  <div className="bg-white rounded-lg p-3 text-xs text-gray-600 space-y-1 border border-gray-100">
-                    <p className="font-semibold text-gray-700">QQ邮箱设置自动转发：</p>
+                  <div className="bg-[rgba(0,0,0,0.02)] rounded-[var(--radius-xs)] p-3 text-xs text-[var(--text-s)] space-y-1">
+                    <p className="font-semibold text-[var(--text)]">QQ邮箱设置自动转发：</p>
                     <p>1. 登录 mail.qq.com → 设置 → 收发信规则</p>
                     <p>2. 点击「创建收信规则」</p>
                     <p>3. 条件：主题包含 "投递" 或 "申请" 或 "面试"</p>
@@ -485,8 +473,8 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
                   </div>
                 )}
                 {emailGuide === "163邮箱" && (
-                  <div className="bg-white rounded-lg p-3 text-xs text-gray-600 space-y-1 border border-gray-100">
-                    <p className="font-semibold text-gray-700">163邮箱设置自动转发：</p>
+                  <div className="bg-[rgba(0,0,0,0.02)] rounded-[var(--radius-xs)] p-3 text-xs text-[var(--text-s)] space-y-1">
+                    <p className="font-semibold text-[var(--text)]">163邮箱设置自动转发：</p>
                     <p>1. 登录 mail.163.com → 设置 → 邮箱设置</p>
                     <p>2. 找到「转发和 POP/IMAP/SMTP」</p>
                     <p>3. 开启转发，设置转发地址为 <code className="bg-gray-100 px-1 rounded">{inboxAddress}</code></p>
@@ -494,8 +482,8 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
                   </div>
                 )}
                 {emailGuide === "Outlook" && (
-                  <div className="bg-white rounded-lg p-3 text-xs text-gray-600 space-y-1 border border-gray-100">
-                    <p className="font-semibold text-gray-700">Outlook 设置自动转发：</p>
+                  <div className="bg-[rgba(0,0,0,0.02)] rounded-[var(--radius-xs)] p-3 text-xs text-[var(--text-s)] space-y-1">
+                    <p className="font-semibold text-[var(--text)]">Outlook 设置自动转发：</p>
                     <p>1. 打开 outlook.com → 设置 → 邮件 → 规则</p>
                     <p>2. 添加新规则：条件选择"主题包含"</p>
                     <p>3. 输入关键词：投递、申请、面试、offer</p>
@@ -512,7 +500,7 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
 
         {/* ═══ 邮件待确认记录 ═══ */}
         {emailRecords.length > 0 && emailBannerOpen && (
-          <div className="card rounded-2xl border border-amber-200 bg-amber-50/50 overflow-hidden">
+          <div className="bg-[var(--amber-light)] border border-[rgba(245,158,11,0.2)] rounded-[var(--radius)] overflow-hidden">
             <button
               onClick={() => setEmailBannerOpen(!emailBannerOpen)}
               className="w-full px-4 py-3 flex items-center justify-between"
@@ -535,7 +523,7 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
                         <span className="text-xs text-gray-600 truncate">{record.parsed_position || "未知岗位"}</span>
                       </div>
                       <div className="flex items-center gap-2 mt-0.5">
-                        <span className={`text-[11px] px-1.5 py-0.5 rounded-full font-medium ${record.parsed_action === "offer" ? "bg-green-100 text-green-700" : record.parsed_action === "rejection" ? "bg-red-100 text-red-700" : record.parsed_action === "interview_invite" ? "bg-amber-100 text-amber-700" : "bg-blue-100 text-blue-700"}`}>
+                        <span className={`text-[11px] px-1.5 py-0.5 rounded-full font-medium ${record.parsed_action === "offer" ? "bg-[var(--green-light)] text-[var(--green)]" : record.parsed_action === "rejection" ? "bg-[var(--rose-light)] text-[var(--rose)]" : record.parsed_action === "interview_invite" ? "bg-[var(--cyan-light)] text-[var(--cyan)]" : "bg-[var(--primary-light)] text-brand-500"}`}>
                           {actionInfo.label}
                         </span>
                         {record.parsed_date && <span className="text-[11px] text-gray-400">{record.parsed_date}</span>}
@@ -545,13 +533,13 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
                     <div className="flex items-center gap-2 shrink-0">
                       <button
                         onClick={() => handleConfirmEmail(record)}
-                        className="px-3 py-1.5 rounded-lg bg-brand-600 text-white text-xs font-medium hover:bg-brand-700 transition"
+                        className="px-3 py-1.5 rounded-[5px] bg-brand-500 text-white text-xs font-semibold hover:bg-brand-600 transition"
                       >
                         确认添加
                       </button>
                       <button
                         onClick={() => handleDismissEmail(record.id)}
-                        className="px-2.5 py-1.5 rounded-lg text-xs text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition"
+                        className="px-2.5 py-1.5 rounded-[5px] text-xs text-[var(--text-s)] hover:text-[var(--rose)] hover:bg-[var(--rose-light)] transition"
                       >
                         忽略
                       </button>
@@ -563,23 +551,12 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
           </div>
         )}
 
-
-        {/* ═══ AI Coach ═══ */}
-        {loggedIn && (
-          <CoachPanel
-            trackingSummary={coachSummaries.tracking}
-            interviewSummary={coachSummaries.interviews}
-            profileSummary={coachSummaries.profile}
-            newJobsSummary={coachSummaries.newJobs}
-          />
-        )}
-
         {/* ═══ Tab: 全部记录 ═══ */}
         {mainTab === "all" && (
           <>
             {/* Unified status chip bar */}
             {activeItems.length > 0 && (
-              <div className="flex flex-wrap gap-2.5">
+              <div className="flex items-center flex-wrap gap-5 px-0.5">
                 {(["applied", "written", "interview", "hr", "offer", "rejected"] as TrackingStatus[]).map((key) => {
                   const cfg = STATUS_CONFIG[key];
                   const count = counts[key] ?? 0;
@@ -588,25 +565,26 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
                     <button
                       key={key}
                       onClick={() => { setStatusFilter(statusFilter === key ? null : key); setTimelineExpanded(false); }}
-                      className={`px-4 py-3 rounded-2xl flex items-center gap-2.5 transition border backdrop-blur-sm ${cfg.light} ${statusFilter === key ? "ring-2 ring-brand-400 border-transparent shadow-md scale-[1.02]" : "border-gray-200/60 hover:border-gray-300 hover:shadow-sm"}`}
+                      className={`flex items-center gap-1.5 cursor-pointer transition py-0.5 ${statusFilter === key ? "font-extrabold" : "hover:opacity-75"}`}
+                      style={{ borderBottom: statusFilter === key ? `2px solid ${cfg.hex}` : "2px solid transparent" }}
                     >
-                      <span className={`w-3 h-3 rounded-full ${cfg.bg} shadow-sm`} />
-                      <span className="text-xl font-extrabold text-gray-900 tabular-nums">{count}</span>
-                      <span className="text-sm text-gray-600 font-medium">{cfg.label}</span>
+                      <span className="w-2 h-2 rounded-full" style={{ backgroundColor: cfg.hex }} />
+                      <span className="text-[13px] font-bold text-gray-900 font-mono tabular-nums">{count}</span>
+                      <span className="text-[13px] text-[var(--text-s)] font-medium">{cfg.label}</span>
                     </button>
                   );
                 })}
-                <div className="px-4 py-3 rounded-2xl flex items-center gap-2.5 border border-gray-200/60 bg-gradient-to-r from-gray-50 to-white">
-                  <span className="text-xl font-extrabold text-gray-900 tabular-nums">{activeItems.length}</span>
-                  <span className="text-sm text-gray-600 font-medium">总计</span>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-[13px] font-bold text-gray-900 font-mono tabular-nums">{activeItems.length}</span>
+                  <span className="text-[13px] text-[var(--text-s)] font-medium">总计</span>
                 </div>
               </div>
             )}
 
             {/* Sub view tabs */}
-            <div className="flex gap-0.5 p-0.5 bg-gray-100 rounded-lg w-fit">
+            <div className="flex gap-0.5 p-[3px] bg-[rgba(0,0,0,0.04)] rounded-[var(--radius-xs)] w-fit">
               {([["kanban", "看板"], ["timeline", "时间线"]] as [SubView, string][]).map(([key, label]) => (
-                <button key={key} onClick={() => { setSubView(key); setEditId(null); setTimelineExpanded(false); }} className={`px-4 py-1.5 rounded-md text-sm font-medium transition ${subView === key ? "bg-white text-gray-900 shadow-sm" : "text-gray-500"}`}>
+                <button key={key} onClick={() => { setSubView(key); setEditId(null); setTimelineExpanded(false); }} className={`px-4 py-1.5 rounded-[6px] text-sm font-medium transition ${subView === key ? "bg-[var(--surface-solid)] text-gray-900 shadow-[0_1px_3px_rgba(0,0,0,0.08)]" : "text-[var(--text-s)] hover:text-[var(--text)]"}`}>
                   {label}
                 </button>
               ))}
@@ -647,12 +625,12 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
                           <div key={colStatus} className="space-y-2">
                             <div
                               onClick={toggleCol}
-                              className={`flex items-center gap-2 px-3 py-2 rounded-lg cursor-pointer select-none ${cfg.light} hover:opacity-80 transition`}
+                              className={`flex items-center gap-2 px-3 py-2 rounded-[var(--radius-xs)] cursor-pointer select-none ${cfg.light} hover:opacity-80 transition`}
                             >
-                              <span className={`w-2.5 h-2.5 rounded-full ${cfg.bg}`} />
-                              <span className={`text-sm font-semibold ${cfg.color}`}>{cfg.label}</span>
-                              <span className="text-xs text-gray-500 ml-auto">{colItems.length}</span>
-                              <svg className={`w-3.5 h-3.5 text-gray-400 transition-transform ${isCollapsed ? "-rotate-90" : ""}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="6 9 12 15 18 9" /></svg>
+                              <span className="w-[9px] h-[9px] rounded-full" style={{ backgroundColor: cfg.hex }} />
+                              <span className={`text-xs font-bold ${cfg.color}`}>{cfg.label}</span>
+                              <span className="text-[11px] font-semibold ml-auto opacity-60">{colItems.length}</span>
+                              <svg className={`w-3.5 h-3.5 text-[var(--text-t)] transition-transform ${isCollapsed ? "-rotate-90" : ""}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="6 9 12 15 18 9" /></svg>
                             </div>
                             {!isCollapsed && (
                             <div className="space-y-1.5 min-h-[80px] max-h-[480px] overflow-y-auto pr-0.5">
@@ -662,29 +640,29 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
                                   <div
                                     key={t.id}
                                     onClick={() => setEditId(editId === t.id ? null : t.id)}
-                                    className={`card p-4 cursor-pointer hover:ring-1 hover:ring-brand-200 transition border-l-[3px] ${STATUS_CONFIG[t.status].border} ${isEnded ? "opacity-50" : ""} ${editId === t.id ? "ring-2 ring-brand-400" : ""}`}
+                                    className={`card p-[11px_13px] cursor-pointer transition border-l-[3px] ${STATUS_CONFIG[t.status].border} ${isEnded ? "opacity-50" : ""} ${editId === t.id ? "outline outline-2 outline-brand-500 -outline-offset-1" : ""} hover:shadow-[var(--shadow-hover)] hover:-translate-y-px`}
                                   >
-                                    <div className={`text-sm font-semibold text-gray-900 line-clamp-1 ${isEnded ? "line-through" : ""}`}>{t.company}</div>
-                                    <div className="text-xs text-gray-500 mt-0.5 line-clamp-1">{t.title}</div>
-                                    {t.interview?.department && <div className="text-[11px] text-brand-600 mt-0.5">{t.interview.department}</div>}
-                                    {t.entry.appliedAt && <div className="text-[11px] text-gray-400 mt-0.5">投递 {t.entry.appliedAt.slice(5)}</div>}
-                                    {t.entry.channel && <div className="text-[11px] text-gray-400 mt-0.5">渠道: {t.entry.channel}</div>}
-                                    {isEnded && <div className="text-[11px] text-red-400 mt-1">{STATUS_CONFIG[t.status].label}</div>}
+                                    <div className={`text-xs font-bold text-[var(--text)] truncate ${isEnded ? "line-through" : ""}`}>{t.company}</div>
+                                    <div className="text-[11px] text-[var(--text-s)] mt-px truncate">{t.title}</div>
+                                    {t.interview?.department && <div className="text-[10px] text-brand-500 font-medium mt-px">{t.interview.department}</div>}
+                                    {t.entry.appliedAt && <div className="text-[10px] text-[var(--text-t)] mt-px font-mono">投递 {t.entry.appliedAt.slice(5)}</div>}
+                                    {t.entry.channel && <div className="text-[10px] text-[var(--text-t)] mt-px">渠道: {t.entry.channel}</div>}
+                                    {isEnded && <div className="text-[10px] text-[var(--rose)] mt-0.5">{STATUS_CONFIG[t.status].label}</div>}
                                     {t.interview && !isEnded && (
-                                      <div className="text-[11px] text-amber-500 mt-1.5">{t.interview.rounds.length}轮面试</div>
+                                      <div className="text-[10px] text-[var(--amber)] mt-0.5">{t.interview.rounds.length}轮面试</div>
                                     )}
                                     {t.interview?.nextInterviewAt && !isEnded && (
-                                      <div className="text-[11px] text-brand-600 mt-0.5">下次 {t.interview.nextInterviewAt.slice(5)}</div>
+                                      <div className="text-[10px] text-brand-500 mt-px font-mono">下次 {t.interview.nextInterviewAt.slice(5)}</div>
                                     )}
                                     {t.entry.priority && !isEnded && (
-                                      <div className={`text-[11px] mt-0.5 ${t.entry.priority === "high" ? "text-red-500" : t.entry.priority === "medium" ? "text-amber-500" : "text-gray-400"}`}>
+                                      <div className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full inline-block mt-1 ${t.entry.priority === "high" ? "bg-[var(--rose-light)] text-[var(--rose)]" : t.entry.priority === "medium" ? "bg-[var(--amber-light)] text-[var(--amber)]" : "bg-[rgba(156,163,175,0.10)] text-[#9CA3AF]"}`}>
                                         {t.entry.priority === "high" ? "高优" : t.entry.priority === "medium" ? "中优" : "低优"}
                                       </div>
                                     )}
                                   </div>
                                 );
                               })}
-                              {colItems.length === 0 && <div className="text-xs text-gray-400 text-center py-6">空</div>}
+                              {colItems.length === 0 && <div className="text-[11px] text-[var(--text-t)] text-center py-4">空</div>}
                             </div>
                             )}
                           </div>
@@ -697,32 +675,32 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
                       const item = activeItems.find((i) => i.id === editId);
                       if (!item) return null;
                       return (
-                        <div className="card p-5 space-y-4 border-2 border-brand-100">
+                        <div className="card p-[18px] space-y-4 border-2 border-[var(--primary-light)]">
                           <div className="flex items-center justify-between">
                             <div>
                               <div className="flex items-center gap-2">
-                                <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${STATUS_CONFIG[item.status].bg} text-white`}>{STATUS_CONFIG[item.status].label}</span>
-                                <span className="text-sm font-bold text-gray-900">{item.company} · {item.title}</span>
+                                <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full ${STATUS_CONFIG[item.status].bg} text-white`}>{STATUS_CONFIG[item.status].label}</span>
+                                <span className="text-[13px] font-bold text-[var(--text)]">{item.company} · {item.title}</span>
                               </div>
                               <div className="text-xs text-gray-500 mt-1">
-                                {item.interview?.department && <span className="text-brand-600 font-medium">{item.interview.department}</span>}
+                                {item.interview?.department && <span className="text-brand-500 font-medium">{item.interview.department}</span>}
                                 {item.interview?.department && (item.location || item.jobType) && <span> · </span>}
                                 {item.location && <>{item.location} · </>}{item.jobType}
                                 {item.entry.appliedAt && ` · 投递于 ${item.entry.appliedAt.slice(0, 10)}`}
                               </div>
                             </div>
-                            <button onClick={() => setEditId(null)} className="text-gray-400 hover:text-gray-600 text-lg">&times;</button>
+                            <button onClick={() => setEditId(null)} className="w-[26px] h-[26px] rounded-full flex items-center justify-center text-[var(--text-t)] hover:bg-[var(--border)] hover:text-[var(--text)] transition">&times;</button>
                           </div>
 
                           {item.interview && item.interview.rounds.length > 0 && (
                             <div className="space-y-1.5">
-                              <div className="text-xs font-semibold text-gray-600">面试轮次</div>
+                              <div className="text-[10px] font-bold text-[var(--text-s)] uppercase tracking-wider">面试轮次</div>
                               {item.interview.rounds.map((round, rIdx) => (
-                                <div key={round.id} className="bg-gray-50 rounded-lg px-3 py-2 flex items-center gap-2 text-xs flex-wrap">
-                                  <span className="font-bold text-gray-600">{round.round || `第${rIdx + 1}轮`}</span>
-                                  <span className="text-gray-400">{round.date}</span>
+                                <div key={round.id} className="bg-[rgba(0,0,0,0.02)] rounded-[var(--radius-xs)] px-2.5 py-[7px] flex items-center gap-[7px] text-[11px] flex-wrap">
+                                  <span className="font-bold text-[var(--text-s)]">{round.round || `第${rIdx + 1}轮`}</span>
+                                  <span className="text-[var(--text-t)] font-mono">{round.date}</span>
                                   {round.result && (
-                                    <span className={`text-xs font-medium px-1.5 py-0.5 rounded ${round.result === "通过" ? "bg-green-100 text-green-700" : round.result === "挂了" ? "bg-red-100 text-red-700" : "bg-yellow-100 text-yellow-700"}`}>{round.result}</span>
+                                    <span className={`text-[10px] font-semibold px-[7px] py-0.5 rounded-full ${round.result === "通过" ? "bg-[var(--green-light)] text-[var(--green)]" : round.result === "挂了" ? "bg-[var(--rose-light)] text-[var(--rose)]" : "bg-[var(--amber-light)] text-[var(--amber)]"}`}>{round.result}</span>
                                   )}
                                   {round.feeling && <span className="text-gray-400">感受: {round.feeling}</span>}
                                   {round.interviewer && <span className="text-gray-400">· {round.interviewer}</span>}
@@ -738,25 +716,25 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
                             <div className="text-xs text-gray-500">备注: {item.interview?.notes || item.entry.notes}</div>
                           )}
 
-                          <div className="flex items-center gap-3 pt-2 border-t border-gray-100 flex-wrap">
+                          <div className="flex items-center gap-2 pt-2.5 border-t border-[var(--border)] mt-2.5 flex-wrap">
                             {!item.isInterviewOnly && (
                               <>
-                                <select value={item.status} onChange={(e) => updateEntry(item.id, { status: e.target.value as TrackingStatus })} className="text-sm px-2 py-1.5 rounded-md border border-gray-200">
+                                <select value={item.status} onChange={(e) => updateEntry(item.id, { status: e.target.value as TrackingStatus })} className="text-[11px] px-2 py-1 rounded-[var(--radius-xs)] border border-[var(--border)] bg-[var(--surface-solid)] text-[var(--text)]">
                                   {Object.entries(STATUS_CONFIG).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
                                 </select>
-                                <button onClick={() => deleteEntry(item.id)} className="text-xs text-red-400 hover:text-red-600">删除追踪</button>
+                                <button onClick={() => deleteEntry(item.id)} className="text-[11px] text-[var(--rose)] hover:opacity-75">删除追踪</button>
                               </>
                             )}
                             {item.interview ? (
-                              <button onClick={() => { setEditRecord(item.interview); setShowForm(true); }} className="text-xs text-brand-600 hover:text-brand-700 font-medium">编辑面试</button>
+                              <button onClick={() => { setEditRecord(item.interview); setShowForm(true); }} className="text-[11px] text-brand-500 font-semibold">编辑面试</button>
                             ) : (
-                              <button onClick={() => { setEditRecord(undefined); setShowForm(true); }} className="text-xs text-brand-600 hover:text-brand-700 font-medium">添加面试</button>
+                              <button onClick={() => { setEditRecord(undefined); setShowForm(true); }} className="text-[11px] text-brand-500 font-semibold">添加面试</button>
                             )}
                             {item.isInterviewOnly && item.interview && (
-                              <button onClick={() => handleInterviewDelete(item.interview!.id)} className="text-xs text-red-400 hover:text-red-600">删除记录</button>
+                              <button onClick={() => handleInterviewDelete(item.interview!.id)} className="text-[11px] text-[var(--rose)] hover:opacity-75">删除记录</button>
                             )}
-                            {item.job && <a href={`/job/${item.job.id}`} className="text-xs text-gray-500 hover:text-gray-700 ml-auto">详情 →</a>}
-                            {item.applyUrl && <a href={item.applyUrl} target="_blank" rel="noreferrer" className="text-xs text-brand-600">投递 →</a>}
+                            {item.job && <a href={`/job/${item.job.id}`} className="text-[11px] text-brand-500 font-semibold ml-auto">详情 →</a>}
+                            {item.applyUrl && <a href={item.applyUrl} target="_blank" rel="noreferrer" className="text-[11px] text-brand-500 font-semibold">投递 →</a>}
                           </div>
                         </div>
                       );
@@ -768,7 +746,7 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
                 {subView === "timeline" && (
                   <div className="animate-fadeIn">
                   <div className={`relative pl-8 ${!timelineExpanded && timelineEvents.length > 15 ? "max-h-[600px] overflow-hidden" : ""}`}>
-                    <div className="absolute left-[11px] top-2 bottom-2 w-0.5 bg-gradient-to-b from-brand-300 via-gray-200 to-gray-100 rounded-full" />
+                    <div className="absolute left-[11px] top-2 bottom-2 w-0.5 bg-gradient-to-b from-brand-500 via-[var(--border-s)] to-[var(--border)] rounded-full" />
                     {groupedEvents.length === 0 ? (
                       <div className="text-sm text-gray-400 text-center py-12">暂无时间线数据</div>
                     ) : (
@@ -779,8 +757,8 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
                           const weekday = ["日", "一", "二", "三", "四", "五", "六"][d.getDay()];
                           return (
                             <div key={group.date} className="relative">
-                              <div className="absolute -left-8 top-0.5 w-[22px] h-[22px] rounded-full bg-white border-2 border-brand-400 flex items-center justify-center shadow-sm">
-                                <div className={`w-2.5 h-2.5 rounded-full ${gIdx === 0 ? "bg-brand-500" : "bg-gray-300"}`} />
+                              <div className="absolute -left-8 top-0.5 w-[22px] h-[22px] rounded-full bg-[var(--surface-solid)] border-2 border-brand-500 flex items-center justify-center shadow-sm">
+                                <div className={`w-2.5 h-2.5 rounded-full ${gIdx === 0 ? "bg-brand-500" : "bg-[var(--text-t)]"}`} />
                               </div>
                               <div className="mb-2">
                                 <span className="text-sm font-bold text-gray-700">{dateLabel}</span>
@@ -791,8 +769,8 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
                                 {group.events.map((event, idx) => {
                                   const evtStatus = STATUS_CONFIG[event.status] ?? STATUS_CONFIG.applied;
                                   return (
-                                    <div key={`${event.itemId}-${idx}`} className={`flex items-center gap-2.5 ${evtStatus.light} rounded-lg px-3.5 py-2.5 border border-gray-100/80 shadow-[0_1px_2px_rgba(0,0,0,0.04)]`}>
-                                      <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${evtStatus.bg} text-white shrink-0`}>{event.type}</span>
+                                    <div key={`${event.itemId}-${idx}`} className={`flex items-center gap-2.5 ${evtStatus.light} rounded-[var(--radius-xs)] px-3.5 py-2.5 border border-[var(--border)] shadow-[0_1px_2px_rgba(0,0,0,0.04)]`}>
+                                      <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full text-white shrink-0" style={{ backgroundColor: STATUS_CONFIG[event.status].hex }}>{event.type}</span>
                                       <span className="text-sm text-gray-900 font-medium truncate">{event.company}</span>
                                       <span className="text-xs text-gray-400">·</span>
                                       <span className="text-xs text-gray-500 truncate flex-1">{event.title}</span>
@@ -807,10 +785,10 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
                     )}
                   </div>
                   {!timelineExpanded && timelineEvents.length > 15 && (
-                    <div className="relative -mt-16 pt-16 bg-gradient-to-t from-white to-transparent flex justify-center pb-2">
+                    <div className="relative -mt-16 pt-16 bg-gradient-to-t from-[var(--bg)] to-transparent flex justify-center pb-2">
                       <button
                         onClick={() => setTimelineExpanded(true)}
-                        className="px-4 py-1.5 rounded-full bg-white border border-gray-200 text-sm text-gray-600 hover:text-brand-600 hover:border-brand-300 shadow-sm transition"
+                        className="px-4 py-1.5 rounded-full bg-[var(--surface-solid)] border border-[var(--border)] text-sm text-[var(--text-s)] hover:text-brand-500 hover:border-brand-500 shadow-sm transition"
                       >
                         展开全部 ({timelineEvents.length} 条事件)
                       </button>
@@ -823,12 +801,12 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
 
             {/* ═══ 数据概览 ═══ */}
             {(activeItems.length > 0 || Object.keys(tracking).length > 0 || interviews.length > 0) && (
-              <div className="border-t border-gray-200/60 pt-6">
+              <div className="border-t border-[var(--border)] pt-6">
                 <button
                   onClick={() => setOverviewOpen(!overviewOpen)}
                   className="w-full flex items-center justify-between group"
                 >
-                  <h2 className="text-base font-semibold text-gray-800 group-hover:text-brand-600 transition">数据概览</h2>
+                  <h2 className="text-base font-semibold text-[var(--text)] group-hover:text-brand-500 transition">数据概览</h2>
                   <div className="flex items-center gap-3">
                     {!overviewOpen && (
                       <span className="text-xs text-gray-400 hidden sm:inline">
@@ -844,17 +822,17 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
                 {overviewOpen && (
                   <div className="mt-5 grid grid-cols-1 lg:grid-cols-2 gap-5 animate-fadeIn">
                   {/* 左上：漏斗 */}
-                  <div className="card p-5 rounded-2xl shadow-sm border border-gray-100">
-                    <h3 className="text-sm font-bold text-gray-700 mb-4">投递转化漏斗</h3>
+                  <div className="card p-5">
+                    <h3 className="text-[13px] font-bold text-[var(--text-s)] mb-3.5">投递转化漏斗</h3>
                     <FunnelChart data={stats.conversionFunnel} />
                   </div>
 
                   {/* 右上：AI 分析 */}
-                  <div className="card p-5 rounded-2xl shadow-sm border border-gray-100">
-                    <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-sm font-bold text-gray-700">AI 投递分析</h3>
+                  <div className="card p-5">
+                    <div className="flex items-center justify-between mb-3.5">
+                      <h3 className="text-[13px] font-bold text-[var(--text-s)]">AI 投递分析</h3>
                       {aiAnalysis && (
-                        <button onClick={handleAnalyze} className="text-[11px] text-brand-600 hover:text-brand-700 font-medium">重新分析</button>
+                        <button onClick={handleAnalyze} className="text-[11px] text-brand-500 hover:text-brand-600 font-semibold">重新分析</button>
                       )}
                     </div>
                     {aiLoading ? (
@@ -887,11 +865,11 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
                           </ul>
                         </div>
                         {aiAnalysis.riskWarnings.length > 0 && (
-                          <div className="bg-red-50/60 rounded-lg p-3">
-                            <div className="text-[11px] font-semibold text-red-600 uppercase tracking-wider mb-1.5">风险提醒</div>
+                          <div className="bg-[var(--rose-light)] rounded-[var(--radius-xs)] p-3">
+                            <div className="text-[11px] font-semibold text-[var(--rose)] uppercase tracking-wider mb-1.5">风险提醒</div>
                             <ul className="space-y-1">
                               {aiAnalysis.riskWarnings.map((item, i) => (
-                                <li key={i} className="text-[13px] text-red-700 leading-relaxed flex gap-2"><span className="shrink-0">⚠</span><span>{item}</span></li>
+                                <li key={i} className="text-[13px] text-[var(--rose)] leading-relaxed flex gap-2"><span className="shrink-0">⚠</span><span>{item}</span></li>
                               ))}
                             </ul>
                           </div>
@@ -909,7 +887,7 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
                             <line x1="9" y1="21" x2="15" y2="21" />
                           </svg>
                         </div>
-                        <button onClick={handleAnalyze} className="px-4 py-2 rounded-lg bg-brand-600 text-white text-xs font-semibold hover:bg-brand-700 transition shadow-sm">
+                        <button onClick={handleAnalyze} className="px-4 py-2 rounded-[var(--radius-xs)] bg-brand-500 text-white text-xs font-semibold hover:bg-brand-600 transition shadow-sm">
                           生成 AI 分析
                         </button>
                         <p className="text-[11px] text-gray-400">基于你的求职数据生成个性化分析</p>
@@ -918,14 +896,14 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
                   </div>
 
                   {/* 左下：热力图 */}
-                  <div className="card p-5 rounded-2xl shadow-sm border border-gray-100">
-                    <h3 className="text-sm font-bold text-gray-700 mb-4">求职活动热力</h3>
+                  <div className="card p-5">
+                    <h3 className="text-[13px] font-bold text-[var(--text-s)] mb-3.5">求职活动热力</h3>
                     <InterviewCalendar heatmap={stats.interviewHeatmap} />
                   </div>
 
                   {/* 右下：趋势 */}
-                  <div className="card p-5 rounded-2xl shadow-sm border border-gray-100">
-                    <h3 className="text-sm font-bold text-gray-700 mb-4">近 30 天趋势</h3>
+                  <div className="card p-5">
+                    <h3 className="text-[13px] font-bold text-[var(--text-s)] mb-3.5">近 30 天趋势</h3>
                     <TrendChart data={stats.dailyTrend} />
                   </div>
                 </div>
@@ -940,16 +918,16 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
           <>
             {savedItems.length === 0 ? (
               <div className="card p-12 text-center">
-                <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-gray-100 flex items-center justify-center text-gray-300">
+                <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-[rgba(0,0,0,0.04)] flex items-center justify-center text-[var(--text-t)]">
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" /></svg>
                 </div>
-                <p className="text-sm text-gray-500">暂无收藏岗位</p>
-                <p className="text-xs text-gray-400 mt-1">去首页点心形收藏感兴趣的职位</p>
+                <p className="text-sm text-[var(--text-s)]">暂无收藏岗位</p>
+                <p className="text-xs text-[var(--text-t)] mt-1">去首页点心形收藏感兴趣的职位</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                 {savedItems.map((item) => (
-                  <div key={item.id} className="card p-4 space-y-3 hover:shadow-md transition">
+                  <div key={item.id} className="card p-4 space-y-3">
                     <div>
                       <div className="text-sm font-bold text-gray-900">{item.company}</div>
                       <div className="text-sm text-gray-600 mt-0.5">{item.title}</div>
@@ -961,16 +939,16 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
                     {item.job?.tags && item.job.tags.length > 0 && (
                       <div className="flex flex-wrap gap-1">
                         {item.job.tags.slice(0, 5).map((tag) => (
-                          <span key={tag} className="text-xs px-1.5 py-0.5 bg-gray-100 text-gray-500 rounded">{tag}</span>
+                          <span key={tag} className="text-xs px-1.5 py-0.5 bg-[rgba(0,0,0,0.04)] text-[var(--text-s)] rounded-[4px]">{tag}</span>
                         ))}
                       </div>
                     )}
-                    <div className="flex items-center gap-2 pt-2 border-t border-gray-100">
-                      <button onClick={() => markAsApplied(item.id)} className="text-xs px-3 py-1.5 rounded-lg bg-brand-600 text-white hover:bg-brand-700 transition font-medium">
+                    <div className="flex items-center gap-2 pt-2 border-t border-[var(--border)]">
+                      <button onClick={() => markAsApplied(item.id)} className="text-xs px-3 py-1.5 rounded-[var(--radius-xs)] bg-brand-500 text-white hover:bg-brand-600 transition font-semibold">
                         标为已投递
                       </button>
-                      {item.applyUrl && <a href={item.applyUrl} target="_blank" rel="noreferrer" className="text-xs text-brand-600 hover:text-brand-700">投递链接 →</a>}
-                      <button onClick={() => deleteEntry(item.id)} className="text-xs text-red-400 hover:text-red-600 ml-auto">删除</button>
+                      {item.applyUrl && <a href={item.applyUrl} target="_blank" rel="noreferrer" className="text-xs text-brand-500 font-semibold">投递链接 →</a>}
+                      <button onClick={() => deleteEntry(item.id)} className="text-xs text-[var(--rose)] hover:opacity-75 ml-auto">删除</button>
                     </div>
                   </div>
                 ))}
