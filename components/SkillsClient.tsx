@@ -11,6 +11,15 @@ import { extractPdfText, parseResumeWithAI } from "@/lib/resumeParser";
 
 type Skill = "interview" | "resume-optimize" | "cover-letter" | "offer" | "jd-match" | "jd-compare";
 
+const SKILL_ICON_GRADIENTS: Record<Skill, string> = {
+  "interview": "linear-gradient(135deg, rgba(91,76,255,.12), rgba(91,76,255,.04))",
+  "resume-optimize": "linear-gradient(135deg, rgba(6,182,212,.12), rgba(6,182,212,.04))",
+  "cover-letter": "linear-gradient(135deg, rgba(245,158,11,.12), rgba(245,158,11,.04))",
+  "offer": "linear-gradient(135deg, rgba(16,185,129,.12), rgba(16,185,129,.04))",
+  "jd-match": "linear-gradient(135deg, rgba(59,130,246,.12), rgba(59,130,246,.04))",
+  "jd-compare": "linear-gradient(135deg, rgba(244,63,94,.12), rgba(244,63,94,.04))",
+};
+
 const SKILLS: { key: Skill; label: string; desc: string; icon: string }[] = [
   { key: "interview", label: "面试题定制", desc: "根据你的背景和目标岗位，AI 生成针对性面试题+参考答案", icon: "🎯" },
   { key: "resume-optimize", label: "简历优化", desc: "AI 逐句分析简历，优先级改写建议 + 导出定制简历", icon: "📝" },
@@ -546,6 +555,12 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
       </header>
 
       <main className="max-w-4xl mx-auto px-4 sm:px-6 py-8 space-y-6">
+        {/* Hero */}
+        <div className="text-center py-4">
+          <h1 className="text-2xl font-extrabold tracking-tight text-[var(--text)]">AI 求职工具箱</h1>
+          <p className="text-sm text-[var(--text-s)] mt-2">6 款 AI 驱动的求职工具，助你高效准备、精准投递</p>
+        </div>
+
         {!loggedIn ? (
           <div className="card p-12 text-center">
             <h2 className="text-lg font-bold text-[var(--text)] mb-2">请先登录</h2>
@@ -582,12 +597,16 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
                       runInterviewDirect();
                     }
                   }}
-                  className={`card p-4 text-left transition ${active === s.key ? "border-brand-500 shadow-[var(--shadow-md)]" : "hover:border-[var(--border-s)]"}`}
+                  className={`card p-0 overflow-hidden text-left transition ${active === s.key ? "border-brand-500 shadow-[var(--shadow-md)]" : "hover:border-[var(--border-s)]"}`}
                 >
-                  <div className="text-3xl mb-2">{s.icon}</div>
-                  <div className="text-sm font-extrabold text-[var(--text)]">{s.label}</div>
-                  <div className="text-[11px] text-[var(--text-s)] mt-1">{s.desc}</div>
-                  <div className="text-[11px] text-brand-500 font-semibold mt-2">开始使用 →</div>
+                  <div className="h-[80px] flex items-center justify-center text-4xl" style={{ background: SKILL_ICON_GRADIENTS[s.key] }}>
+                    {s.icon}
+                  </div>
+                  <div className="p-4">
+                    <div className="text-sm font-extrabold text-[var(--text)]">{s.label}</div>
+                    <div className="text-[11px] text-[var(--text-s)] mt-1">{s.desc}</div>
+                    <div className="text-[11px] text-brand-500 font-semibold mt-2">使用工具 →</div>
+                  </div>
                 </button>
               ))}
             </div>
@@ -1379,6 +1398,20 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
             )}
           </>
         )}
+
+        {/* Bottom navigation */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4">
+          <a href="/" className="card p-5 hover:border-brand-300 hover:-translate-y-0.5 transition group">
+            <div className="w-10 h-10 rounded-[var(--radius-xs)] bg-brand-50 flex items-center justify-center text-brand-500 text-lg mb-3">🏠</div>
+            <div className="text-sm font-bold text-[var(--text)] group-hover:text-brand-500 transition">浏览全部岗位</div>
+            <div className="text-[11px] text-[var(--text-s)] mt-1">发现最新校招岗位，AI 智能排序推荐</div>
+          </a>
+          <a href="/events/" className="card p-5 hover:border-brand-300 hover:-translate-y-0.5 transition group">
+            <div className="w-10 h-10 rounded-[var(--radius-xs)] bg-amber-50 flex items-center justify-center text-amber-500 text-lg mb-3">📅</div>
+            <div className="text-sm font-bold text-[var(--text)] group-hover:text-brand-500 transition">校园活动</div>
+            <div className="text-[11px] text-[var(--text-s)] mt-1">宣讲会、网申、笔试等校招活动一站聚合</div>
+          </a>
+        </div>
       </main>
     </div>
   );

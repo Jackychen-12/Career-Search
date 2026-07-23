@@ -1,12 +1,12 @@
 "use client";
 
-import { CATEGORY_COLORS } from "@/lib/taxonomy";
 import { daysUntil } from "@/lib/scoring";
 import type { Job } from "@/lib/types";
 import type { TrackingStatus } from "@/lib/tracker";
 import type { MatchResult } from "@/lib/matchScore";
 
-const STATUS_OPTIONS: { value: TrackingStatus; label: string }[] = [
+const STATUS_OPTIONS: { value: TrackingStatus | ""; label: string }[] = [
+  { value: "", label: "未跟踪" },
   { value: "saved", label: "收藏" },
   { value: "applied", label: "已投" },
   { value: "written", label: "笔试" },
@@ -16,6 +16,16 @@ const STATUS_OPTIONS: { value: TrackingStatus; label: string }[] = [
   { value: "rejected", label: "已拒" },
   { value: "withdrawn", label: "放弃" },
 ];
+
+const CATEGORY_PILL_STYLE: Record<string, { bg: string; color: string }> = {
+  "互联网": { bg: "rgba(91,76,255,.1)", color: "#5b4cff" },
+  "金融": { bg: "rgba(245,158,11,.1)", color: "#D97706" },
+  "外企": { bg: "rgba(16,185,129,.1)", color: "#059669" },
+  "快消": { bg: "rgba(249,115,22,.1)", color: "#EA580C" },
+  "实体": { bg: "rgba(120,113,108,.1)", color: "#78716c" },
+  "管培": { bg: "rgba(139,92,246,.1)", color: "#7C3AED" },
+  "其他": { bg: "rgba(0,0,0,.06)", color: "#6B7280" },
+};
 
 const CATEGORY_BAR_COLORS: Record<string, string> = {
   互联网: "bg-[var(--cat-internet)]",
@@ -202,7 +212,13 @@ export default function JobCard({
         {/* Row 1: category + tier + tags + actions */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5 flex-wrap">
-            <span className={`text-[11px] px-2.5 py-0.5 rounded-[var(--radius-xs)] font-medium ${CATEGORY_COLORS[job.category]}`}>
+            <span
+              className="text-[11px] px-2.5 py-0.5 rounded-[var(--radius-xs)] font-medium"
+              style={{
+                backgroundColor: CATEGORY_PILL_STYLE[job.category]?.bg ?? "rgba(0,0,0,.06)",
+                color: CATEGORY_PILL_STYLE[job.category]?.color ?? "#6B7280",
+              }}
+            >
               {job.category}
             </span>
             {job.jobType && (
@@ -284,7 +300,13 @@ export default function JobCard({
           {job.deadline ? (
             <span className={urgent ? "text-red-600 font-medium" : ""}>
               截止 {job.deadline.slice(5, 10).replace("-", "/")}
-              {dl !== null && dl >= 0 && <span className={`ml-1 font-semibold ${dl <= 7 ? "text-red-500" : dl <= 15 ? "text-orange-500" : "text-green-600"}`}>({dl}天)</span>}
+              {dl !== null && dl >= 0 && (
+                <span className={`ml-1.5 inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-semibold ${
+                  dl <= 3 ? "bg-rose-50 text-rose-600" : dl <= 7 ? "bg-amber-50 text-amber-600" : "bg-green-50 text-green-600"
+                }`}>
+                  {dl}天
+                </span>
+              )}
               {dl !== null && dl < 0 && <span className="text-[var(--text-t)] ml-1">已过期</span>}
             </span>
           ) : (
@@ -301,10 +323,17 @@ export default function JobCard({
         {/* Footer */}
         <div className="flex items-center justify-between pt-2 border-t border-black/5">
           <div className="flex-1 min-w-0">
-            {trackingStatus && (
+            {onTrack && (
               <select
-                value={trackingStatus}
-                onChange={(e) => onTrack?.(job.id, e.target.value as TrackingStatus)}
+                value={trackingStatus ?? ""}
+                onChange={(e) => {
+                  const v = e.target.value;
+                  if (v === "") {
+                    onTrack(job.id, null);
+                  } else {
+                    onTrack(job.id, v as TrackingStatus);
+                  }
+                }}
                 className="text-[11px] px-2 py-1 rounded-[var(--radius-xs)] border border-[var(--border)] text-[var(--text-s)]"
               >
                 {STATUS_OPTIONS.map((o) => (

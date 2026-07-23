@@ -7,6 +7,11 @@ import { computeProfileMatchDetailed } from "@/lib/matchScore";
 import type { Job, Prefs } from "@/lib/types";
 import type { TrackingData } from "@/lib/tracker";
 
+const CATEGORY_DOT_COLORS: Record<string, string> = {
+  "互联网": "#5b4cff", "金融": "#F59E0B", "外企": "#10B981",
+  "快消": "#F97316", "实体": "#78716c", "管培": "#8B5CF6", "其他": "#9CA3AF",
+};
+
 export default function Sidebar({
   jobs,
   now,
@@ -58,14 +63,14 @@ export default function Sidebar({
     for (const j of sorted) {
       if (seenCompanies.has(j.company)) continue;
       const categoryBonus = seenCategories.has(j.category) ? 0 : 1;
-      if (result.length < 6) {
-        if (categoryBonus || result.length < 3) {
+      if (result.length < 4) {
+        if (categoryBonus || result.length < 2) {
           result.push(j);
           seenCompanies.add(j.company);
           seenCategories.add(j.category);
         }
       }
-      if (result.length >= 6) break;
+      if (result.length >= 4) break;
     }
     return result;
   }, [jobs]);
@@ -175,9 +180,14 @@ export default function Sidebar({
           <ol className="space-y-2">
             {urgentJobs.map((job) => {
               const dl = daysUntil(job.deadline, d);
+              const badgeClass = dl !== null && dl <= 3
+                ? "bg-red-50 text-red-600"
+                : dl !== null && dl <= 8
+                  ? "bg-amber-50 text-amber-600"
+                  : "bg-green-50 text-green-600";
               return (
                 <li key={job.id} className="flex gap-2 text-sm">
-                  <span className="shrink-0 w-6 text-center text-[11px] font-medium leading-5 rounded bg-red-50 text-red-600">
+                  <span className={`shrink-0 w-6 text-center text-[11px] font-medium leading-5 rounded ${badgeClass}`}>
                     {dl}天
                   </span>
                   <div className="min-w-0 flex-1">
@@ -203,21 +213,36 @@ export default function Sidebar({
             发现更多
           </h3>
           <ol className="space-y-2">
-            {discover.map((job, idx) => (
-              <li key={job.id} className="flex gap-2 text-sm">
-                <span className={`shrink-0 w-5 text-center text-[11px] font-medium leading-5 rounded ${idx < 3 ? "bg-brand-100 text-brand-500" : "bg-[rgba(0,0,0,0.04)] text-[var(--text-s)]"}`}>
-                  {idx + 1}
-                </span>
-                <div className="min-w-0 flex-1">
-                  <a href={`/job/${job.id}`} className="text-[var(--text)] hover:text-[var(--text)] line-clamp-1 block text-[13px]">
-                    {job.company} · {job.title}
-                  </a>
-                  <div className="text-[11px] text-[var(--text-t)] mt-0.5">
-                    {job.category} · 匹配 {Math.round(job.scores.aiMatch * 100)}%
+            {discover.map((job, idx) => {
+              const matchPct = Math.round(job.scores.aiMatch * 100);
+              return (
+                <li key={job.id} className="flex gap-2 text-sm items-center">
+                  <span className={`shrink-0 w-5 text-center text-[11px] font-medium leading-5 rounded ${idx < 3 ? "bg-brand-100 text-brand-500" : "bg-[rgba(0,0,0,0.04)] text-[var(--text-s)]"}`}>
+                    {idx + 1}
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <a href={`/job/${job.id}`} className="text-[var(--text)] hover:text-[var(--text)] line-clamp-1 block text-[13px]">
+                      {job.company} · {job.title}
+                    </a>
+                    <div className="flex items-center gap-1.5 mt-0.5">
+                      <span
+                        className="text-[10px] px-1.5 py-0.5 rounded font-medium"
+                        style={{
+                          backgroundColor: CATEGORY_DOT_COLORS[job.category] ? `${CATEGORY_DOT_COLORS[job.category]}18` : "rgba(0,0,0,.06)",
+                          color: CATEGORY_DOT_COLORS[job.category] ?? "#6B7280",
+                        }}
+                      >
+                        {job.category}
+                      </span>
+                      <span className="text-[10px] text-[var(--text-t)]">匹配 {matchPct}%</span>
+                    </div>
                   </div>
-                </div>
-              </li>
-            ))}
+                  <span className="shrink-0 text-[11px] font-bold px-1.5 py-0.5 rounded bg-brand-50 text-brand-500">
+                    {matchPct}%
+                  </span>
+                </li>
+              );
+            })}
           </ol>
         </div>
       )}

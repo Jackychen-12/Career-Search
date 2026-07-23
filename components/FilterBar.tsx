@@ -3,6 +3,16 @@
 import { CATEGORIES, CITIES, JOB_TYPES, REGIONS } from "@/lib/taxonomy";
 import type { Category, JobType, Region, SortKey } from "@/lib/types";
 
+const CATEGORY_PILL_COLORS: Record<string, { bg: string; text: string }> = {
+  "互联网": { bg: "rgba(91,76,255,.12)", text: "#5b4cff" },
+  "金融": { bg: "rgba(245,158,11,.12)", text: "#D97706" },
+  "外企": { bg: "rgba(16,185,129,.12)", text: "#059669" },
+  "快消": { bg: "rgba(249,115,22,.12)", text: "#EA580C" },
+  "实体": { bg: "rgba(120,113,108,.12)", text: "#78716c" },
+  "管培": { bg: "rgba(139,92,246,.12)", text: "#7C3AED" },
+  "其他": { bg: "rgba(0,0,0,.06)", text: "#6B7280" },
+};
+
 export interface FilterState {
   categories: (Category | "all")[];
   cities: (string | "all")[];
@@ -24,19 +34,25 @@ function Pill({
   active,
   onClick,
   children,
+  activeStyle,
 }: {
   active: boolean;
   onClick: () => void;
   children: React.ReactNode;
+  activeStyle?: { bg: string; text: string };
 }) {
+  const customActive = active && activeStyle;
   return (
     <button
       onClick={onClick}
       className={`shrink-0 px-3 h-[30px] inline-flex items-center whitespace-nowrap rounded-full text-[13px] font-medium transition-all ${
-        active
-          ? "bg-brand-500 text-white border-transparent shadow-[var(--shadow-sm)]"
-          : "text-[var(--text-s)] border border-[var(--border)] hover:border-brand-500 hover:text-brand-500"
+        customActive
+          ? "border-transparent shadow-[var(--shadow-sm)]"
+          : active
+            ? "bg-brand-500 text-white border-transparent shadow-[var(--shadow-sm)]"
+            : "text-[var(--text-s)] border border-[var(--border)] hover:border-brand-500 hover:text-brand-500"
       }`}
+      style={customActive ? { backgroundColor: activeStyle!.bg, color: activeStyle!.text } : undefined}
     >
       {children}
     </button>
@@ -48,11 +64,13 @@ function MultiRow<T extends string>({
   options,
   selected,
   onToggle,
+  colorMap,
 }: {
   label: string;
   options: readonly T[];
   selected: (T | "all")[];
   onToggle: (v: T | "all") => void;
+  colorMap?: Record<string, { bg: string; text: string }>;
 }) {
   const isAll = selected.includes("all" as T);
   return (
@@ -60,7 +78,7 @@ function MultiRow<T extends string>({
       <span className="text-xs text-[var(--text-t)] shrink-0 mr-1 w-8">{label}</span>
       <Pill active={isAll} onClick={() => onToggle("all" as T)}>全部</Pill>
       {options.map((o) => (
-        <Pill key={o} active={!isAll && selected.includes(o)} onClick={() => onToggle(o)}>{o}</Pill>
+        <Pill key={o} active={!isAll && selected.includes(o)} onClick={() => onToggle(o)} activeStyle={colorMap?.[o]}>{o}</Pill>
       ))}
     </div>
   );
@@ -99,6 +117,7 @@ export default function FilterBar({
         options={CATEGORIES}
         selected={state.categories}
         onToggle={(v) => onChange({ categories: toggleValue(state.categories, v, "all") })}
+        colorMap={CATEGORY_PILL_COLORS}
       />
       <MultiRow
         label="城市"

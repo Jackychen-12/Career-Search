@@ -17,6 +17,25 @@ function profileToText(p: Prefs): string {
   ].filter(Boolean).join("\n");
 }
 
+function parseJD(desc: string): { title: string; items: string[] }[] {
+  const headings = /(?:关于团队|团队介绍|岗位职责|工作职责|职责描述|岗位要求|任职要求|任职资格|加分项|优先条件)/;
+  const lines = desc.split("\n").map(l => l.trim()).filter(Boolean);
+  const sections: { title: string; items: string[] }[] = [];
+  let current: { title: string; items: string[] } | null = null;
+  for (const line of lines) {
+    if (headings.test(line) && line.length < 20) {
+      if (current) sections.push(current);
+      current = { title: line.replace(/[:：\s]*$/, ""), items: [] };
+    } else if (current) {
+      current.items.push(line.replace(/^[\-\•\·\*\d+\.、]+\s*/, ""));
+    } else {
+      current = { title: "", items: [line] };
+    }
+  }
+  if (current) sections.push(current);
+  return sections;
+}
+
 export default function JobDetailClient({ job, jobs }: { job: Job | null; jobs: Job[] }) {
   const [prefs, setPrefs] = useState<Prefs | null>(null);
   const [match, setMatch] = useState<MatchResult | null>(null);
@@ -74,8 +93,16 @@ export default function JobDetailClient({ job, jobs }: { job: Job | null; jobs: 
     <div className="min-h-screen">
       <header className="sticky top-0 z-40 bg-[var(--surface)] backdrop-blur-[8px] [backdrop-filter:blur(8px)_saturate(180%)] border-b border-[var(--border)]">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
-          <a href="/" className="text-[15px] font-bold text-[var(--text)] hover:text-brand-500 transition">← 返回</a>
-          <a href={job.applyUrl} target="_blank" rel="noreferrer" className="px-4 py-1.5 rounded-[var(--radius-sm)] text-sm font-semibold text-white bg-brand-500 hover:bg-brand-500 shadow-[var(--shadow-sm)] transition">
+          <nav className="flex items-center gap-1.5 text-[13px] text-[var(--text-s)] min-w-0">
+            <a href="/" className="font-bold text-[var(--text)] hover:text-brand-500 transition shrink-0">← 返回</a>
+            <span className="text-[var(--text-t)]">/</span>
+            <a href="/" className="hover:text-brand-500 transition shrink-0">首页</a>
+            <span className="text-[var(--text-t)]">/</span>
+            <span className="truncate max-w-[120px]">{job.company}</span>
+            <span className="text-[var(--text-t)] hidden sm:inline">/</span>
+            <span className="truncate max-w-[160px] hidden sm:inline text-[var(--text-t)]">{job.title}</span>
+          </nav>
+          <a href={job.applyUrl} target="_blank" rel="noreferrer" className="px-4 py-1.5 rounded-[var(--radius-sm)] text-sm font-semibold text-white bg-brand-500 hover:bg-brand-500 shadow-[var(--shadow-sm)] transition shrink-0">
             投递 →
           </a>
         </div>
@@ -89,14 +116,25 @@ export default function JobDetailClient({ job, jobs }: { job: Job | null; jobs: 
               <h1 className="text-xl font-extrabold tracking-tight text-[var(--text)]">{job.company}</h1>
               <h2 className="text-base text-brand-500 font-bold mt-1">{job.title}</h2>
             </div>
-            {match && match.score > 0 && (
-              <div className="text-center shrink-0">
-                <div className={`text-2xl font-bold ${match.score > 0.6 ? "text-brand-500" : match.score > 0.3 ? "text-amber-600" : "text-[var(--text-s)]"}`}>
-                  {Math.round(match.score * 100)}%
+            {match && match.score > 0 && (() => {
+              const pct = Math.round(match.score * 100);
+              const r = 48, c = 2 * Math.PI * r, offset = c * (1 - match.score);
+              const color = match.score > 0.6 ? "var(--primary, #5b4cff)" : match.score > 0.3 ? "#D97706" : "var(--text-t)";
+              return (
+                <div className="text-center shrink-0 w-[80px] h-[80px] relative">
+                  <svg viewBox="0 0 120 120" className="w-full h-full">
+                    <circle cx="60" cy="60" r={r} fill="none" stroke="rgba(0,0,0,.06)" strokeWidth="8" />
+                    <circle cx="60" cy="60" r={r} fill="none" stroke={color} strokeWidth="8"
+                      strokeLinecap="round" strokeDasharray={c} strokeDashoffset={offset}
+                      transform="rotate(-90 60 60)" className="transition-all duration-700" />
+                  </svg>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center">
+                    <span className="text-lg font-bold" style={{ color }}>{pct}%</span>
+                    <span className="text-[9px] text-[var(--text-t)]">匹配度</span>
+                  </div>
                 </div>
-                <div className="text-[10px] text-[var(--text-t)]">匹配度</div>
-              </div>
-            )}
+              );
+            })()}
           </div>
 
           <div className="flex flex-wrap gap-2 mt-4">
@@ -134,15 +172,45 @@ export default function JobDetailClient({ job, jobs }: { job: Job | null; jobs: 
         {/* Description */}
         {job.description && (
           <div className="card p-6">
-            <h3 className="text-sm font-bold text-[var(--text)] mb-3">岗位描述</h3>
-            <p className="text-sm text-[var(--text)] leading-relaxed whitespace-pre-line">{job.description}</p>
+            <h3 className="text-sm font-bold text-[var(--text)] mb-3 flex items-center gap-2">
+              <span className="w-[3px] h-[18px] rounded-full bg-brand-500" />岗位描述
+            </h3>
+            {(() => {
+              const sections = parseJD(job.description!);
+              if (sections.length <= 1 && sections[0]?.title === "") {
+                return <p className="text-sm text-[var(--text)] leading-relaxed whitespace-pre-line">{job.description}</p>;
+              }
+              return (
+                <div className="space-y-4">
+                  {sections.map((sec, i) => (
+                    <div key={i}>
+                      {sec.title && <h4 className="text-[13px] font-bold text-[var(--text)] mb-2">{sec.title}</h4>}
+                      {sec.items.length === 1 && !sec.title ? (
+                        <p className="text-sm text-[var(--text)] leading-relaxed">{sec.items[0]}</p>
+                      ) : (
+                        <ul className="space-y-1.5">
+                          {sec.items.map((item, j) => (
+                            <li key={j} className="flex items-start gap-2 text-sm text-[var(--text)] leading-relaxed">
+                              <span className="mt-[7px] w-[6px] h-[6px] rounded-full border-[1.5px] border-brand-500 shrink-0" />
+                              {item}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              );
+            })()}
           </div>
         )}
 
         {/* AI Analysis */}
         {job.aiTags && (
           <div className="card p-6 border-t-[3px] border-brand-500">
-            <h3 className="text-sm font-bold text-[var(--text)] mb-3">AI 分析</h3>
+            <h3 className="text-sm font-bold text-[var(--text)] mb-3 flex items-center gap-2">
+              <span className="w-[3px] h-[18px] rounded-full bg-brand-500" />AI 分析
+            </h3>
             <p className="text-sm text-[var(--text-s)] mb-3">{job.aiTags.summary}</p>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-3">
               <div><span className="text-[10px] text-[var(--text-t)] block">岗位方向</span><span className="text-sm font-medium">{job.aiTags.roleType}</span></div>
@@ -154,7 +222,7 @@ export default function JobDetailClient({ job, jobs }: { job: Job | null; jobs: 
               <span className="text-[10px] text-[var(--text-t)]">所需技能：</span>
               {job.aiTags.skills.map((s) => {
                 const userHas = prefs?.skills?.some((us) => us.toLowerCase() === s.toLowerCase()) || prefs?.resumeKeywords?.some((uk) => uk.toLowerCase() === s.toLowerCase());
-                return <span key={s} className={`text-[11px] px-2 py-0.5 rounded-full ${userHas ? "bg-brand-50 text-brand-500 font-medium" : "bg-[var(--surface)] text-[var(--text-t)]"}`}>{s}</span>;
+                return <span key={s} className={`text-[11px] px-2 py-0.5 rounded-full ${userHas ? "bg-brand-50 text-brand-500 font-medium border border-[rgba(91,76,255,.15)]" : "bg-[var(--surface)] text-[var(--text-t)]"}`}>{s}</span>;
               })}
             </div>
           </div>
@@ -194,7 +262,9 @@ export default function JobDetailClient({ job, jobs }: { job: Job | null; jobs: 
         {/* Interview questions result */}
         {interviewQ && (
           <div className="card p-6 space-y-3">
-            <h3 className="text-sm font-bold text-[var(--text)]">面试题（{interviewQ.length} 道）</h3>
+            <h3 className="text-sm font-bold text-[var(--text)] flex items-center gap-2">
+              <span className="w-[3px] h-[18px] rounded-full bg-brand-500" />面试题（{interviewQ.length} 道）
+            </h3>
             {interviewQ.map((q, i) => (
               <div key={i} className="p-3 rounded-[var(--radius-xs)] border border-[var(--border)]">
                 <div className="flex items-start gap-2">
@@ -218,7 +288,9 @@ export default function JobDetailClient({ job, jobs }: { job: Job | null; jobs: 
         {coverLetter && (
           <div className="card p-6 space-y-3">
             <div className="flex items-center justify-between">
-              <h3 className="text-sm font-bold text-[var(--text)]">求职信</h3>
+              <h3 className="text-sm font-bold text-[var(--text)] flex items-center gap-2">
+                <span className="w-[3px] h-[18px] rounded-full bg-brand-500" />求职信
+              </h3>
               <button onClick={() => navigator.clipboard.writeText(coverLetter.letter).then(() => alert("已复制"))} className="text-xs text-brand-500">复制</button>
             </div>
             <div className="p-4 rounded-[var(--radius-xs)] bg-[var(--surface-solid)] text-sm text-[var(--text)] whitespace-pre-line leading-relaxed">{coverLetter.letter}</div>
@@ -228,17 +300,22 @@ export default function JobDetailClient({ job, jobs }: { job: Job | null; jobs: 
         {/* Similar jobs */}
         {similar.length > 0 && (
           <div className="card p-6">
-            <h3 className="text-sm font-bold text-[var(--text)] mb-3">相关岗位</h3>
+            <h3 className="text-sm font-bold text-[var(--text)] mb-3 flex items-center gap-2">
+              <span className="w-[3px] h-[18px] rounded-full bg-[var(--green)]" />相关岗位
+            </h3>
             <div className="space-y-2">
-              {similar.map((j) => (
-                <a key={j.id} href={`/job/${j.id}`} className="flex items-center gap-3 p-2.5 rounded-[var(--radius-xs)] hover:bg-[rgba(91,76,255,.03)] transition">
-                  <div className="flex-1 min-w-0">
-                    <div className="text-sm font-medium text-[var(--text)]">{j.company} · {j.title}</div>
-                    <div className="text-xs text-[var(--text-s)] mt-0.5">{j.location[0]} · {j.jobType}</div>
-                  </div>
-                  <span className="text-xs text-[var(--text-t)]">→</span>
-                </a>
-              ))}
+              {similar.map((j) => {
+                const simMatch = Math.round((j.scores.aiMatch ?? 0) * 100);
+                return (
+                  <a key={j.id} href={`/job/${j.id}`} className="flex items-center gap-3 p-2.5 rounded-[var(--radius-xs)] hover:bg-[rgba(91,76,255,.03)] transition">
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-medium text-[var(--text)]">{j.company} · {j.title}</div>
+                      <div className="text-xs text-[var(--text-s)] mt-0.5">{j.location[0]} · {j.jobType}</div>
+                    </div>
+                    <span className="text-xs font-bold font-mono text-brand-500">{simMatch}%</span>
+                  </a>
+                );
+              })}
             </div>
           </div>
         )}
@@ -250,6 +327,15 @@ export default function JobDetailClient({ job, jobs }: { job: Job | null; jobs: 
           </a>
         </div>
       </main>
+
+      <footer className="border-t border-[var(--border)] mt-4">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 py-5 text-xs text-[var(--text-t)] text-center space-y-1">
+          <p>数据仅供参考，投递以官方页面为准</p>
+          <p>
+            <a href="https://github.com/Jackychen-12" target="_blank" rel="noreferrer" className="hover:text-[var(--text-s)] transition">Made by Jacky</a>
+          </p>
+        </div>
+      </footer>
     </div>
   );
 }

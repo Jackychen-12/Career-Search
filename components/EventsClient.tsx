@@ -114,6 +114,12 @@ export default function EventsClient({ events, articles = [] }: { events: Campus
       </header>
 
       <main className="max-w-5xl mx-auto px-4 sm:px-6 py-6 space-y-5">
+        {/* Hero */}
+        <div className="text-center py-3">
+          <h1 className="text-2xl font-extrabold tracking-tight text-[var(--text)]">校园活动</h1>
+          <p className="text-sm text-[var(--text-s)] mt-2">宣讲会、网申、笔试等校园招聘活动一站聚合</p>
+        </div>
+
         {/* Tabs */}
         <div className="flex gap-0.5 p-1 bg-[var(--surface)] backdrop-blur-[8px] rounded-full border border-[var(--border)] shadow-[var(--shadow-sm)] w-fit">
           <button onClick={() => { setTab("events"); setArticlePage(1); }} className={`px-4 py-1.5 rounded-full text-sm transition ${tab === "events" ? "bg-brand-500 text-white font-bold shadow-[var(--shadow-sm)]" : "text-[var(--text-s)] font-semibold hover:text-brand-500"}`}>
@@ -263,9 +269,9 @@ function EventCard({ event, isUpcoming }: { event: CampusEvent; isUpcoming?: boo
     <a href={event.url} target="_blank" rel="noreferrer" className="card p-0 overflow-hidden flex hover:border-[var(--glass-border)] hover:shadow-[var(--shadow-md)] transition block">
       <div className={`w-1 shrink-0 bg-gradient-to-b ${colors.bar}`} />
       <div className="flex items-center gap-4 px-4 py-3 flex-1 min-w-0">
-        <div className={`shrink-0 w-14 h-14 rounded-[var(--radius-xs)] flex flex-col items-center justify-center ${isUpcoming ? "bg-[var(--surface)]" : "bg-[var(--surface)]"}`}>
-          <span className={`text-lg font-bold font-mono ${isUpcoming ? "text-[var(--text)]" : "text-[var(--text-t)]"}`}>{event.date.slice(8, 10)}</span>
-          <span className="text-[10px] text-[var(--text-s)] font-mono">{event.date.slice(5, 7)}月</span>
+        {/* Company avatar */}
+        <div className={`shrink-0 w-12 h-12 rounded-[var(--radius-sm)] ${avatarColor(event.company)} flex items-center justify-center text-white text-lg font-bold`}>
+          {event.company.charAt(0)}
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
@@ -275,7 +281,6 @@ function EventCard({ event, isUpcoming }: { event: CampusEvent; isUpcoming?: boo
           </div>
           <div className="text-xs text-[var(--text-s)] mt-1 line-clamp-1">{event.title}</div>
           <div className="flex items-center gap-3 text-[11px] text-[var(--text-s)] mt-1 flex-wrap">
-            {event.time && <span className="font-mono">{event.time}</span>}
             {event.location && (
               <span className="truncate max-w-[160px] flex items-center gap-0.5">
                 <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" /></svg>
@@ -285,9 +290,12 @@ function EventCard({ event, isUpcoming }: { event: CampusEvent; isUpcoming?: boo
             <span className="bg-[rgba(0,0,0,.03)] text-[var(--text-s)] rounded-full px-1.5">· {event.source}</span>
           </div>
         </div>
-        <div className="shrink-0 flex flex-col items-end gap-1">
+        {/* Right: date/time column + urgency badge */}
+        <div className="shrink-0 flex flex-col items-end gap-1 text-right">
+          <span className="text-[12px] font-mono text-[var(--text-s)]">{event.date.slice(5).replace("-", "/")}</span>
+          {event.time && <span className="text-[11px] font-mono text-[var(--text-t)]">{event.time}</span>}
           {isUpcoming && days >= 0 && (
-            <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${
+            <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium mt-0.5 ${
               isUrgent
                 ? "bg-red-50 text-red-600 animate-pulse"
                 : days <= 7
@@ -297,7 +305,6 @@ function EventCard({ event, isUpcoming }: { event: CampusEvent; isUpcoming?: boo
               {days === 0 ? "今天" : days === 1 ? "明天" : `${days}天后`}
             </span>
           )}
-          <span className="text-[var(--text-t)] text-sm">→</span>
         </div>
       </div>
     </a>

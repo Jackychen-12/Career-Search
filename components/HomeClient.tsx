@@ -39,7 +39,7 @@ import type { Job, JobsMeta, Prefs } from "@/lib/types";
 
 type ViewMode = "list" | "calendar";
 
-const PAGE_SIZE = 12;
+const PAGE_SIZE = 18;
 
 const DEFAULT_FILTER: FilterState = {
   categories: ["互联网", "金融", "快消", "实体", "管培"],
