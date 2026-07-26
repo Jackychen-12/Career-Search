@@ -1,12 +1,12 @@
 {
-  "fetchedAt": "2026-07-25T23:32:33.428Z",
-  "count": 1111,
+  "fetchedAt": "2026-07-26T23:33:09.249Z",
+  "count": 1075,
   "sources": {
     "seed": 63,
     "greenhouse": 21,
     "lever": 0,
     "ashby": 3,
-    "repo": 876,
+    "repo": 843,
     "official:baidu": 200,
     "campus-api": 0,
     "nowcoder": 0,
