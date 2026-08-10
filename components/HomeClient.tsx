@@ -191,7 +191,7 @@ export default function HomeClient({
                   <p className="text-xs text-[var(--text-t)] mt-1">换个筛选试试</p>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 stagger-grid">
                   {result.items.map((j) => (
                     <JobCard
                       key={j.id}

@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useMemo } from "react";
 import { createPortal } from "react-dom";
+import { animate } from "framer-motion";
 import dynamic from "next/dynamic";
 import { loadTracking, saveTracking, removeTracking, type TrackingData, type TrackingEntry, type TrackingStatus } from "@/lib/tracker";
 import { loadInterviews, saveInterview, updateInterview, deleteInterview } from "@/lib/interviews";
@@ -40,6 +41,19 @@ const CATEGORY_HEX: Record<string, string> = {
 };
 
 const CHIP_KEYS: TrackingStatus[] = ["saved", "applied", "written", "interview", "hr", "offer", "rejected"];
+
+function AnimatedNum({ value }: { value: number }) {
+  const [display, setDisplay] = useState(0);
+  useEffect(() => {
+    const controls = animate(0, value, {
+      duration: 1.2,
+      ease: [0.16, 1, 0.3, 1],
+      onUpdate: (v) => setDisplay(Math.round(v)),
+    });
+    return () => controls.stop();
+  }, [value]);
+  return <>{display}</>;
+}
 
 interface UnifiedItem {
   id: string;
@@ -408,12 +422,12 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6 h-14 flex items-center gap-2.5">
           <a href="/" className="text-[13px] font-bold text-[var(--text)] hover:text-brand-500 transition shrink-0">← Career Search</a>
           <span className="text-[var(--text-t)]">·</span>
-          <div className="flex gap-0.5 p-[3px] bg-[rgba(0,0,0,0.04)] rounded-[var(--radius-xs)]">
+          <div className="flex gap-0.5 p-[3px] bg-[rgba(0,0,0,0.04)] rounded-full">
             {mainTabs.map((t) => (
               <button
                 key={t.key}
                 onClick={() => { setMainTab(t.key); setStatusFilter(null); setEditId(null); }}
-                className={`px-3.5 py-1 rounded-[6px] text-[13px] font-semibold transition flex items-center gap-1.5 ${mainTab === t.key ? "bg-[var(--surface-solid)] text-[var(--text)] shadow-[0_1px_3px_rgba(0,0,0,0.08)]" : "text-[var(--text-s)] hover:text-[var(--text)]"}`}
+                className={`px-3.5 py-1 rounded-full text-[13px] font-semibold transition-all flex items-center gap-1.5 ${mainTab === t.key ? "bg-[var(--surface-solid)] text-[var(--text)] shadow-[0_1px_3px_rgba(0,0,0,0.08)]" : "text-[var(--text-s)] hover:text-[var(--text)]"}`}
               >
                 {t.label}
                 {t.count !== undefined && t.count > 0 && <span className="text-[11px] text-[var(--text-t)] font-mono">{t.count}</span>}
@@ -431,10 +445,10 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
             {/* ── Unified Toolbar ── */}
             <div className="flex items-center gap-2.5 p-3 px-[18px] bg-[var(--surface)] backdrop-blur-[8px] [backdrop-filter:blur(8px)_saturate(180%)] [-webkit-backdrop-filter:blur(8px)_saturate(180%)] rounded-[var(--radius)] border border-[rgba(255,255,255,0.6)] shadow-[var(--shadow)] flex-wrap relative z-10">
               {/* View toggle */}
-              <div className="flex gap-0.5 p-[3px] bg-[rgba(0,0,0,0.04)] rounded-[var(--radius-xs)] shrink-0">
+              <div className="flex gap-0.5 p-[3px] bg-[rgba(0,0,0,0.04)] rounded-full shrink-0">
                 {(["table", "kanban"] as SubView[]).map((v) => (
                   <button key={v} onClick={() => { setSubView(v); setEditId(null); }}
-                    className={`px-3.5 py-1.5 rounded-[6px] text-[13px] font-semibold transition flex items-center gap-1 ${subView === v ? "bg-[var(--surface-solid)] text-[var(--text)] shadow-[0_1px_3px_rgba(0,0,0,0.08)]" : "text-[var(--text-s)] hover:text-[var(--text)]"}`}>
+                    className={`px-3.5 py-1.5 rounded-full text-[13px] font-semibold transition-all flex items-center gap-1 ${subView === v ? "bg-[var(--surface-solid)] text-[var(--text)] shadow-[0_1px_3px_rgba(0,0,0,0.08)]" : "text-[var(--text-s)] hover:text-[var(--text)]"}`}>
                     {v === "table" ? (
                       <><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="1" y="1" width="14" height="14" rx="2"/><path d="M1 5h14M1 9h14M5 1v14M10 1v14"/></svg> 表格</>
                     ) : (
@@ -622,7 +636,7 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
                 <span className="flex items-center gap-1.5 py-0.5">
                   <span className="w-2 h-2 rounded-full bg-[var(--text)]" />
                   <span className="text-[13px] text-[var(--text-s)] font-medium">总投递</span>
-                  <span className="text-[13px] font-bold text-[var(--text)] font-mono tabular-nums">{items.length}</span>
+                  <span className="text-[13px] font-bold text-[var(--text)] font-mono tabular-nums"><AnimatedNum value={items.length} /></span>
                 </span>
                 {CHIP_KEYS.map((key) => {
                   const cfg = STATUS_CONFIG[key];
@@ -637,7 +651,7 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
                     >
                       <span className="w-2 h-2 rounded-full" style={{ backgroundColor: cfg.hex }} />
                       <span className="text-[13px] text-[var(--text-s)] font-medium">{cfg.label}</span>
-                      <span className="text-[13px] font-bold text-[var(--text)] font-mono tabular-nums">{count}</span>
+                      <span className="text-[13px] font-bold text-[var(--text)] font-mono tabular-nums"><AnimatedNum value={count} /></span>
                     </button>
                   );
                 })}
@@ -1158,7 +1172,7 @@ export default function TrackingAndInterviewPage({ jobs }: { jobs: Job[] }) {
                 return (
                   <div key={f.stage} className="flex items-center gap-0">
                     <div className="text-center px-5 py-2.5 rounded-[var(--radius-xs)]" style={{ backgroundColor: bgColors[i] ?? "var(--primary-light)" }}>
-                      <div className="text-[22px] font-black font-mono text-[var(--text)]">{f.count}</div>
+                      <div className="text-[22px] font-black font-mono text-[var(--text)]"><AnimatedNum value={f.count} /></div>
                       <div className="text-[11px] font-semibold" style={{ color: colors[i] ?? "var(--primary)" }}>{f.stage}</div>
                     </div>
                     {i < arr.length - 1 && <span className="text-base text-[var(--text-t)] mx-1">&#10148;</span>}

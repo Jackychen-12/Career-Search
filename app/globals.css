@@ -3,13 +3,26 @@
 @tailwind utilities;
 
 @keyframes fadeSlideIn {
-  from { opacity: 0; transform: translateY(6px); }
+  from { opacity: 0; transform: translateY(12px); }
   to { opacity: 1; transform: none; }
 }
 
 .animate-fadeIn {
-  animation: fadeSlideIn 0.25s ease-out both;
+  animation: fadeSlideIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
+
+.stagger-grid > * {
+  animation: fadeSlideIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.stagger-grid > *:nth-child(1) { animation-delay: 0ms; }
+.stagger-grid > *:nth-child(2) { animation-delay: 40ms; }
+.stagger-grid > *:nth-child(3) { animation-delay: 80ms; }
+.stagger-grid > *:nth-child(4) { animation-delay: 120ms; }
+.stagger-grid > *:nth-child(5) { animation-delay: 160ms; }
+.stagger-grid > *:nth-child(6) { animation-delay: 200ms; }
+.stagger-grid > *:nth-child(7) { animation-delay: 240ms; }
+.stagger-grid > *:nth-child(8) { animation-delay: 280ms; }
+.stagger-grid > *:nth-child(9) { animation-delay: 320ms; }
 
 :root {
   --bg: #FBF8F4;
@@ -37,13 +50,14 @@
   --violet-light: rgba(139, 92, 246, 0.10);
   --rose: #F43F5E;
   --rose-light: rgba(244, 63, 94, 0.10);
-  --radius: 16px;
+  --radius: 20px;
   --radius-sm: 12px;
-  --radius-xs: 8px;
-  --shadow: 0 4px 24px rgba(91, 76, 255, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04);
-  --shadow-hover: 0 12px 48px rgba(91, 76, 255, 0.14), 0 4px 16px rgba(91, 76, 255, 0.08);
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06), 0 2px 8px rgba(91, 76, 255, 0.04);
-  --shadow-md: 0 4px 16px rgba(91, 76, 255, 0.08);
+  --radius-xs: 10px;
+  --shadow: 0 4px 20px -4px rgba(91, 76, 255, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03);
+  --shadow-hover: 0 8px 32px -4px rgba(91, 76, 255, 0.12), 0 4px 12px rgba(91, 76, 255, 0.06);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05), 0 2px 8px rgba(91, 76, 255, 0.03);
+  --shadow-md: 0 4px 16px rgba(91, 76, 255, 0.06);
+  --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.12), 0 8px 24px rgba(91, 76, 255, 0.08);
   --glass-border: 1px solid rgba(255, 255, 255, 0.6);
   --mono: 'SF Mono', 'Roboto Mono', 'Fira Code', monospace;
   --cat-internet: #5b4cff;
@@ -65,14 +79,22 @@ html, body {
   color: var(--text);
   font-family: 'Inter', system-ui, -apple-system, 'PingFang SC', 'Segoe UI', 'Microsoft YaHei', sans-serif;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   min-height: 100vh;
   font-size: 14px;
   line-height: 1.6;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 * {
   box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
 }
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(120, 120, 120, 0.15); border-radius: 9999px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(120, 120, 120, 0.3); }
 
 .card {
   background: var(--surface);
@@ -81,7 +103,7 @@ html, body {
   border: var(--glass-border);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
-  transition: box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1), transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.2s ease;
+  transition: box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1), transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.2s ease, background-color 0.3s ease;
 }
 
 .card:hover {
@@ -97,7 +119,7 @@ html, body {
   border: var(--glass-border);
   border-radius: var(--radius-sm);
   box-shadow: var(--shadow-sm);
-  transition: box-shadow 0.2s ease, transform 0.15s ease;
+  transition: box-shadow 0.2s ease, transform 0.15s ease, background-color 0.3s ease, border-color 0.3s ease;
 }
 
 .stat-card:hover {
@@ -113,6 +135,10 @@ input:focus, select:focus, textarea:focus {
 
 button:active:not(:disabled) {
   transform: scale(0.97);
+}
+
+button:hover:not(:disabled) {
+  transition: transform 0.15s ease, color 0.15s ease, background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 a {
@@ -141,10 +167,11 @@ a {
   --border: rgba(255, 255, 255, 0.06);
   --border-s: rgba(255, 255, 255, 0.10);
   --primary-light: rgba(91, 76, 255, 0.15);
-  --shadow: 0 4px 24px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.2);
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.25), 0 4px 12px rgba(0, 0, 0, 0.15);
-  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.35);
-  --shadow-hover: 0 12px 48px rgba(0, 0, 0, 0.4), 0 4px 16px rgba(91, 76, 255, 0.2);
+  --shadow: 0 4px 20px -4px rgba(0, 0, 0, 0.25), 0 1px 2px rgba(0, 0, 0, 0.15);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.2), 0 4px 12px rgba(0, 0, 0, 0.12);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.3);
+  --shadow-hover: 0 8px 32px -4px rgba(0, 0, 0, 0.35), 0 4px 16px rgba(91, 76, 255, 0.15);
+  --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(91, 76, 255, 0.12);
   --glass-border: 1px solid rgba(255, 255, 255, 0.08);
   --coral-light: rgba(255, 107, 74, 0.15);
   --green-light: rgba(16, 185, 129, 0.15);
@@ -222,12 +249,22 @@ a {
 
 /* Mobile */
 @media (max-width: 640px) {
-  :root { --radius: 12px; --radius-sm: 10px; }
+  :root { --radius: 14px; --radius-sm: 10px; }
   .card:hover { transform: none; }
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
 }
 
 /* Selection color */
 ::selection {
   background: rgba(91, 76, 255, 0.15);
   color: inherit;
+}
+
+/* Typography refinements */
+h1, h2, h3, h4, h5, h6 {
+  letter-spacing: -0.01em;
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
 }

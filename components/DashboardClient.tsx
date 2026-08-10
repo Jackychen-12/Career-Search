@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { animate } from "framer-motion";
 import { type TrackingData } from "@/lib/tracker";
 import { type InterviewRecord } from "@/lib/interviews";
 import { computeDashboardStats, type DashboardStats } from "@/lib/dashboardStats";
@@ -13,11 +14,28 @@ interface Props {
   interviews: InterviewRecord[];
 }
 
+function AnimatedNum({ value }: { value: number }) {
+  const [display, setDisplay] = useState(0);
+  useEffect(() => {
+    const controls = animate(0, value, {
+      duration: 1.2,
+      ease: [0.16, 1, 0.3, 1],
+      onUpdate: (v) => setDisplay(Math.round(v)),
+    });
+    return () => controls.stop();
+  }, [value]);
+  return <>{display}</>;
+}
+
 function StatCard({ label, value, sub, color }: { label: string; value: string | number; sub?: string; color: string }) {
+  const numericValue = typeof value === "number" ? value : parseInt(value, 10);
+  const isAnimatable = !isNaN(numericValue) && typeof value === "number";
   return (
     <div className="stat-card p-4 flex flex-col gap-1">
       <div className="text-[11px] font-medium text-[var(--text-s)] uppercase tracking-wide">{label}</div>
-      <div className={`text-2xl font-bold font-mono tabular-nums ${color}`}>{value}</div>
+      <div className={`text-2xl font-bold font-mono tabular-nums ${color}`}>
+        {isAnimatable ? <AnimatedNum value={numericValue} /> : value}
+      </div>
       {sub && <div className="text-[11px] text-[var(--text-t)]">{sub}</div>}
     </div>
   );
@@ -45,7 +63,7 @@ export function DashboardClient({ tracking, interviews }: Props) {
 
   return (
     <div className="space-y-5">
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 stagger-grid">
         <StatCard label="总投递" value={total} color="text-[var(--text)]" />
         <StatCard
           label="面试中"
