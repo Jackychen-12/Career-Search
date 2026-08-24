@@ -1,6 +1,6 @@
 {
-  "fetchedAt": "2026-08-24T02:08:42.590Z",
-  "count": 917,
+  "fetchedAt": "2026-08-24T03:33:55.066Z",
+  "count": 1707,
   "sources": {
     "seed": 63,
     "greenhouse": 36,
@@ -8,9 +8,17 @@
     "ashby": 5,
     "repo": 655,
     "official:baidu": 200,
+    "official:tencent": 843,
     "campus-api": 0,
     "nowcoder": 0,
     "shixiseng": 0
   },
-  "errors": {}
+  "errors": {
+    "lever": "返回 0 条（接口可能已失效）",
+    "campus-api": "均未拿到数据: 美团、阿里",
+    "nowcoder": "返回 0 条（接口可能已失效）",
+    "shixiseng": "返回 0 条（接口可能已失效）",
+    "events": "返回 0 条，保留上一次的 events.json",
+    "articles": "返回 0 条，保留上一次的 articles.json"
+  }
 }
