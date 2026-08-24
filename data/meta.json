@@ -1,6 +1,6 @@
 {
-  "fetchedAt": "2026-08-24T04:29:55.073Z",
-  "count": 1708,
+  "fetchedAt": "2026-08-24T04:40:57.671Z",
+  "count": 1709,
   "sources": {
     "seed": 63,
     "greenhouse": 36,
@@ -17,8 +17,6 @@
     "lever": "返回 0 条（接口可能已失效）",
     "campus-api": "均未拿到数据: 美团、阿里",
     "nowcoder": "返回 0 条（接口可能已失效）",
-    "shixiseng": "返回 0 条（接口可能已失效）",
-    "events": "返回 0 条，保留上一次的 events.json",
-    "articles": "返回 0 条，保留上一次的 articles.json"
+    "shixiseng": "返回 0 条（接口可能已失效）"
   }
 }
