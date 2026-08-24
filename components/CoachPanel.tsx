@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { fetchCoachAdvice, type CoachAdviceResult } from "@/lib/skills";
+import { readJson, writeJson } from "@/lib/safeStorage";
 
 interface CoachPanelProps {
   trackingSummary: string;
@@ -38,15 +39,12 @@ export default function CoachPanel({ trackingSummary, interviewSummary, profileS
   const [collapsed, setCollapsed] = useState(false);
 
   useEffect(() => {
-    const cached = localStorage.getItem(CACHE_KEY);
-    if (cached) {
-      try {
-        const { data: d, ts } = JSON.parse(cached);
-        if (Date.now() - ts < CACHE_TTL) {
-          setData(d);
-          return;
-        }
-      } catch {}
+    // The getItem used to sit outside the try, so Safari private mode threw
+    // here and took the whole panel down on mount.
+    const cached = readJson<{ data?: CoachAdviceResult; ts?: number } | null>(CACHE_KEY, null);
+    if (cached?.data && typeof cached.ts === "number" && Date.now() - cached.ts < CACHE_TTL) {
+      setData(cached.data);
+      return;
     }
     if (profileSummary || trackingSummary) fetchCoach();
   }, []);
@@ -63,7 +61,7 @@ export default function CoachPanel({ trackingSummary, interviewSummary, profileS
         today: new Date().toISOString().slice(0, 10),
       });
       setData(result);
-      localStorage.setItem(CACHE_KEY, JSON.stringify({ data: result, ts: Date.now() }));
+      writeJson(CACHE_KEY, { data: result, ts: Date.now() });
     } catch (e) {
       setError((e as Error).message || "AI Coach 暂时不可用");
     } finally {

@@ -1,3 +1,4 @@
+import { readJson, writeJson } from "./safeStorage";
 import { supabase } from "./supabase";
 
 export type TrackingStatus = "saved" | "applied" | "written" | "interview" | "hr" | "offer" | "rejected" | "withdrawn";
@@ -20,17 +21,11 @@ export type TrackingData = Record<string, TrackingEntry>;
 const CACHE_KEY = "career-search:tracking";
 
 function getCache(): TrackingData {
-  if (typeof window === "undefined") return {};
-  try {
-    const raw = localStorage.getItem(CACHE_KEY);
-    return raw ? JSON.parse(raw) : {};
-  } catch { return {}; }
+  return readJson<TrackingData>(CACHE_KEY, {});
 }
 
 function setCache(data: TrackingData) {
-  if (typeof window !== "undefined") {
-    localStorage.setItem(CACHE_KEY, JSON.stringify(data));
-  }
+  writeJson(CACHE_KEY, data);
 }
 
 export async function loadTracking(): Promise<TrackingData> {

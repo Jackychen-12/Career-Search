@@ -5,6 +5,12 @@ const WORKER_URL =
     ? "/ai"
     : process.env.NEXT_PUBLIC_WORKER_URL || "https://career-search-oauth.keyu-chen.workers.dev";
 
+/**
+ * The DeepSeek-backed endpoints routinely take 20-40s to generate. Give them
+ * room, but never let a stalled mobile connection spin the button forever.
+ */
+const SKILL_TIMEOUT_MS = 90_000;
+
 async function getAuthHeader(): Promise<Record<string, string>> {
   const { data } = await supabase.auth.getSession();
   const token = data.session?.access_token;
@@ -14,11 +20,26 @@ async function getAuthHeader(): Promise<Record<string, string>> {
 
 async function callSkill<T>(path: string, body: Record<string, unknown>): Promise<T> {
   const auth = await getAuthHeader();
-  const res = await fetch(`${WORKER_URL}${path}`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", ...auth },
-    body: JSON.stringify(body),
-  });
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), SKILL_TIMEOUT_MS);
+
+  let res: Response;
+  try {
+    res = await fetch(`${WORKER_URL}${path}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", ...auth },
+      body: JSON.stringify(body),
+      signal: controller.signal,
+    });
+  } catch (e) {
+    if ((e as Error).name === "AbortError") {
+      throw new Error("AI 生成超时（超过 90 秒），请检查网络后重试。");
+    }
+    throw new Error("网络请求失败，请检查网络后重试。");
+  } finally {
+    clearTimeout(timer);
+  }
+
   if (!res.ok) {
     const err = await res.json().catch(() => ({})) as { error?: string };
     throw new Error(err.error ?? `请求失败 (${res.status})`);

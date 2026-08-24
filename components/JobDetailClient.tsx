@@ -42,6 +42,7 @@ export default function JobDetailClient({ job, jobs }: { job: Job | null; jobs: 
   const [loading, setLoading] = useState<string | null>(null);
   const [interviewQ, setInterviewQ] = useState<InterviewQuestion[] | null>(null);
   const [coverLetter, setCoverLetter] = useState<CoverLetterResult | null>(null);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     const p = loadPrefs();
@@ -72,20 +73,28 @@ export default function JobDetailClient({ job, jobs }: { job: Job | null; jobs: 
   async function genInterview() {
     if (!prefs) return;
     setLoading("interview");
+    setError("");
     try {
       const r = await generateInterview(profileToText(prefs), `${job!.company} - ${job!.title}\n${job!.description ?? ""}\n技能: ${job!.aiTags?.skills.join(", ") ?? ""}`);
       setInterviewQ(r.questions);
-    } catch {}
+    } catch (e) {
+      // Used to be a bare `catch {}` — the spinner stopped and nothing appeared,
+      // so a failure was indistinguishable from the feature not working at all.
+      setError((e as Error).message);
+    }
     setLoading(null);
   }
 
   async function genLetter() {
     if (!prefs) return;
     setLoading("letter");
+    setError("");
     try {
       const r = await generateCoverLetter(profileToText(prefs), `${job!.company} - ${job!.title}\n${job!.description ?? ""}`);
       setCoverLetter(r);
-    } catch {}
+    } catch (e) {
+      setError((e as Error).message);
+    }
     setLoading(null);
   }
 
@@ -256,6 +265,13 @@ export default function JobDetailClient({ job, jobs }: { job: Job | null; jobs: 
               <div className="text-sm font-semibold text-[var(--text)]">{loading === "letter" ? "生成中..." : "生成求职信"}</div>
               <div className="text-[11px] text-[var(--text-s)] mt-0.5">针对这个岗位的定制求职信</div>
             </button>
+          </div>
+        )}
+
+        {error && (
+          <div className="p-3 rounded-[var(--radius-xs)] bg-red-50 text-sm text-red-600 flex items-start justify-between gap-3">
+            <span>{error}</span>
+            <button onClick={() => setError("")} className="text-red-400 shrink-0" aria-label="关闭提示">✕</button>
           </div>
         )}
 

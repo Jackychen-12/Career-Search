@@ -6,6 +6,7 @@ import { supabase } from "@/lib/supabase";
 import { signInWithGitHub, sendOtpCode, verifyOtpCode, signOut, getUser, type GhUser } from "@/lib/auth";
 import { hasPrefs } from "@/lib/ranking";
 import { loadPrefs, loadPrefsFromCloud, savePrefs } from "@/lib/prefs";
+import { readString, writeString } from "@/lib/safeStorage";
 
 function NotifyBell() {
   const [open, setOpen] = useState(false);
@@ -73,7 +74,7 @@ function ThemeToggle() {
   const [dark, setDark] = useState(false);
 
   useEffect(() => {
-    const saved = localStorage.getItem("theme");
+    const saved = readString("theme");
     if (saved === "dark" || (!saved && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
       setDark(true);
       document.documentElement.setAttribute("data-theme", "dark");
@@ -84,7 +85,7 @@ function ThemeToggle() {
     const next = !dark;
     setDark(next);
     document.documentElement.setAttribute("data-theme", next ? "dark" : "light");
-    localStorage.setItem("theme", next ? "dark" : "light");
+    writeString("theme", next ? "dark" : "light");
   }
 
   return (

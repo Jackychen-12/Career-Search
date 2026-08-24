@@ -1,3 +1,4 @@
+import { readJson, writeJson } from "./safeStorage";
 import { supabase } from "./supabase";
 
 export interface InterviewRound {
@@ -41,19 +42,11 @@ function generateId(): string {
 }
 
 function getCache(): InterviewRecord[] {
-  if (typeof window === "undefined") return [];
-  try {
-    const raw = localStorage.getItem(CACHE_KEY);
-    return raw ? JSON.parse(raw) : [];
-  } catch {
-    return [];
-  }
+  return readJson<InterviewRecord[]>(CACHE_KEY, []);
 }
 
 function setCache(data: InterviewRecord[]) {
-  if (typeof window !== "undefined") {
-    localStorage.setItem(CACHE_KEY, JSON.stringify(data));
-  }
+  writeJson(CACHE_KEY, data);
 }
 
 export async function loadInterviews(): Promise<InterviewRecord[]> {
