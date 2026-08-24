@@ -20,7 +20,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
 
       - name: Install tsx globally (survives npm ci crash)
@@ -34,16 +34,18 @@ jobs:
           DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
         run: tsx scripts/crawl.ts
         continue-on-error: true
-        timeout-minutes: 10
+        # Tagging is incremental (persist.ts reuses prior tags), so a warm run is
+        # seconds; 25min only matters on a cold cache when every job is new.
+        timeout-minutes: 25
 
       - name: Retry crawl on failure
         if: failure()
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
-        run: tsx scripts/crawl.ts -- --only=seed,greenhouse,repo
+        run: tsx scripts/crawl.ts -- --only=seed,greenhouse,repo,baidu,tencent
         continue-on-error: true
-        timeout-minutes: 8
+        timeout-minutes: 20
 
       - name: Crawl summary
         if: always()
