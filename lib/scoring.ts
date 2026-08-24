@@ -177,6 +177,17 @@ export function scoreJob(n: NormalizedJob, firstSeen: string, now: Date): JobSco
 }
 
 /**
+ * Which jobType keeps the bare id when one role is posted under several
+ * recruitment tracks. Fixed order so ids stay stable across runs.
+ */
+const JOB_TYPE_PRIORITY: JobType[] = ["秋招", "校招", "暑期实习", "日常实习"];
+
+function jobTypeRank(t: JobType): number {
+  const i = JOB_TYPE_PRIORITY.indexOf(t);
+  return i === -1 ? JOB_TYPE_PRIORITY.length : i;
+}
+
+/**
  * Pure pipeline tail: normalize -> dedupe/merge -> drop expired -> attach
  * firstSeen (from previous snapshot when available) -> score -> sort.
  * Used by the crawler (with a prev-snapshot map) and by the dev/empty fallback.
@@ -187,19 +198,43 @@ export function finalizeJobs(
   now: Date = new Date(),
 ): Job[] {
   const nowIso = now.toISOString();
-  const byId = new Map<string, NormalizedJob>();
+
+  // computeId keys on company + title + first city, so the same role posted for
+  // both 秋招 and 实习 collides and one used to silently swallow the other — on
+  // 腾讯校招 alone that lost 235 real postings, most of them 秋招. Group by
+  // (id, jobType) so those stay separate, but only hand out a suffixed id when a
+  // collision actually happens: every job whose id is unique keeps the exact id
+  // it has today, so saved applications and shared links don't break.
+  const groups = new Map<string, Map<JobType, NormalizedJob>>();
 
   for (const raw of raws) {
     if (!raw.company?.trim() || !raw.title?.trim() || !raw.applyUrl) continue;
     const n = normalizeRaw(raw);
-    const prev = byId.get(n.id);
-    if (!prev) byId.set(n.id, n);
-    else byId.set(n.id, richness(n) >= richness(prev) ? merge(n, prev) : merge(prev, n));
+    let byType = groups.get(n.id);
+    if (!byType) {
+      byType = new Map();
+      groups.set(n.id, byType);
+    }
+    const prev = byType.get(n.jobType);
+    if (!prev) byType.set(n.jobType, n);
+    else byType.set(n.jobType, richness(n) >= richness(prev) ? merge(n, prev) : merge(prev, n));
+  }
+
+  const resolved: NormalizedJob[] = [];
+  for (const [baseId, byType] of groups) {
+    if (byType.size === 1) {
+      resolved.push(byType.values().next().value as NormalizedJob);
+      continue;
+    }
+    const ranked = [...byType.values()].sort((a, b) => jobTypeRank(a.jobType) - jobTypeRank(b.jobType));
+    ranked.forEach((n, i) => {
+      resolved.push(i === 0 ? n : { ...n, id: `${baseId}${hash(n.jobType)}` });
+    });
   }
 
   const today0 = startOfDay(now);
   const jobs: Job[] = [];
-  for (const n of byId.values()) {
+  for (const n of resolved) {
     if (n.deadline) {
       const d = new Date(n.deadline);
       if (!Number.isNaN(d.getTime()) && startOfDay(d) < today0) continue; // expired

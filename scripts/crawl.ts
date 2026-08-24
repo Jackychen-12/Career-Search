@@ -26,6 +26,7 @@ import { bytedance } from "./sources/official/bytedance";
 // import { xiaohongshu } from "./sources/official/xiaohongshu";
 import { meituan } from "./sources/official/meituan";
 import { baidu } from "./sources/official/baidu";
+import { tencent } from "./sources/official/tencent";
 import { openSourceRepos } from "./sources/opensourceRepo";
 import { seed } from "./sources/seed";
 import { shixiseng } from "./sources/shixiseng";
@@ -37,7 +38,7 @@ function selectAdapters(only: string[]): SourceAdapter[] {
   if (SOURCES_CONFIG.ats) universe.push(greenhouse, lever, ashby);
   if (SOURCES_CONFIG.openSourceRepos) universe.push(openSourceRepos);
   // bytedance & meituan official APIs are down; campusApis covers fallbacks
-  if (SOURCES_CONFIG.official) universe.push(baidu, campusApis);
+  if (SOURCES_CONFIG.official) universe.push(baidu, tencent, campusApis);
   universe.push(nowcoder);
   universe.push(shixiseng);
 
@@ -83,23 +84,43 @@ export async function runCrawl(only: string[] = []): Promise<CrawlResult> {
     if (r.status === "fulfilled") {
       sources[r.value.id] = r.value.items.length;
       all.push(...r.value.items);
+      // A source that succeeds but yields nothing is broken too — record it so
+      // meta.errors reflects reality and the status banner can surface it.
+      // Without this, four dead sources sat at 0 for weeks unnoticed.
+      if (r.value.items.length === 0) {
+        errors[r.value.id] = "返回 0 条（接口可能已失效）";
+      }
     } else {
       sources[a.id] = 0;
       errors[a.id] = String(r.reason?.message ?? r.reason).slice(0, 200);
     }
   });
 
-  const { count, path: outPath } = await buildAndWrite(all, sources, errors);
-
-  // Fetch campus events + wechat articles (best-effort)
+  // Fetch campus events + wechat articles (best-effort), before buildAndWrite so
+  // any failure here still lands in the meta.json it produces.
+  // Only overwrite on a non-empty result: 搜狗 rate-limits often, and blindly
+  // writing an empty array wipes the /events page until the next good run.
   try {
     const { events, articles } = await fetchAllEvents();
     fs.mkdirSync(DATA_DIR, { recursive: true });
-    fs.writeFileSync(path.join(DATA_DIR, "events.json"), JSON.stringify(events, null, 2) + "\n", "utf8");
-    fs.writeFileSync(path.join(DATA_DIR, "articles.json"), JSON.stringify(articles, null, 2) + "\n", "utf8");
+    if (events.length > 0) {
+      fs.writeFileSync(path.join(DATA_DIR, "events.json"), JSON.stringify(events, null, 2) + "\n", "utf8");
+    } else {
+      errors["events"] = "返回 0 条，保留上一次的 events.json";
+      console.warn("[events] 0 条，保留旧数据");
+    }
+    if (articles.length > 0) {
+      fs.writeFileSync(path.join(DATA_DIR, "articles.json"), JSON.stringify(articles, null, 2) + "\n", "utf8");
+    } else {
+      errors["articles"] = "返回 0 条，保留上一次的 articles.json";
+      console.warn("[articles] 0 条，保留旧数据");
+    }
   } catch (e) {
+    errors["events"] = (e as Error).message.slice(0, 200);
     console.warn(`[events] Failed: ${(e as Error).message}`);
   }
+
+  const { count, path: outPath } = await buildAndWrite(all, sources, errors);
 
   return { total: all.length, written: count, sources, errors, path: outPath };
 }
