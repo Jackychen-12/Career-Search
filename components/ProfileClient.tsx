@@ -46,8 +46,9 @@ export default function ProfileClient({ jobs }: { jobs: Job[] }) {
   async function handleFileUpload(file: File) {
     setLoading(true);
     setError("");
+    let text = "";
     try {
-      const text = await extractPdfText(file);
+      text = await extractPdfText(file);
       setResumeText(text);
       const result = await parseResumeWithAI(text);
       setAiResult(result);
@@ -75,8 +76,14 @@ export default function ProfileClient({ jobs }: { jobs: Job[] }) {
       setStep(2);
     } catch (e) {
       setError((e as Error).message);
-      const keywords = extractKeywordsLocal(resumeText || "");
-      if (keywords.length > 0) setDraft({ ...draft, skills: keywords.slice(0, 10), resumeKeywords: keywords });
+      // The PDF may have read fine and only the AI call failed — fall back to
+      // local keyword extraction on the text we actually got and let the user
+      // continue instead of dead-ending on step 1.
+      const keywords = extractKeywordsLocal(text);
+      if (keywords.length > 0) {
+        setDraft({ ...draft, skills: keywords.slice(0, 10), resumeKeywords: keywords });
+        setStep(2);
+      }
     }
     setLoading(false);
   }
@@ -181,7 +188,7 @@ export default function ProfileClient({ jobs }: { jobs: Job[] }) {
               className="card p-10 text-center cursor-pointer hover:border-brand-400 transition border-2 border-dashed border-[var(--border-s)]"
               onClick={() => fileRef.current?.click()}
             >
-              <input ref={fileRef} type="file" accept=".pdf" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFileUpload(f); }} />
+              <input ref={fileRef} type="file" accept="application/pdf,.pdf" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFileUpload(f); e.target.value = ""; }} />
               {loading ? (
                 <div className="text-brand-500 font-medium">AI 解析中...</div>
               ) : (

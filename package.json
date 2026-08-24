@@ -4,8 +4,9 @@
   "private": true,
   "description": "Career-Search — 暑期实习 + 秋招信息聚合平台（纯静态 / 零成本 / Fork 即用）",
   "scripts": {
+    "predev": "node scripts/prepare-pdfjs.mjs",
     "dev": "next dev",
-    "prebuild": "cp node_modules/pdfjs-dist/build/pdf.worker.min.mjs public/pdf.worker.min.mjs",
+    "prebuild": "node scripts/prepare-pdfjs.mjs",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",

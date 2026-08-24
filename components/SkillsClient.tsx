@@ -450,10 +450,8 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
   }
 
   async function handleResumeUpload(file: File) {
-    if (!file.name.toLowerCase().endsWith(".pdf")) {
-      setError("暂只支持 PDF 格式简历");
-      return;
-    }
+    // Validation lives in extractPdfText — an extension-only check here rejects
+    // valid PDFs that mobile pickers hand over without a filename suffix.
     setResumeUploading(true);
     setError("");
     try {
@@ -693,7 +691,7 @@ export default function SkillsClient({ jobs }: { jobs: Job[] }) {
                   <div className="space-y-3">
                     <label className="text-xs text-[var(--text-s)] block">你的经历（每段经历一张卡片）</label>
                     <label className={`flex items-center justify-center gap-2 py-3 rounded-[var(--radius-xs)] border border-dashed cursor-pointer transition ${resumeUploading ? "border-brand-400 bg-brand-50" : "border-[var(--border-s)] hover:border-brand-400 hover:bg-brand-50/50"}`}>
-                      <input type="file" accept=".pdf" className="hidden" disabled={resumeUploading}
+                      <input type="file" accept="application/pdf,.pdf" className="hidden" disabled={resumeUploading}
                         onChange={(e) => { const f = e.target.files?.[0]; if (f) handleResumeUpload(f); e.target.value = ""; }} />
                       {resumeUploading ? (
                         <>

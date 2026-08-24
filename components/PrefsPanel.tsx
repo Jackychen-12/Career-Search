@@ -56,7 +56,7 @@ export default function PrefsPanel({
       setResumeText(text);
       await handleAIParse(text);
     } catch (e) {
-      setError(`PDF 读取失败: ${(e as Error).message}`);
+      setError((e as Error).message);
       setLoading(false);
     }
   }
@@ -185,9 +185,9 @@ export default function PrefsPanel({
               <input
                 ref={fileRef}
                 type="file"
-                accept=".pdf"
+                accept="application/pdf,.pdf"
                 className="hidden"
-                onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFileUpload(f); }}
+                onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFileUpload(f); e.target.value = ""; }}
               />
               {loading ? (
                 <div className="text-sm text-brand-500">解析中...</div>
