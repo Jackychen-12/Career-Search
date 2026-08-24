@@ -2,7 +2,9 @@ name = "career-search-oauth"
 main = "index.ts"
 compatibility_date = "2024-09-01"
 
-# Set these via `wrangler secret put`:
-#   GITHUB_CLIENT_ID
-#   GITHUB_CLIENT_SECRET
-#   ALLOWED_ORIGIN (e.g. https://keyuchen-del.github.io)
+# Secrets this Worker actually reads (see env fields in index.ts).
+# Set them with `wrangler secret put NAME`, or run scripts/deploy-worker.mjs:
+#   DEEPSEEK_API_KEY   - powers all AI skills + resume/interview parsing
+#   SUPABASE_URL       - used to verify the caller's Supabase JWT
+#   SUPABASE_ANON_KEY  - apikey for that verification call
+# Without SUPABASE_URL/ANON_KEY every request is rejected as 401 未登录.

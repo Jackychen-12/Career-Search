@@ -219,10 +219,26 @@ NEXT_PUBLIC_WORKER_URL=your_worker_url    # 可选，默认用公共端点
 npm run crawl          # 抓取岗位 + AI 标签
 npm run crawl:boss     # Boss 直聘手动爬（打开 Chrome）
 npm run dev            # http://localhost:3000
-npm test               # 27 个单元测试
+npm test               # 单元测试
 ```
 
 Supabase 设置：进入 Authentication → Settings，开启 **Enable Email Signup**，按需关闭 Confirm Email。
+
+### AI 后端（CF Worker）密钥更新
+
+站内所有 AI 功能（简历解析 / 面试题 / 求职信 / JD 匹配 / 教练）都由 `worker/` 里的 Cloudflare Worker 调 DeepSeek 实现。它的 `DEEPSEEK_API_KEY` 存在 Cloudflare secret 里，**只能在本机、且已 `wrangler login` 的前提下更新**（CI 和沙盒都做不了）。
+
+换 key 时用带校验的一键脚本，不要手敲 `wrangler secret put`：
+
+```bash
+npx wrangler login                          # 首次或登录态过期时
+export DEEPSEEK_API_KEY=sk-...              # 从环境变量读，绝不写进仓库
+node scripts/deploy-worker.mjs              # 校验 key → 灌 secret → 部署 → 健康检查
+```
+
+脚本会先拿 key 打一次 DeepSeek，坏 key 直接拒绝、不会推上去；未登录会明确提示。带上 `SUPABASE_TEST_JWT=eyJ...`（浏览器登录后从 DevTools 取）可多跑一次真实简历解析做端到端确认。
+
+> GitHub Actions 侧的 `DEEPSEEK_API_KEY` 是**另一个** secret，供每日爬虫离线打标用，与 Worker 各自独立、互不影响。
 
 ---
 
