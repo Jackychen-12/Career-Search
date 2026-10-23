@@ -1,14 +1,14 @@
 {
-  "fetchedAt": "2026-10-22T00:53:24.475Z",
-  "count": 2061,
+  "fetchedAt": "2026-10-23T00:52:59.468Z",
+  "count": 2193,
   "sources": {
     "seed": 63,
-    "greenhouse": 115,
+    "greenhouse": 116,
     "lever": 0,
     "ashby": 10,
-    "repo": 891,
+    "repo": 1025,
     "official:baidu": 200,
-    "official:tencent": 904,
+    "official:tencent": 905,
     "campus-api": 0,
     "nowcoder": 0,
     "shixiseng": 0
